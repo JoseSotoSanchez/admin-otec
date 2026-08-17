@@ -1,0 +1,192 @@
+{% extends "administracion/base_site.html" %}
+{% block title %}Ingresar Pedido{% endblock title %}
+
+{% block content %}
+{% include "administracion/pedidos/pedidos_principal.html" with title="Pedidos" actions_bar="administracion/actions_bar/pedidos.html"  %}
+
+{% endblock content %}
+{% block javascripts %}
+{{ block.super }}
+<script>
+    let totalAcumulado = 0;
+    document.querySelectorAll('.producto-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const codigoBarra = this.dataset.codigoBarra;
+            const producto = this.dataset.producto;
+            const valorNeto = this.dataset.valorNeto;
+            
+            if (this.checked) {
+                agregarProductoAFactura(codigoBarra, producto, valorNeto);
+            } else {
+                eliminarProductoDeFactura(codigoBarra);
+            }
+        });
+    });
+
+    let listaProductos = [];
+
+    function agregarProductoAFactura(codigoBarra, producto, valorNeto) {
+        const tablaFactura = document.querySelector('#tablaFactura tbody');
+        const fila = document.createElement('tr');
+        let valorNetoNum = parseFloat(valorNeto);
+        var porcentajeGanancia = 30;
+        $.get('/leer_porcentaje', function (data) {
+            if ((data == null) || (typeof data.ganancia === 'number')) {
+                porcentajeGanancia = 30;
+            } else {
+                porcentajeGanancia = data.ganancia;
+            }
+        }).fail(function () {
+            console.log("Error al leer archivo ganancia.txt");
+            porcentajeGanancia = 30;
+        });
+        const iva = valorNetoNum * 0.19;
+        const ganancia = (valorNetoNum / ((100 - porcentajeGanancia) / 100)) - valorNetoNum;
+        const precioVentaInicial = valorNetoNum + iva + ganancia;
+
+        totalAcumulado += valorNetoNum + iva;
+        
+        const cantidadInput = `<input type="number" value="1" min="1" class="cantidad-input" style="width: 60px;" />`;
+        const valorNetoInput = `<input type="number" value="${Math.round(valorNetoNum)}" class="valor-neto-input" style="width: 80px;" />`;
+        const precioVentaInput = `<input type="number" value="${Math.round(precioVentaInicial)}" class="precio-venta-input" style="width: 80px;" />`;
+
+        fila.dataset.codigoBarra = codigoBarra;
+        fila.innerHTML = `
+            <td>${codigoBarra}</td>
+            <td>${producto}</td>
+            <td>${cantidadInput}</td>
+            <td>${valorNetoInput}</td>
+            <td>${Math.round(ganancia)}</td>
+            <td>${Math.round(iva)}</td>
+            <td>${precioVentaInput}</td>
+        `;
+        tablaFactura.appendChild(fila);
+
+        listaProductos.push({
+            codigoBarra,
+            producto,
+            valorNeto: valorNetoNum,
+            ganancia: Math.round(ganancia),
+            iva: Math.round(iva),
+            precioVenta: Math.round(precioVentaInicial),
+            cantidad: 1
+        });
+
+        actualizarTotalAcumulado();
+
+        fila.querySelector('.cantidad-input').addEventListener('input', (e) => {
+            const nuevaCantidad = parseInt(e.target.value) || 1;
+            actualizarProductoEnLista(codigoBarra, nuevaCantidad, null,null,porcentajeGanancia);
+            actualizarFilaFactura(fila, codigoBarra);
+            actualizarTotalAcumulado();
+        });
+
+        fila.querySelector('.valor-neto-input').addEventListener('input', (e) => {
+            const nuevoValorNeto = parseFloat(e.target.value) || 0;
+            actualizarProductoEnLista(codigoBarra, null, nuevoValorNeto,null,porcentajeGanancia);
+            actualizarFilaFactura(fila, codigoBarra);
+            actualizarTotalAcumulado();
+        });
+
+        fila.querySelector('.precio-venta-input').addEventListener('input', (e) => {
+            const nuevoPrecioVenta = parseFloat(e.target.value) || 0;
+            actualizarProductoEnLista(codigoBarra, null, null, nuevoPrecioVenta,porcentajeGanancia);
+            actualizarFilaFactura(fila, codigoBarra);
+            actualizarTotalAcumulado();
+        });
+    }
+    function actualizarProductoEnLista(codigoBarra, nuevaCantidad = null, nuevoValorNeto = null, nuevoPrecioVenta = null, porcentajeGanancia = 30) {
+        const producto = listaProductos.find(p => p.codigoBarra === codigoBarra);
+        if (producto) {
+            if (nuevaCantidad !== null) producto.cantidad = nuevaCantidad;
+            if (nuevoValorNeto !== null) producto.valorNeto = nuevoValorNeto;
+            producto.iva = Math.round(producto.valorNeto * 0.19);
+            producto.ganancia = Math.round((producto.valorNeto / ((100 - porcentajeGanancia) / 100)) - producto.valorNeto);
+            producto.precioVenta = producto.valorNeto + producto.iva + producto.ganancia;
+            if (nuevoPrecioVenta !== null) producto.precioVenta = nuevoPrecioVenta; // Sobrescribe si aplica
+        }
+    }
+    function actualizarFilaFactura(fila, codigoBarra) {
+        const producto = listaProductos.find(p => p.codigoBarra === codigoBarra);
+        if (producto) {
+            fila.querySelector('.valor-neto-input').value = Math.round(producto.valorNeto);
+            fila.querySelector('.cantidad-input').value = producto.cantidad;
+            fila.querySelector('.precio-venta-input').value = Math.round(producto.precioVenta);
+            fila.cells[4].textContent = Math.round(producto.ganancia);
+            fila.cells[5].textContent = Math.round(producto.iva);
+        }
+    }
+    function actualizarTotalAcumulado() {
+        totalAcumulado = listaProductos.reduce((sum, prod) => sum + prod.valorNeto * prod.cantidad + (prod.iva * prod.cantidad ), 0);
+        document.getElementById('totalAmount').textContent = Math.round(totalAcumulado);
+    }
+
+    function eliminarProductoDeFactura(codigoBarra) {
+        const fila = document.querySelector(`#tablaFactura tbody tr[data-codigo-barra="${codigoBarra}"]`);
+        if (fila) {
+            fila.remove();
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const filterText = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#tablaProductos tbody tr');
+        if (filterText === '') {
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        } else {
+            rows.forEach(row => {
+                const codigoBarra = row.cells[1].textContent.toLowerCase(); 
+                const producto = row.cells[2].textContent.toLowerCase();
+                if (codigoBarra.includes(filterText) || producto.includes(filterText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    function enviarPedido() {
+        const proveedorId = document.getElementById('proveedor').value;
+        fetch('/crear_pedido', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                proveedor: proveedorId,
+                productos: listaProductos,
+                total_pedido: totalAcumulado
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Pedido guardado exitosamente');
+                limpiarBusquedaYCheckboxes()
+                document.getElementById('tablaFactura').querySelector('tbody').innerHTML = '';
+                actualizarTotalAcumulado();
+            } else {
+                alert('Error al guardar el pedido');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    function limpiarBusquedaYCheckboxes() {
+        document.getElementById('searchInput').value = '';
+        document.querySelectorAll('.producto-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        const rows = document.querySelectorAll('#tablaProductos tbody tr');
+        rows.forEach(row => {
+            row.style.display = ''; 
+        });
+        document.querySelector('#tablaFactura tbody').innerHTML = '';
+        listaProductos = [];
+    }
+</script>
+
+{% endblock javascripts %}

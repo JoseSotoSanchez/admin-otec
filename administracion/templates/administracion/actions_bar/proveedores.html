@@ -1,0 +1,160 @@
+<div class="row">
+    <div class="col-12">
+        <div class="x_panel">
+            <div class="x_content">
+                <button type="button" class="btn btn-success ml-2" data-toggle="modal"
+                    data-target="#modalAgregarProveedor">Agregar Nuevo Proveedor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL Agregar Proveedor -->
+<div class="modal" id="modalAgregarProveedor" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel1">Agregar Proveedor</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/agregar_proveedor" method="POST">
+                    {% csrf_token %}
+
+                    <div class="modal-body">
+                        <!-- Campo Nombre -->
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Proveedor</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="100"
+                                placeholder="Ej: Comercial Santiago Ltda">
+                        </div>
+
+                        <!-- Campo Teléfono -->
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required
+                                pattern="^\+56\s\d{1}\s\d{4}\s\d{4}$" placeholder="+56 9 1234 5678">
+                            <small class="form-text text-muted">Formato: +56 9 1234 5678</small>
+                        </div>
+
+                        <!-- Campo Email -->
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required maxlength="100"
+                                placeholder="correo@ejemplo.cl">
+                        </div>
+
+                        <!-- Campo Dirección -->
+                        <div class="form-group">
+                            <label for="direccion">Dirección</label>
+                            <input type="text" class="form-control" id="direccion" name="direccion" required
+                                maxlength="150" placeholder="Ej: Av. Providencia 1234, Santiago">
+                        </div>
+ 
+                    </div>
+
+                    <!-- Footer del Modal -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Agregar Proveedor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL Actualizar Proveedor -->
+<div class="modal" id="modalActualizarProveedor" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel1">Actualizar Proveedor</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/actualizar_proveedor" method="POST" id="formActualizarProveedor">
+                    {% csrf_token %}
+
+                    <div class="modal-body">
+                        <!-- Campo ID (oculto) -->
+                        <input type="hidden" id="id_proveedor" name="id_proveedor">
+
+                        <!-- Campo Nombre -->
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Proveedor</label>
+                            <input type="text" class="form-control" id="nombre_actualizar" name="nombre" required maxlength="100"
+                                placeholder="Ej: Comercial Santiago Ltda">
+                        </div>
+
+                        <!-- Campo Teléfono -->
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono_actualizar" name="telefono" required
+                                pattern="^\+56\s\d{1}\s\d{4}\s\d{4}$" placeholder="+56 9 1234 5678">
+                            <small class="form-text text-muted">Formato: +56 9 1234 5678</small>
+                        </div>
+
+                        <!-- Campo Email -->
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email_actualizar" name="email" required maxlength="100"
+                                placeholder="correo@ejemplo.cl">
+                        </div>
+
+                        <!-- Campo Dirección -->
+                        <div class="form-group">
+                            <label for="direccion">Dirección</label>
+                            <input type="text" class="form-control" id="direccion_actualizar" name="direccion" required
+                                maxlength="150" placeholder="Ej: Av. Providencia 1234, Santiago">
+                        </div>
+                    </div>
+
+                    <!-- Footer del Modal -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Actualizar Proveedor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- MODAL Confirmación Eliminar Proveedor -->
+<div class="modal" id="modalEliminarProveedor" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel1">Eliminar Proveedor</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formEliminarProveedor" action="/eliminar_proveedor" method="POST">
+                    {% csrf_token %}
+                    <p>¿Estás seguro de que deseas eliminar este proveedor?</p>
+                    <p><strong id="nombre_proveedor_eliminar"></strong></p>
+                    <input type="hidden" id="id_proveedor_eliminar" name="id_proveedor_eliminar">
+                </form>
+            </div>
+
+            <!-- Footer del Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmarEliminar" onclick="document.getElementById('formEliminarProveedor').submit();">Eliminar Proveedor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

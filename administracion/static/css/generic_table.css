@@ -1,0 +1,5 @@
+/* Estilo para resaltar la fila */
+.highlight td {
+    background-color: #014a92 !important; /* Color de fondo */
+    color: #ffffff !important; /* Color del texto */
+}

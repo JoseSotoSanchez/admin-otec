@@ -1,0 +1,198 @@
+{% extends "administracion/base_site.html" %}
+
+{% block title %} {% endblock title %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% endblock stylesheets %}
+
+{% block content %}
+
+{% include "administracion/generic_table.html" with title="Alumnos" actions_bar="administracion/actions_bar/alumnos.html"  %}
+
+{% endblock content %}
+
+{% block javascripts %}
+{{ block.super }}
+
+<script>
+    // Configuración del menú contextual
+    $.contextMenu({
+        selector: '#datatable-buttons tbody tr',
+        callback: function (key, options) { 
+            let producto = get_row(this); 
+            switch (key) {
+                case "update": 
+                    poblarModalModificarProducto(producto);
+                    $('#modalModificarProducto').modal('show');
+                    break;
+                case "delete":
+                    setProductoDeleteId(producto);
+                    $('#modalEliminarProducto').modal('show');
+                    break;
+                case "ver": 
+                    poblarDetallesProducto(producto); 
+                    $('#modalDetalleProducto').modal('show');
+                    break;
+                default:
+                    console.log("Lo lamentamos, por el momento no disponemos de esa opción.");
+            } 
+        },
+        items: {
+            "update": { name: "Actualizar", icon: "fas fa-pen" },
+            "delete": { name: "Eliminar", icon: "fas fa-trash" },
+            "sep1": "---------",
+            "ver": { name: "Ver detalles", icon: "fas fa-eye" }
+        }
+    });
+
+    // Doble clic para mostrar detalles del producto
+    $('#datatable-buttons tbody').on('dblclick', 'tr', function () {
+        let producto = get_row(this); 
+        poblarDetallesProducto(producto);  
+        $('#modalDetalleProducto').modal('show');
+    });
+
+    // Validación para eliminar caracteres no numéricos en inputs numéricos
+    $('#precio_neto, #precio_final, #stock_minimo').on('input', function () { 
+        filtrarNoNumerico($(this)); 
+    });
+
+    function filtrarNoNumerico(element) { 
+        let currentValue = element.val();
+        let filteredValue = currentValue.replace(/[^0-9]/g, ''); 
+        if (currentValue !== filteredValue) {
+            element.val(filteredValue);
+        }
+    }
+
+    // Función para calcular y actualizar el precio final
+    function actualizarPrecioFinal(inputPrecioNetoSelector, outputPrecioFinalSelector, checkboxIVA) {
+        funcion_cambio = function () {
+            var precioNeto = parseInt($(inputPrecioNetoSelector).val());
+            if (!isNaN(precioNeto)) {
+                // Leer porcentaje de ganancia
+                $.get('/leer_porcentaje', function (data) {
+                    let ganancia = (data && typeof data.ganancia === 'number') ? data.ganancia : 30;
+
+                    // Cálculo del precio bruto (sin IVA)
+                    var precioFinal = precioNeto / ((100 - ganancia) / 100); 
+
+                    $(outputPrecioFinalSelector).val(Math.ceil(precioFinal)); 
+
+                }).fail(function () {
+                    console.log("Error al leer archivo ganancia.txt");
+                    let ganancia = 30;
+                    var precioFinal = precioNeto / ((100 - ganancia) / 100);
+                    if ($(checkboxIVA).is(':checked')) {
+                        precioFinal *= 1.19;
+                    }
+                    $(outputPrecioFinalSelector).val(Math.ceil(precioFinal));
+                });
+            } else {
+                $(outputPrecioFinalSelector).val('');
+            }
+        };
+
+        // Escucha cambios en el input y checkbox
+        $(inputPrecioNetoSelector).on('input', funcion_cambio); 
+    }
+
+
+    function aplicarIVA(inputSelector, checkboxSelector) {
+        // Obtener el valor del input y convertirlo a número
+        var precioNeto = parseInt($(inputSelector).val());
+
+        if (isNaN(precioNeto)) {
+            // Si el valor no es un número, salir de la función
+            return;
+        }
+
+        // Verificar si el checkbox está marcado
+        var aplicarIva = $(checkboxSelector).is(':checked');
+
+        // Calcular el precio con o sin IVA
+        var precioFinal = aplicarIva ? precioNeto * 1.19 : precioNeto;
+
+        // Actualizar el valor del input con el precio final
+        $(inputSelector).val(Math.ceil(precioFinal));
+    }
+
+    // Selecciona el input y el checkbox
+    var inputSelector = '#precio_final';
+    var checkboxSelector = '#iva';
+
+    // Aplica IVA al cambiar el estado del checkbox
+    $(checkboxSelector).on('change', function() {
+        aplicarIVA(inputSelector, checkboxSelector);
+    });
+
+
+    // Llamar a la función para los modales
+    actualizarPrecioFinal('#precio_neto', '#precio_final', '#iva');
+    actualizarPrecioFinal('#precio_neto_update', '#precio_final_update', '#iva_update');
+
+    // Funciones auxiliares para poblar datos en los modales
+    function poblarModalModificarProducto(producto) {  
+        $('#id_producto_update').val(producto.id);
+        $('#codigo_barras_update').val(producto.codigo_barra);
+        $('#nombre_update').val(producto.nombre);
+        $('#precio_neto_update').val(producto.precio_neto);
+        $('#marca_update').val(producto.marca);
+        $('#stock_minimo_update').val(producto.stock_critico);
+        $('#alertar_update').prop('checked', producto.alerta.toLowerCase() == "true");
+        $('#precio_final_update').val(producto.precio_bruto);
+        $('#unidad_medida_update').val(producto.unidad_medida);  
+    }
+
+    function poblarDetallesProducto(producto) {
+        $('#detalle_nombre').text(producto.nombre);
+        $('#detalle_sku').text(producto.sku);
+        $('#detalle_unidad_medida').text(producto.unidad_medida);
+        $('#detalle_precio_bruto').text(producto.precio_bruto);
+        $('#detalle_precio_neto').text(producto.precio_neto);
+        $('#detalle_marca').text(producto.marca);
+        $('#detalle_stock_critico').text(producto.stock_critico);
+        $('#detalle_alerta').text(producto.alerta == "True" ? 'Sí' : 'No');
+        $('#detalle_fecha_creacion').text(producto.fecha_creacion);
+        $('#detalle_codigo_barra').text(producto.codigo_barra);
+        let precioClp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(producto.precio_bruto);
+        $('#detalle_precio_final').text(precioClp);
+    }
+
+    function setProductoDeleteId(producto) {
+        $('#producto_delete_id').val(producto.id);
+    }
+
+
+    function cargarGananciaConfig() {
+        // Realiza la llamada GET para obtener la ganancia
+        $.get('/leer_porcentaje', function (data) {
+            let ganancia = (data && typeof data.ganancia === 'number') ? data.ganancia : 30;
+            // Actualiza el contenido del div con el valor de la ganancia
+            $('#ganancia_config').text(`Ganaancia configurda: ${ganancia}% por cada producto.`);
+        }).fail(function () {
+            console.log("Error al leer archivo ganancia.txt");
+            // Valor por defecto si falla la llamada
+            $('#ganancia_config').text("Ganancia configurada: 30% (valor por defecto)");
+        });
+    }
+
+    // Llamar al método al final de la carga de la página
+    $(document).ready(function () {
+        cargarGananciaConfig();
+
+        $('th').each(function() {
+            var text = $(this).html();
+            text = text.replace(/Precio Bruto/g, 'Precio Final').replace(/Precio Neto/g, 'Precio Base');
+            $(this).html(text);
+        });
+
+    });
+
+    
+
+
+</script>
+
+{% endblock javascripts %}

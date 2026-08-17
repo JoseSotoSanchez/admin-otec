@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-12">
+        <div class="x_panel">
+            <div class="x_content">
+                
+                <div class="row" >
+                    <div class="col-12" >
+                        <div class="alert" id="mensaje_pantalla" style="display: none;" >Producto no existe o sin stock</div>
+                    </div>
+                    <div class="col-md-8" >
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button type="button" id="cargar_productos" class="btn btn-primary">Usa Lector o digita</button>
+                            </span>
+                            <input list="productos_stock" type="text" id="buscar_producto" class="form-control" placeholder="Codigo Barra, nombre o SKU" > 
+                            <datalist id="productos_stock" ></datalist>
+                        </div> 
+                    </div>
+                    <div class="col-md-4">
+                        <select onchange="getSelectedItem();" class="form-control" id="select-salida">
+                            {% for salida in tipo_salida %}
+                                <option value="{{salida.tipo}}">{{ salida.tipo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ 
+<script type="text/template" id="template_carrito" >
+    <article class="media event">
+        <a class="pull-left date">
+            <p class="day" >__CANTIDAD_COMPRAR__</p>
+        </a>
+        <div class="media-body">
+            <a class="title" href="#">__NOMBRE_PRODUCTO__</a>
+            <p>X <strong>__PRECIO_PRODUCTO__</strong> </p>
+        </div>
+    </article> 
+</script>
+
+
+<script type="text/template" id="template_table_carrito" >
+    <tr role="row" >
+        <td>__CODIGO_BARRA__</td> 
+        <td>__PRODUCTO__</td> 
+        <td style="max-width: 55px;" ><input type="number" id="ROW__ID_PRODUCTO__"  style="max-width: 55px;" value="__CANTIDAD_COMPRAR__" onchange="carrito.actions.update_carrito(__ID_PRODUCTO__)" /></td> 
+        <td>__PRECIO_PRODUCTO__</td> 
+        <td>__SUB_TOTAL__</td> 
+        <td><button class="btn btn-warning" type="button" id="ROW__ID_PRODUCTO__"  onclick="carrito.actions.delete_carrito(__ID_PRODUCTO__)" > <i class="fa fa-trash"></i></button></td> 
+    </tr>
+</script>
+
+
+<script>
+    function getSelectedItem() {
+        const event = document.getElementById('select-salida')
+        const value = event.options[event.selectedIndex].value;
+        carrito.vars.tipo_salida = value
+    }
+</script>

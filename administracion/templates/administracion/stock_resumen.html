@@ -1,0 +1,125 @@
+{% extends "administracion/base_site.html" %}
+
+{% block title %} {% endblock title %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% endblock stylesheets %}
+
+{% block content %}
+
+{% include "administracion/generic_table.html" with title="Stock de Productos" actions_bar="administracion/actions_bar/stock_resumen.html" %}
+
+
+{% endblock content %}
+
+{% block javascripts %}
+{{ block.super }}
+
+<script>
+   
+    $.contextMenu({
+        selector: '#datatable-buttons tbody tr',
+        callback: function (key, options) {  
+            switch (key) { 
+                case "ver":  
+                    let stock = get_row(this); 
+                    abrirModalStockDetalle(stock)
+                    break;
+                default:
+                    console.log("Lo lamentamos, por el momento no disponemos de esa opción.");
+            } 
+        },
+        items: {  
+            "ver": { name: "Ver detalles", icon: "fas fa-eye" }
+        }
+    });
+
+    $('#datatable-buttons tbody').on('dblclick', 'tr', function () {
+        let stock = get_row(this); 
+        console.log(stock);
+        abrirModalStockDetalle(stock)
+    });
+ 
+
+    // Función para abrir el modal y cargar datos del pedido
+    function abrirModalStockDetalle(stock) {
+        const url = `/stock_pedidos_by_producto_json/${stock.id}`;
+
+        $("#nombre_producto").text(stock.nombre_producto);
+        $("#precio_bruto").text(stock.precio_bruto);
+        $("#stock_actual").text(stock.stock_actual);
+        $("#stock_critico").text(stock.stock_critico);
+        $("#codigo_barra").text(stock.codigo_barra);
+        
+        $.getJSON(url, function(data) {
+                
+            // Limpiar la tabla antes de llenarla
+            const $tbody = $("#table_productos_pedidos tbody");
+            $tbody.empty();
+
+            // Rellenar la tabla con los productos
+            $.each(data, function(index, pedido) {
+                const row = `
+                    <tr>
+                        <td>${pedido.nombre_proveedor}</td>
+                        <td>${pedido.stock_compra}</td>
+                        <td>${pedido.total_pedido}</td>
+                        <td>${pedido.fecha_recepcion}</td> 
+                    </tr>
+                `;
+                $tbody.append(row);
+            });
+
+            // Mostrar el modal
+            $("#modalPedido").modal("show");
+        }).fail(function() {
+            console.error("Error al obtener datos del pedido");
+        });
+    }
+ 
+    // Recorre todas las filas de la tabla
+    
+
+    var porcentajeCercano = 20; // Porcentaje ajustable según el cliente
+
+    $('#datatable-buttons tbody tr').each(function() {
+    var stock_actual = parseInt($(this).find('td').eq(3).text()); // Columna 3
+    var stock_alerta_critico = parseInt($(this).find('td').eq(4).text()); // Columna 4
+    var diferencia = parseInt($(this).find('td').eq(5).text()); // Columna 5
+
+    if (!isNaN(stock_actual) && !isNaN(stock_alerta_critico) && !isNaN(diferencia)) {
+        // Calcular el porcentaje de cercanía al stock crítico
+        var porcentaje = ((stock_actual - stock_alerta_critico) / stock_alerta_critico) * 100;
+
+        // Pintar la fila según el porcentaje
+        if (porcentaje > 0 && porcentaje <= porcentajeCercano) {
+            // Cercano al crítico (color amarillo)
+            $(this).css('background-color', '#faaf2d'); // Amarillo
+            $(this).css('color', '#000000'); // Texto negro para contraste
+        } else if (porcentaje > porcentajeCercano) {
+            // Lejano al crítico (color verde)
+            $(this).css('background-color', '#82c742'); // Verde
+            $(this).css('color', '#FFFFFF'); // Texto blanco para contraste
+        } else if (diferencia < 0) {
+            // En estado crítico (color rojo)
+            $(this).css('background-color', '#b03a3a'); // Rojo
+            $(this).css('color', '#FFFFFF'); // Texto blanco
+        }
+    }
+    });
+
+        // Llamar al método al final de la carga de la página
+        $(document).ready(function () {
+       
+        $('th').each(function() {
+            var text = $(this).html();
+            text = text.replace(/Precio bruto/g, 'Precio').replace(/Precio Neto/g, 'Precio Base');
+            $(this).html(text);
+        });
+
+    });
+        
+</script>
+
+{% endblock javascripts %}

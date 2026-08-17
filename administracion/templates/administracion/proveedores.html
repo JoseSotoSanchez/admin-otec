@@ -1,0 +1,56 @@
+{% extends "administracion/base_site.html" %}
+
+{% block stylesheets %}
+{{ block.super }}
+{% endblock stylesheets %}
+
+{% block content %}
+{% include "administracion/generic_table.html" with title="Mis Proveedores" actions_bar="administracion/actions_bar/proveedores.html"  %}
+{% endblock content %}
+
+
+{% block javascripts %}
+{{ block.super }}
+
+<script>
+ 
+  $.contextMenu({
+    selector: '#datatable-buttons tbody tr',
+    callback: function (key, options) {
+      let proveedor = get_row(this);
+      switch (key) {
+        case "update":
+          poblar_modal_update(proveedor);
+          break;
+        case "delete":  
+          eliminar_modal(proveedor);
+          break; 
+        default:
+          console.log("Lo lamentamos, por el momento no disponemos de esa opción.");
+      }
+    },
+    items: {
+      "update": { name: "Actualizar", icon: "fas fa-pen" },
+      "delete": { name: "Eliminar", icon: "fas fa-trash" }, 
+    }
+  });
+  
+  function poblar_modal_update(proveedor) {
+      $('#id_proveedor').val(proveedor.id);
+      $('#nombre_actualizar').val(proveedor.nombre);
+      $('#telefono_actualizar').val(proveedor.telefono);
+      $('#email_actualizar').val(proveedor.email);
+      $('#direccion_actualizar').val(proveedor.direccion);
+      $('#modalActualizarProveedor').modal('show');  
+  }
+
+  function eliminar_modal(proveedor){
+    $('#nombre_proveedor_eliminar').val(proveedor.nombre); 
+    $('#id_proveedor_eliminar').val(proveedor.id); 
+    $('#modalEliminarProveedor').modal('show');  
+  }
+
+</script>
+
+ 
+{% endblock javascripts %}
