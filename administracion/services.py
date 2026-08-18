@@ -5,7 +5,7 @@ def obtener_aspirantes_por_curso(curso_id):
 
     with connection.cursor() as cursor:
 
-        cursor.execute("""
+        query = """
             SELECT DISTINCT
                 a.id AS id,
                 a.nombre,
@@ -74,12 +74,21 @@ def obtener_aspirantes_por_curso(curso_id):
                 LIMIT 1
 
             )
+        """
 
-            AND c.id = %s
+        parametros = []
 
+        if curso_id is not None:
+            query += """
+                AND c.id = %s
+            """
+            parametros.append(curso_id)
+
+        query += """
             ORDER BY a.id DESC
+        """
 
-        """, [curso_id])
+        cursor.execute(query, parametros)
 
         columnas = [col[0] for col in cursor.description]
 

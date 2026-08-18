@@ -50,10 +50,11 @@ class AlumnoView(ViewCustom):
             "data": AlumnoView().get_alumnos()
         }
  
-    def alumnos(request): 
+    def alumnos(request):
 
         cursos = obtener_cursos()
 
+        curso_id = None
         alumnos = []
 
         if request.method == "POST":
@@ -61,28 +62,33 @@ class AlumnoView(ViewCustom):
 
             if curso_id:
                 alumnos = obtener_aspirantes_por_curso(curso_id)
+
         context = {
-        "cursos": cursos,
-        "curso_id": curso_id,
-        "curso_id": curso_id if request.method == "POST" else None,
-        "title": "Aspirantes",
-        "actions_bar": None,
-        "ids": ["id"],
-        "atributos": [
-            "id",
-            "nombre",
-            "apellido",
-            "rut",
-            "email",
-            "telefono",
-            "estado",
-            "modificado_por",
-            "ingreso",
-            "total_pagos"
-        ],
-        "data": obtener_aspirantes_por_curso(curso_id)
+            "cursos": cursos,
+            "curso_id": curso_id,
+            "title": "Aspirantes",
+            "actions_bar": None,
+            "ids": ["id"],
+            "atributos": [
+                "id",
+                "nombre",
+                "apellido",
+                "rut",
+                "email",
+                "telefono",
+                "estado",
+                "modificado_por",
+                "ingreso",
+                "total_pagos"
+            ],
+            "data": alumnos
         }
-        return render(request, "administracion/alumnos.html", context)
+
+        return render(
+            request,
+            "administracion/alumnos.html",
+            context
+        )
  
     # def ajustar_porcentaje(request): 
     #     porcentaje = request.POST["porcentaje"] 
