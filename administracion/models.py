@@ -28,15 +28,45 @@ class Horario(models.Model):
 
 class Curso(models.Model):
     id = models.AutoField(primary_key=True)
-    nombre = models.TextField(null=True, verbose_name = "Nombre")
-    codigo_curso = models.TextField(null=True, verbose_name = "Codigo Curso")
-    fecha_inicio = models.DateTimeField()
-    fecha_fin = models.DateTimeField()
-    id_dias = models.ForeignKey(Dias, db_column='id_dias', on_delete=models.CASCADE)
-    id_horario = models.ForeignKey(Horario, db_column='id_horario', on_delete=models.CASCADE)
-    costo = models.IntegerField(verbose_name = "Costo")
-    modalidad = models.TextField(null=True, verbose_name = "Modalidad")
-    activo = models.IntegerField(null=True, verbose_name = "Activo")
+
+    nombre = models.TextField(
+        null=True,
+        verbose_name="Nombre"
+    )
+
+    codigo_curso = models.TextField(
+        null=True,
+        verbose_name="Codigo Curso"
+    )
+
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+
+    id_dias = models.ForeignKey(
+        Dias,
+        db_column="id_dias",
+        on_delete=models.CASCADE
+    )
+
+    id_horario = models.ForeignKey(
+        Horario,
+        db_column="id_horario",
+        on_delete=models.CASCADE
+    )
+
+    costo = models.IntegerField(
+        verbose_name="Costo"
+    )
+
+    modalidad = models.TextField(
+        null=True,
+        verbose_name="Modalidad"
+    )
+
+    activo = models.IntegerField(
+        null=True,
+        verbose_name="Activo"
+    )
 
     class Meta:
         db_table = "Curso"

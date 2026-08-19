@@ -117,7 +117,9 @@ def obtener_cursos():
             for fila in cursor.fetchall()
         ]
 def obtener_cursos_detalle():
+
     with connection.cursor() as cursor:
+
         cursor.execute("""
             SELECT
                 c.id,
@@ -132,53 +134,92 @@ def obtener_cursos_detalle():
                 c.activo,
                 d.rango AS dias,
                 h.rango AS horario
+
             FROM Curso c
+
             INNER JOIN Dias d
                 ON d.id = c.id_dias
+
             INNER JOIN Horario h
                 ON h.id = c.id_horario
+
             ORDER BY c.id DESC
         """)
 
-        columnas = [col[0] for col in cursor.description]
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
         cursos = [
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
 
-    # Agregamos valores preparados para la vista
+
     for curso in cursos:
 
+        # ====================================
+        # FECHA INICIO
+        # ====================================
+
         if curso["fecha_inicio"]:
-            curso["fecha_inicio_input"] = curso["fecha_inicio"].strftime(
-                "%Y-%m-%dT%H:%M"
+
+            curso["fecha_inicio_input"] = (
+                curso["fecha_inicio"].strftime(
+                    "%Y-%m-%d"
+                )
             )
 
-            curso["fecha_inicio_correo"] = curso["fecha_inicio"].strftime(
-                "%d-%m-%Y"
+            curso["fecha_inicio_correo"] = (
+                curso["fecha_inicio"].strftime(
+                    "%d-%m-%Y"
+                )
             )
 
-            curso["fecha_inicio"] = curso["fecha_inicio"].strftime(
-                "%d-%m-%Y %H:%M"
+            curso["fecha_inicio"] = (
+                curso["fecha_inicio"].strftime(
+                    "%d-%m-%Y"
+                )
             )
+
         else:
+
             curso["fecha_inicio_input"] = ""
             curso["fecha_inicio_correo"] = ""
             curso["fecha_inicio"] = ""
 
+
+        # ====================================
+        # FECHA FIN
+        # ====================================
+
         if curso["fecha_fin"]:
-            curso["fecha_fin_input"] = curso["fecha_fin"].strftime(
-                "%Y-%m-%dT%H:%M"
+
+            curso["fecha_fin_input"] = (
+                curso["fecha_fin"].strftime(
+                    "%Y-%m-%d"
+                )
             )
 
-            curso["fecha_fin"] = curso["fecha_fin"].strftime(
-                "%d-%m-%Y %H:%M"
+            curso["fecha_fin"] = (
+                curso["fecha_fin"].strftime(
+                    "%d-%m-%Y"
+                )
             )
+
         else:
+
             curso["fecha_fin_input"] = ""
             curso["fecha_fin"] = ""
 
-        curso["estado"] = "Activo" if curso["activo"] == 1 else "Inactivo"
+
+        curso["estado"] = (
+            "Activo"
+            if curso["activo"] == 1
+            else "Inactivo"
+        )
+
 
     return cursos
 

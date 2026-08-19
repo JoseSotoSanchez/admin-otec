@@ -166,7 +166,7 @@ Cursos
                                 </label>
 
                                 <input
-                                    type="datetime-local"
+                                    type="date"
                                     name="fecha_inicio"
                                     class="form-control"
                                     required
@@ -186,7 +186,7 @@ Cursos
                                 </label>
 
                                 <input
-                                    type="datetime-local"
+                                    type="date"
                                     name="fecha_fin"
                                     class="form-control"
                                     required
@@ -377,7 +377,12 @@ Cursos
                     name="id_curso"
                     id="editar_id_curso"
                 >
-
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="editar_pagina"
+                    value="0"
+                >
 
                 <div class="modal-header">
 
@@ -458,7 +463,7 @@ Cursos
 
                             <input
                                 id="editar_fecha_inicio"
-                                type="datetime-local"
+                                type="date"
                                 name="fecha_inicio"
                                 class="form-control"
                                 required
@@ -475,7 +480,7 @@ Cursos
 
                             <input
                                 id="editar_fecha_fin"
-                                type="datetime-local"
+                                type="date"
                                 name="fecha_fin"
                                 class="form-control"
                                 required
@@ -960,6 +965,25 @@ Cursos
 $(document).ready(function () {
 
     // =============================================
+    // VOLVER A LA PÁGINA ANTERIOR
+    // =============================================
+
+    const params = new URLSearchParams(
+        window.location.search
+    );
+
+    const pagina = params.get("pagina");
+
+    if (pagina !== null) {
+
+        let tabla = $('#datatable-buttons').DataTable();
+
+        tabla.page(
+            parseInt(pagina)
+        ).draw('page');
+    }
+
+    // =============================================
     // EDITAR CURSO
     // =============================================
 
@@ -969,6 +993,16 @@ $(document).ready(function () {
         function () {
 
             let boton = $(this);
+
+            // Obtener la tabla ya inicializada
+            let tabla = $('#datatable-buttons').DataTable();
+
+            // Obtener página actual
+            let paginaActual = tabla.page();
+
+            // Guardar página actual en el formulario
+            $("#editar_pagina").val(paginaActual);
+
 
             $("#editar_id_curso").val(
                 boton.data("id")
@@ -1006,9 +1040,7 @@ $(document).ready(function () {
                 boton.data("modalidad")
             );
 
-            $("#modalEditarCurso").modal(
-                "show"
-            );
+            $("#modalEditarCurso").modal("show");
         }
     );
 

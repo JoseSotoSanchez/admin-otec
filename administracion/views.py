@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 from administracion.models import (
     AlumnoView,
@@ -125,6 +126,7 @@ class CursoView(ViewCustom):
         dias = Dias.objects.all().order_by("-id")
 
         context = {
+
             "title": "Cursos",
 
             "actions_bar":
@@ -132,6 +134,9 @@ class CursoView(ViewCustom):
 
             "row_actions":
                 "administracion/row_actions/cursos.html",
+
+            # DataTables
+            "table_order": "desc",
 
             "atributos": [
                 "id",
@@ -244,6 +249,8 @@ class CursoView(ViewCustom):
     @require_POST
     def actualizar_curso(request):
 
+        pagina = request.POST.get("pagina", "0")
+
         try:
 
             curso_id = request.POST.get("id_curso")
@@ -299,7 +306,9 @@ class CursoView(ViewCustom):
                 f"Error al actualizar curso: {str(e)}"
             )
 
-        return redirect("cursos")
+        return redirect(
+            f"{reverse('cursos')}?pagina={pagina}"
+        )
 
 
     # ================================================
@@ -592,7 +601,7 @@ class CursoView(ViewCustom):
             )
 
         return redirect("cursos") 
-        
+
 class DashboardView(ViewCustom):
 
     @staticmethod
