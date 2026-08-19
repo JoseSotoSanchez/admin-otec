@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body style="
+    margin:0;
+    padding:0;
+    background:#f5f5f5;
+    font-family:Arial, Helvetica, sans-serif;
+">
+
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="background:#f5f5f5;padding:20px;">
+
+    <tr>
+        <td align="center">
+
+            <table width="800"
+                   cellpadding="0"
+                   cellspacing="0"
+                   style="
+                        max-width:800px;
+                        width:100%;
+                        background:#ffffff;
+                        border:1px solid #dddddd;
+                   ">
+
+                <!-- CABECERA -->
+
+                <tr>
+                    <td align="center"
+                        style="
+                            background:#1c68c4;
+                            padding:20px;
+                        ">
+
+                        <img
+                            src="https://iccapacitacionlaboral.cl/static/Imagenes/logo-ic-capacitacion-1.png"
+                            width="300"
+                            alt="IC Capacitación Laboral"
+                            style="max-width:100%;height:auto;"
+                        >
+
+                    </td>
+                </tr>
+
+                <!-- CONTENIDO -->
+
+                <tr>
+
+                    <td style="
+                        padding:35px;
+                        color:#153643;
+                        font-size:16px;
+                        line-height:24px;
+                    ">
+
+                        <p>
+                            Estimado(a)
+                            <strong>{{ nombre }}</strong>:
+                        </p>
+
+                        <p>
+                            IC Capacitación Laboral agradece su preferencia
+                            y le da la bienvenida al curso
+                            <strong>{{ nombre_curso }}</strong>.
+                        </p>
+
+                        <p>
+                            A continuación encontrará la información necesaria
+                            para ingresar a sus clases.
+                        </p>
+
+                        <hr>
+
+                        <h3>Información del curso</h3>
+
+                        <p>
+                            <strong>Curso:</strong>
+                            {{ nombre_curso }}
+                        </p>
+
+                        <p>
+                            <strong>Inicio:</strong>
+                            {{ inicio_curso }}
+                        </p>
+
+                        <p>
+                            <strong>Horario:</strong>
+                            {{ horario_curso }}
+                        </p>
+
+                        <p>
+                            <strong>Profesor(a):</strong>
+                            {{ nombre_profesor }}
+                        </p>
+
+                        <hr>
+
+                        <h3>Acceso Zoom</h3>
+
+                        <p>
+                            <strong>Link:</strong><br>
+
+                            <a href="{{ url_zoom }}">
+                                {{ url_zoom }}
+                            </a>
+                        </p>
+
+                        <p>
+                            <strong>ID de reunión:</strong>
+                            {{ id_reunion_zoom }}
+                        </p>
+
+                        <p>
+                            <strong>Código de acceso:</strong>
+                            {{ codigo_acceso_zoom }}
+                        </p>
+
+                        <hr>
+
+                        <h3>Aula Virtual</h3>
+
+                        <p>
+                            Puede acceder a nuestra plataforma virtual desde:
+                        </p>
+
+                        <p>
+                            <a href="https://aulavirtual.iccapacitacionlaboral.cl/login/index.php">
+                                Aula Virtual IC Capacitación Laboral
+                            </a>
+                        </p>
+
+                        <p>
+                            Ante cualquier duda puede comunicarse con su
+                            coordinador(a).
+                        </p>
+
+                        <br>
+
+                        <p>
+                            Saludos cordiales.
+                        </p>
+
+                        <p>
+                            <strong>{{ nombre_usuario }}</strong><br>
+                            Coordinador(a) de Curso<br>
+                            IC Capacitación Laboral
+                        </p>
+
+                        <p>
+                            Correo:
+                            {{ correo_usuario }}
+                            <br>
+
+                            Contacto:
+                            {{ numero_usuario }}
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                <!-- FOOTER -->
+
+                <tr>
+
+                    <td style="
+                        padding:20px;
+                        text-align:center;
+                        background:#0a73b9;
+                        color:white;
+                        font-size:13px;
+                    ">
+
+                        IC Capacitación Laboral<br>
+                        iccapacitacionlaboral.cl
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>

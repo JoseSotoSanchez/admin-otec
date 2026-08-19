@@ -13,6 +13,31 @@ from .utils.file_writer import FileWriter
 from abc import abstractmethod
 from datetime import datetime, date
 from pathlib import Path
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+from administracion.models import (
+    AlumnoView,
+    Alumno,
+    Curso,
+    Dias,
+    Horario,
+    Pagos,
+    Usuario,
+    Alumno_Estado,
+    Estado_Alumno,
+)
+
+from .services import (
+    obtener_aspirantes_por_curso,
+    obtener_cursos,
+    obtener_cursos_detalle,
+    obtener_alumnos_correo_bienvenida,
+)
+
+from .emails import enviar_email_bienvenida
 import json
 
 #Clase generica para la tabla generica 
@@ -89,7 +114,499 @@ class AlumnoView(ViewCustom):
             "administracion/alumnos.html",
             context
         )
- 
+class CursoView(ViewCustom):
+
+    @staticmethod
+    def cursos(request):
+
+        cursos = obtener_cursos_detalle()
+
+        horarios = Horario.objects.all().order_by("-id")
+        dias = Dias.objects.all().order_by("-id")
+
+        context = {
+            "title": "Cursos",
+
+            "actions_bar":
+                "administracion/actions_bar/cursos.html",
+
+            "row_actions":
+                "administracion/row_actions/cursos.html",
+
+            "atributos": [
+                "id",
+                "nombre",
+                "codigo_curso",
+                "fecha_inicio",
+                "fecha_fin",
+                "dias",
+                "horario",
+                "costo",
+                "modalidad",
+                "estado",
+            ],
+
+            "ids": [
+                "id",
+                "activo",
+            ],
+
+            "data": cursos,
+
+            "horarios": horarios,
+            "dias_lista": dias,
+        }
+
+        return render(
+            request,
+            "administracion/cursos.html",
+            context
+        )
+
+
+    # ================================================
+    # CREATE
+    # ================================================
+
+    @staticmethod
+    @require_POST
+    def agregar_curso(request):
+
+        try:
+
+            nombre = request.POST.get("nombre")
+            codigo = request.POST.get("codigo")
+            fecha_inicio = request.POST.get("fecha_inicio")
+            fecha_fin = request.POST.get("fecha_fin")
+            id_dias = request.POST.get("dias")
+            id_horario = request.POST.get("horario")
+            costo = request.POST.get("costo")
+            modalidad = request.POST.get("modalidad")
+
+            if not all([
+                nombre,
+                codigo,
+                fecha_inicio,
+                fecha_fin,
+                id_dias,
+                id_horario,
+                costo,
+                modalidad
+            ]):
+                messages.error(
+                    request,
+                    "Debe completar todos los campos."
+                )
+
+                return redirect("cursos")
+
+            Curso.objects.create(
+
+                nombre=nombre,
+
+                codigo_curso=codigo,
+
+                fecha_inicio=fecha_inicio,
+
+                fecha_fin=fecha_fin,
+
+                id_dias_id=id_dias,
+
+                id_horario_id=id_horario,
+
+                costo=costo,
+
+                modalidad=modalidad,
+
+                activo=1
+            )
+
+            messages.success(
+                request,
+                "Curso agregado correctamente."
+            )
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al agregar curso: {str(e)}"
+            )
+
+        return redirect("cursos")
+
+
+    # ================================================
+    # UPDATE
+    # ================================================
+
+    @staticmethod
+    @require_POST
+    def actualizar_curso(request):
+
+        try:
+
+            curso_id = request.POST.get("id_curso")
+
+            curso = get_object_or_404(
+                Curso,
+                id=curso_id
+            )
+
+            curso.nombre = request.POST.get(
+                "nombre"
+            )
+
+            curso.codigo_curso = request.POST.get(
+                "codigo"
+            )
+
+            curso.fecha_inicio = request.POST.get(
+                "fecha_inicio"
+            )
+
+            curso.fecha_fin = request.POST.get(
+                "fecha_fin"
+            )
+
+            curso.id_dias_id = request.POST.get(
+                "dias"
+            )
+
+            curso.id_horario_id = request.POST.get(
+                "horario"
+            )
+
+            curso.costo = request.POST.get(
+                "costo"
+            )
+
+            curso.modalidad = request.POST.get(
+                "modalidad"
+            )
+
+            curso.save()
+
+            messages.success(
+                request,
+                "Curso actualizado correctamente."
+            )
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al actualizar curso: {str(e)}"
+            )
+
+        return redirect("cursos")
+
+
+    # ================================================
+    # DELETE
+    # ================================================
+
+    @staticmethod
+    @require_POST
+    def eliminar_curso(request):
+
+        try:
+
+            curso_id = request.POST.get("id_curso")
+
+            curso = get_object_or_404(
+                Curso,
+                id=curso_id
+            )
+
+            # Evitamos eliminar un curso que ya tenga alumnos
+            if Alumno.objects.filter(
+                id_curso_id=curso_id
+            ).exists():
+
+                messages.error(
+                    request,
+                    "No se puede eliminar el curso porque tiene alumnos asociados."
+                )
+
+                return redirect("cursos")
+
+            # Evitamos eliminar cursos con pagos
+            if Pagos.objects.filter(
+                id_curso_id=curso_id
+            ).exists():
+
+                messages.error(
+                    request,
+                    "No se puede eliminar el curso porque tiene pagos asociados."
+                )
+
+                return redirect("cursos")
+
+            curso.delete()
+
+            messages.success(
+                request,
+                "Curso eliminado correctamente."
+            )
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al eliminar curso: {str(e)}"
+            )
+
+        return redirect("cursos")
+
+
+    # ================================================
+    # ACTIVAR / DESACTIVAR
+    # ================================================
+
+    @staticmethod
+    @require_POST
+    def actualizar_estado(request, curso_id):
+
+        curso = get_object_or_404(
+            Curso,
+            id=curso_id
+        )
+
+        if curso.activo == 1:
+            curso.activo = 0
+
+            mensaje = "Curso desactivado correctamente."
+
+        else:
+            curso.activo = 1
+
+            mensaje = "Curso activado correctamente."
+
+        curso.save(
+            update_fields=["activo"]
+        )
+
+        messages.success(
+            request,
+            mensaje
+        )
+
+        return redirect("cursos")
+
+
+    # ================================================
+    # CORREO BIENVENIDA
+    # ================================================
+
+    @staticmethod
+    @require_POST
+    def enviar_correo_bienvenida(request):
+
+        id_curso = request.POST.get(
+            "idCurso"
+        )
+
+        nombre_curso = request.POST.get(
+            "nombreCurso"
+        )
+
+        inicio_curso = request.POST.get(
+            "inicioCurso"
+        )
+
+        horario_curso = request.POST.get(
+            "horarioCurso"
+        )
+
+        url_zoom = request.POST.get(
+            "urlZoom"
+        )
+
+        id_reunion_zoom = request.POST.get(
+            "idReunionZoom"
+        )
+
+        codigo_acceso_zoom = request.POST.get(
+            "codigoAccesoZoom"
+        )
+
+        nombre_profesor = request.POST.get(
+            "nombreProfesor"
+        )
+
+        if not all([
+            id_curso,
+            nombre_curso,
+            inicio_curso,
+            horario_curso,
+            url_zoom,
+            id_reunion_zoom,
+            codigo_acceso_zoom,
+            nombre_profesor,
+        ]):
+
+            messages.error(
+                request,
+                "Debe completar todos los datos del correo de bienvenida."
+            )
+
+            return redirect("cursos")
+
+        # ==================================
+        # Usuario conectado
+        # ==================================
+
+        id_usuario = request.session.get("id")
+
+        if not id_usuario:
+
+            messages.error(
+                request,
+                "No se encontró el usuario en sesión."
+            )
+
+            return redirect("cursos")
+
+        usuario = Usuario.objects.filter(
+            id=id_usuario
+        ).first()
+
+        if not usuario:
+
+            messages.error(
+                request,
+                "No se encontró información del usuario."
+            )
+
+            return redirect("cursos")
+
+        # ==================================
+        # Alumnos pagados
+        # Estados 18 o 19
+        # ==================================
+
+        alumnos = obtener_alumnos_correo_bienvenida(
+            id_curso
+        )
+
+        if len(alumnos) == 0:
+
+            messages.warning(
+                request,
+                "No existen alumnos con estado 18 o 19 para enviar el correo."
+            )
+
+            return redirect("cursos")
+
+        enviados = 0
+        errores = 0
+
+        estado_bienvenida = Estado_Alumno.objects.filter(
+            id=20
+        ).first()
+
+        if not estado_bienvenida:
+
+            messages.error(
+                request,
+                "No existe el estado 20 en Estado_Alumno."
+            )
+
+            return redirect("cursos")
+
+        for alumno in alumnos:
+
+            try:
+
+                nombre_alumno = (
+                    f"{alumno['nombre']} "
+                    f"{alumno['apellido']}"
+                )
+
+                # Enviar correo
+                enviar_email_bienvenida(
+
+                    nombre=nombre_alumno,
+
+                    correo=alumno["email"],
+
+                    nombre_curso=nombre_curso,
+
+                    url_zoom=url_zoom,
+
+                    id_reunion_zoom=id_reunion_zoom,
+
+                    codigo_acceso_zoom=codigo_acceso_zoom,
+
+                    inicio_curso=inicio_curso,
+
+                    nombre_profesor=nombre_profesor,
+
+                    horario_curso=horario_curso,
+
+                    nombre_usuario=usuario.nombre,
+
+                    correo_usuario=usuario.correo or "",
+
+                    numero_usuario=usuario.numero or "",
+                )
+
+                # Solamente cambia de estado
+                # si el correo se envió correctamente
+
+                Alumno_Estado.objects.create(
+
+                    id_alumno_id=alumno["id"],
+
+                    id_estado=estado_bienvenida,
+
+                    fecha=timezone.now(),
+
+                    id_usuario=id_usuario
+                )
+
+                enviados += 1
+
+            except Exception as e:
+
+                print(
+                    f"Error enviando correo "
+                    f"a {alumno['email']}: {e}"
+                )
+
+                errores += 1
+
+        if enviados > 0:
+
+            messages.success(
+                request,
+                f"Correos enviados correctamente: {enviados}."
+            )
+
+        if errores > 0:
+
+            messages.warning(
+                request,
+                f"No se pudieron enviar {errores} correos."
+            )
+
+        return redirect("cursos") 
+        
+class DashboardView(ViewCustom):
+
+    @staticmethod
+    def dashboard(request):
+
+        context = {
+            "title": "Dashboard"
+        }
+
+        return render(
+            request,
+            "administracion/dashboard.html",
+            context
+        )
     # def ajustar_porcentaje(request): 
     #     porcentaje = request.POST["porcentaje"] 
     #     FileWriter("ganancia.txt", porcentaje).write_new_content() 

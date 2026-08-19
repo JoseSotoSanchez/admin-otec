@@ -1,0 +1,1080 @@
+{% extends "administracion/base_site.html" %}
+
+
+{% block title %}
+Cursos
+{% endblock title %}
+
+
+{% block stylesheets %}
+
+{{ block.super }}
+
+{% endblock stylesheets %}
+
+
+
+{% block content %}
+
+
+<!-- ============================================= -->
+<!-- MENSAJES DJANGO -->
+<!-- ============================================= -->
+
+<div style="min-height:0;padding-bottom:0;">
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="alert
+                {% if message.tags == 'error' %}
+                    alert-danger
+                {% elif message.tags == 'success' %}
+                    alert-success
+                {% elif message.tags == 'warning' %}
+                    alert-warning
+                {% else %}
+                    alert-info
+                {% endif %}
+                alert-dismissible"
+            >
+
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                >
+                    ×
+                </button>
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+
+
+<!-- ============================================= -->
+<!-- TABLA -->
+<!-- ============================================= -->
+
+{% include "administracion/generic_table.html" with title="Cursos" actions_bar="administracion/actions_bar/cursos.html" %}
+
+
+
+<!-- ============================================= -->
+<!-- MODAL AGREGAR CURSO -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalAgregarCurso"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{% url 'curso_agregar' %}"
+            >
+
+                {% csrf_token %}
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Agregar Curso
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+
+                        <div class="col-md-8">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Nombre
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="nombre"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Código
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="codigo"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Fecha Inicio
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="fecha_inicio"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Fecha Fin
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="fecha_fin"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Días
+                                </label>
+
+                                <select
+                                    name="dias"
+                                    class="form-control"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Seleccione
+                                    </option>
+
+                                    {% for dia in dias_lista %}
+
+                                        <option value="{{ dia.id }}">
+                                            {{ dia.rango }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Horario
+                                </label>
+
+                                <select
+                                    name="horario"
+                                    class="form-control"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Seleccione
+                                    </option>
+
+                                    {% for horario in horarios %}
+
+                                        <option value="{{ horario.id }}">
+                                            {{ horario.rango }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Costo
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="costo"
+                                    min="0"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Modalidad
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="modalidad"
+                                    class="form-control"
+                                    placeholder="Online / Presencial"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================= -->
+<!-- MODAL EDITAR -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalEditarCurso"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{% url 'curso_actualizar' %}"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="id_curso"
+                    id="editar_id_curso"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Editar Curso
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-8">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Nombre
+                                </label>
+
+                                <input
+                                    id="editar_nombre"
+                                    type="text"
+                                    name="nombre"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Código
+                                </label>
+
+                                <input
+                                    id="editar_codigo"
+                                    type="text"
+                                    name="codigo"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Fecha Inicio
+                            </label>
+
+                            <input
+                                id="editar_fecha_inicio"
+                                type="datetime-local"
+                                name="fecha_inicio"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Fecha Fin
+                            </label>
+
+                            <input
+                                id="editar_fecha_fin"
+                                type="datetime-local"
+                                name="fecha_fin"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                    <br>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Días
+                            </label>
+
+                            <select
+                                id="editar_dias"
+                                name="dias"
+                                class="form-control"
+                                required
+                            >
+
+                                {% for dia in dias_lista %}
+
+                                    <option value="{{ dia.id }}">
+                                        {{ dia.rango }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Horario
+                            </label>
+
+                            <select
+                                id="editar_horario"
+                                name="horario"
+                                class="form-control"
+                                required
+                            >
+
+                                {% for horario in horarios %}
+
+                                    <option value="{{ horario.id }}">
+                                        {{ horario.rango }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <br>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Costo
+                            </label>
+
+                            <input
+                                id="editar_costo"
+                                type="number"
+                                name="costo"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label>
+                                Modalidad
+                            </label>
+
+                            <input
+                                id="editar_modalidad"
+                                type="text"
+                                name="modalidad"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Actualizar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================= -->
+<!-- MODAL ELIMINAR -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalEliminarCurso"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{% url 'curso_eliminar' %}"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="id_curso"
+                    id="eliminar_id_curso"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Eliminar Curso
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    ¿Está seguro que desea eliminar el curso
+
+                    <strong id="eliminar_nombre_curso"></strong>?
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        Eliminar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================= -->
+<!-- MODAL CORREO BIENVENIDA -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalCorreoBienvenida"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{% url 'curso_enviar_bienvenida' %}"
+            >
+
+                {% csrf_token %}
+
+
+                <input
+                    type="hidden"
+                    name="idCurso"
+                    id="correo_idCurso"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Enviar correo de bienvenida
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Curso
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nombreCurso"
+                            id="correo_nombreCurso"
+                            class="form-control"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Inicio Curso
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="inicioCurso"
+                                    id="correo_inicioCurso"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Horario
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="horarioCurso"
+                                    id="correo_horarioCurso"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            URL Zoom
+                        </label>
+
+                        <input
+                            type="url"
+                            name="urlZoom"
+                            class="form-control"
+                            placeholder="https://zoom.us/..."
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="row">
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    ID Reunión Zoom
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="idReunionZoom"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Código Acceso
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="codigoAccesoZoom"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Nombre Profesor
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nombreProfesor"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="alert alert-warning">
+
+                        Este correo será enviado a todos los alumnos
+                        cuyo último estado sea 18 o 19.
+
+                        Después del envío exitoso, el alumno pasará
+                        al estado 20.
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-info"
+                        onclick="return confirm(
+                            '¿Está seguro que desea enviar el correo de bienvenida a los alumnos pagados?'
+                        );"
+                    >
+
+                        <i class="fa fa-envelope"></i>
+
+                        Enviar Correos
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock content %}
+
+
+
+{% block javascripts %}
+
+{{ block.super }}
+
+
+<script>
+
+$(document).ready(function () {
+
+    // =============================================
+    // EDITAR CURSO
+    // =============================================
+
+    $(document).on(
+        "click",
+        ".btn-editar-curso",
+        function () {
+
+            let boton = $(this);
+
+            $("#editar_id_curso").val(
+                boton.data("id")
+            );
+
+            $("#editar_nombre").val(
+                boton.data("nombre")
+            );
+
+            $("#editar_codigo").val(
+                boton.data("codigo")
+            );
+
+            $("#editar_fecha_inicio").val(
+                boton.data("fechainicio")
+            );
+
+            $("#editar_fecha_fin").val(
+                boton.data("fechafin")
+            );
+
+            $("#editar_dias").val(
+                boton.data("dias")
+            );
+
+            $("#editar_horario").val(
+                boton.data("horario")
+            );
+
+            $("#editar_costo").val(
+                boton.data("costo")
+            );
+
+            $("#editar_modalidad").val(
+                boton.data("modalidad")
+            );
+
+            $("#modalEditarCurso").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // =============================================
+    // ELIMINAR
+    // =============================================
+
+    $(document).on(
+        "click",
+        ".btn-eliminar-curso",
+        function () {
+
+            let boton = $(this);
+
+            $("#eliminar_id_curso").val(
+                boton.data("id")
+            );
+
+            $("#eliminar_nombre_curso").text(
+                boton.data("nombre")
+            );
+
+            $("#modalEliminarCurso").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // =============================================
+    // CORREO BIENVENIDA
+    // =============================================
+
+    $(document).on(
+        "click",
+        ".btn-correo-curso",
+        function () {
+
+            let boton = $(this);
+
+            $("#correo_idCurso").val(
+                boton.data("id")
+            );
+
+            $("#correo_nombreCurso").val(
+                boton.data("nombre")
+            );
+
+            $("#correo_inicioCurso").val(
+                boton.data("inicio")
+            );
+
+            $("#correo_horarioCurso").val(
+                boton.data("horario")
+            );
+
+            $("#modalCorreoBienvenida").modal(
+                "show"
+            );
+        }
+    );
+
+
+});
+
+</script>
+
+{% endblock javascripts %}

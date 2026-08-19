@@ -1,41 +1,124 @@
 <div class="left_col scroll-view">
-  
-  <div class="navbar nav_title" style="border: 0;">
-    <a href="salida_inventario" class="site_title"><i class="fa fa-spinner"></i> <span>administracion</span></a>
-  </div>
 
-  <div class="clearfix"></div>
+    <div
+        class="navbar nav_title"
+        style="border:0;"
+    >
 
+        <a
+            href="{% url 'dashboard' %}"
+            class="site_title"
+        >
 
-  <br />
-  <!-- sidebar menu -->
-  <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-    <div class="menu_section">
-      <h3>General</h3>
-      <ul class="nav side-menu">
-        <li><a href="alumnos"><i class="fa fa-arrow-down"></i> Alumnos </a>
-          
-        </li>
-        <li><a href="productos"><i class="fa fa-edit"></i> Productos </a>
-          
-        </li>
-        <li><a href="proveedores"><i class="fa fa-truck"></i> Proveedores </a>
-         
-        </li>
-        <li><a href="pedidos"><i class="fa fa-dropbox"></i> Agregar Pedidos </a>
-        </li>
-        <li><a href="lista_pedidos"><i class="fa fa-dropbox"></i> Pedidos </a>
-        </li>
-        <li><a href="stock"><i class="fa fa-bar-chart-o"></i> Stock </a>
-       
-        </li>
-        <li><a href="dashboard"><i class="fa fa-line-chart"></i>Dashboard </a>
-        </li>
-      </ul>
+            <i class="fa fa-graduation-cap"></i>
+
+            <span>
+                Administración
+            </span>
+
+        </a>
+
     </div>
-    
-  </div>
-  <!-- /sidebar menu -->
 
+
+    <div class="clearfix"></div>
+
+    <br>
+
+
+    <div
+        id="sidebar-menu"
+        class="main_menu_side hidden-print main_menu"
+    >
+
+        <div class="menu_section">
+
+            <h3>
+                General
+            </h3>
+
+            <ul class="nav side-menu">
+
+
+                <!-- DASHBOARD -->
+
+                <li>
+
+                    <a href="{% url 'dashboard' %}">
+
+                        <i class="fa fa-dashboard"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+
+                <!-- ASPIRANTES -->
+
+                <li>
+
+                    <a href="{% url 'alumnos' %}">
+
+                        <i class="fa fa-users"></i>
+
+                        Aspirantes
+
+                    </a>
+
+                </li>
+
+
+                <!-- CURSOS -->
+
+                <li>
+
+                    <a href="{% url 'cursos' %}">
+
+                        <i class="fa fa-graduation-cap"></i>
+
+                        Cursos
+
+                    </a>
+
+                </li>
+
+
+                <!-- BUSQUEDAS -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa fa-search"></i>
+
+                        Búsquedas
+
+                    </a>
+
+                </li>
+
+
+                <!-- MENSAJES DE CONTACTO -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa fa-envelope"></i>
+
+                        Mensajes de Contacto
+
+                    </a>
+
+                </li>
+
+
+            </ul>
+
+        </div>
+
+    </div>
 
 </div>

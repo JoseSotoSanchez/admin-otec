@@ -116,3 +116,108 @@ def obtener_cursos():
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
+def obtener_cursos_detalle():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                c.id,
+                c.nombre,
+                c.codigo_curso,
+                c.fecha_inicio,
+                c.fecha_fin,
+                c.id_dias,
+                c.id_horario,
+                c.costo,
+                c.modalidad,
+                c.activo,
+                d.rango AS dias,
+                h.rango AS horario
+            FROM Curso c
+            INNER JOIN Dias d
+                ON d.id = c.id_dias
+            INNER JOIN Horario h
+                ON h.id = c.id_horario
+            ORDER BY c.id DESC
+        """)
+
+        columnas = [col[0] for col in cursor.description]
+        cursos = [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+    # Agregamos valores preparados para la vista
+    for curso in cursos:
+
+        if curso["fecha_inicio"]:
+            curso["fecha_inicio_input"] = curso["fecha_inicio"].strftime(
+                "%Y-%m-%dT%H:%M"
+            )
+
+            curso["fecha_inicio_correo"] = curso["fecha_inicio"].strftime(
+                "%d-%m-%Y"
+            )
+
+            curso["fecha_inicio"] = curso["fecha_inicio"].strftime(
+                "%d-%m-%Y %H:%M"
+            )
+        else:
+            curso["fecha_inicio_input"] = ""
+            curso["fecha_inicio_correo"] = ""
+            curso["fecha_inicio"] = ""
+
+        if curso["fecha_fin"]:
+            curso["fecha_fin_input"] = curso["fecha_fin"].strftime(
+                "%Y-%m-%dT%H:%M"
+            )
+
+            curso["fecha_fin"] = curso["fecha_fin"].strftime(
+                "%d-%m-%Y %H:%M"
+            )
+        else:
+            curso["fecha_fin_input"] = ""
+            curso["fecha_fin"] = ""
+
+        curso["estado"] = "Activo" if curso["activo"] == 1 else "Inactivo"
+
+    return cursos
+
+
+def obtener_alumnos_correo_bienvenida(curso_id):
+    """
+    Obtiene alumnos cuyo ÚLTIMO estado sea 18 o 19.
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT DISTINCT
+                a.id,
+                a.nombre,
+                a.apellido,
+                a.email
+            FROM Alumno_Estado ae
+            INNER JOIN Alumno a
+                ON a.id = ae.id_alumno
+            INNER JOIN Curso c
+                ON c.id = a.id_curso
+
+            WHERE ae.id_estado = (
+                SELECT de.id_estado
+                FROM Alumno_Estado de
+                WHERE de.id_alumno = ae.id_alumno
+                ORDER BY de.fecha DESC, de.id DESC
+                LIMIT 1
+            )
+
+            AND c.id = %s
+            AND ae.id_estado IN (18, 19)
+
+            ORDER BY a.id DESC
+        """, [curso_id])
+
+        columnas = [col[0] for col in cursor.description]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]

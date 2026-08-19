@@ -1,0 +1,88 @@
+<!-- EDITAR -->
+
+<button
+    type="button"
+    class="btn btn-primary btn-xs btn-editar-curso"
+
+    data-id="{{ row.id }}"
+    data-nombre="{{ row.nombre }}"
+    data-codigo="{{ row.codigo_curso }}"
+    data-fechainicio="{{ row.fecha_inicio_input }}"
+    data-fechafin="{{ row.fecha_fin_input }}"
+    data-dias="{{ row.id_dias }}"
+    data-horario="{{ row.id_horario }}"
+    data-costo="{{ row.costo }}"
+    data-modalidad="{{ row.modalidad }}"
+
+    title="Editar curso"
+>
+    <i class="fa fa-pencil"></i>
+</button>
+
+
+<!-- ACTIVO / INACTIVO -->
+
+<form
+    method="POST"
+    action="{% url 'curso_estado' row.id %}"
+    style="display:inline;"
+>
+    {% csrf_token %}
+
+    {% if row.activo == 1 %}
+
+        <button
+            type="submit"
+            class="btn btn-danger btn-xs"
+            title="Desactivar curso"
+            onclick="return confirm('¿Desea desactivar este curso?');"
+        >
+            <i class="fa fa-ban"></i>
+        </button>
+
+    {% else %}
+
+        <button
+            type="submit"
+            class="btn btn-success btn-xs"
+            title="Activar curso"
+            onclick="return confirm('¿Desea activar este curso?');"
+        >
+            <i class="fa fa-check"></i>
+        </button>
+
+    {% endif %}
+
+</form>
+
+
+<!-- CORREO BIENVENIDA -->
+
+<button
+    type="button"
+    class="btn btn-info btn-xs btn-correo-curso"
+
+    data-id="{{ row.id }}"
+    data-nombre="{{ row.nombre }}"
+    data-inicio="{{ row.fecha_inicio_correo }}"
+    data-horario="{{ row.horario }}"
+
+    title="Enviar correo de bienvenida"
+>
+    <i class="fa fa-envelope"></i>
+</button>
+
+
+<!-- ELIMINAR -->
+
+<button
+    type="button"
+    class="btn btn-danger btn-xs btn-eliminar-curso"
+
+    data-id="{{ row.id }}"
+    data-nombre="{{ row.nombre }}"
+
+    title="Eliminar curso"
+>
+    <i class="fa fa-trash"></i>
+</button>
