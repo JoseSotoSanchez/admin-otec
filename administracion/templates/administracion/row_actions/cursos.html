@@ -22,9 +22,17 @@
 <form
     method="POST"
     action="{% url 'curso_estado' row.id %}"
+    class="form-estado-curso"
     style="display:inline;"
 >
     {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="pagina"
+        class="pagina-estado-curso"
+        value="0"
+    >
 
     {% if row.activo == 1 %}
 
@@ -67,19 +75,4 @@
     title="Enviar correo de bienvenida"
 >
     <i class="fa fa-envelope"></i>
-</button>
-
-
-<!-- ELIMINAR -->
-
-<button
-    type="button"
-    class="btn btn-danger btn-xs btn-eliminar-curso"
-
-    data-id="{{ row.id }}"
-    data-nombre="{{ row.nombre }}"
-
-    title="Eliminar curso"
->
-    <i class="fa fa-trash"></i>
 </button>

@@ -59,8 +59,32 @@
                                 <i class="fa fa-times-circle text-danger"></i>
                               {% endif %}
                             {% else %}
+
+                          {% if mostrar_estado_activo and atributo == "estado" %}
+
+                              {% if valor == "Activo" %}
+
+                                  <span class="text-success">
+                                      <i class="fa fa-check-circle"></i>
+                                      Activo
+                                  </span>
+
+                              {% else %}
+
+                                  <span class="text-danger">
+                                      <i class="fa fa-times-circle"></i>
+                                      Inactivo
+                                  </span>
+
+                              {% endif %}
+
+                          {% else %}
+
                               {{ valor }}
-                            {% endif %}
+
+                          {% endif %}
+
+                      {% endif %}
                           {% endwith %}
                         </td>
                       {% endif %}

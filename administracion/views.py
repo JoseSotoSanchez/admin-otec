@@ -135,8 +135,9 @@ class CursoView(ViewCustom):
             "row_actions":
                 "administracion/row_actions/cursos.html",
 
-            # DataTables
             "table_order": "desc",
+
+            "mostrar_estado_activo": True,
 
             "atributos": [
                 "id",
@@ -369,13 +370,11 @@ class CursoView(ViewCustom):
         return redirect("cursos")
 
 
-    # ================================================
-    # ACTIVAR / DESACTIVAR
-    # ================================================
-
     @staticmethod
     @require_POST
     def actualizar_estado(request, curso_id):
+
+        pagina = request.POST.get("pagina", "0")
 
         curso = get_object_or_404(
             Curso,
@@ -383,11 +382,13 @@ class CursoView(ViewCustom):
         )
 
         if curso.activo == 1:
+
             curso.activo = 0
 
             mensaje = "Curso desactivado correctamente."
 
         else:
+
             curso.activo = 1
 
             mensaje = "Curso activado correctamente."
@@ -401,7 +402,9 @@ class CursoView(ViewCustom):
             mensaje
         )
 
-        return redirect("cursos")
+        return redirect(
+            f"{reverse('cursos')}?pagina={pagina}"
+        )
 
 
     # ================================================

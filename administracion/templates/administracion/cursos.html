@@ -965,25 +965,6 @@ Cursos
 $(document).ready(function () {
 
     // =============================================
-    // VOLVER A LA PÁGINA ANTERIOR
-    // =============================================
-
-    const params = new URLSearchParams(
-        window.location.search
-    );
-
-    const pagina = params.get("pagina");
-
-    if (pagina !== null) {
-
-        let tabla = $('#datatable-buttons').DataTable();
-
-        tabla.page(
-            parseInt(pagina)
-        ).draw('page');
-    }
-
-    // =============================================
     // EDITAR CURSO
     // =============================================
 
@@ -1044,6 +1025,24 @@ $(document).ready(function () {
         }
     );
 
+    // =============================================
+    // GUARDAR PÁGINA AL ACTIVAR / DESACTIVAR
+    // =============================================
+
+    $(document).on(
+        "submit",
+        ".form-estado-curso",
+        function () {
+
+            const tabla = $('#datatable-buttons').DataTable();
+
+            const paginaActual = tabla.page();
+
+            $(this)
+                .find(".pagina-estado-curso")
+                .val(paginaActual);
+        }
+    );
 
     // =============================================
     // ELIMINAR
@@ -1107,6 +1106,31 @@ $(document).ready(function () {
 
 });
 
+// =============================================
+// VOLVER A LA PÁGINA ANTERIOR
+// =============================================
+
+$(window).on("load", function () {
+
+    const params = new URLSearchParams(
+        window.location.search
+    );
+
+    const pagina = params.get("pagina");
+
+    if (
+        pagina !== null &&
+        $.fn.DataTable.isDataTable("#datatable-buttons")
+    ) {
+
+        const tabla = $("#datatable-buttons").DataTable();
+
+        tabla
+            .page(parseInt(pagina))
+            .draw("page");
+    }
+
+});
 </script>
 
 {% endblock javascripts %}
