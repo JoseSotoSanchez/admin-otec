@@ -119,6 +119,8 @@ class AlumnoView(ViewCustom):
                 "id_estado_alumno",
             ],
 
+            "mostrar_estado_alumno": True,
+            
             "atributos": [
                 "id",
                 "nombre",
@@ -128,7 +130,6 @@ class AlumnoView(ViewCustom):
                 "telefono",
                 "estado",
                 "modificado_por",
-                "ingreso",
                 "total_pagos",
             ],
 
@@ -137,6 +138,7 @@ class AlumnoView(ViewCustom):
             "estados": estados,
 
             "total": len(alumnos),
+            
         }
 
         return render(
@@ -165,37 +167,21 @@ class AlumnoView(ViewCustom):
                 id=alumno_id
             )
 
-            estado_id = request.POST.get(
-                "estado"
-            )
+            estado_id = request.POST.get("estado")
 
-            nombre = request.POST.get(
-                "nombre"
-            )
-
-            apellido = request.POST.get(
-                "apellido"
-            )
-
-            email = request.POST.get(
-                "email"
-            )
-
-            telefono = request.POST.get(
-                "telefono"
-            )
+            nombre = request.POST.get("nombre")
+            apellido = request.POST.get("apellido")
+            email = request.POST.get("email")
+            telefono = request.POST.get("telefono")
 
             if not estado_id:
-
-                messages.error(
-                    request,
+                raise Exception(
                     "Debe seleccionar un estado."
                 )
 
-                return AlumnoView._redirect_alumnos(
-                    curso_id,
-                    pagina
-                )
+            # ==========================================
+            # ACTUALIZAR DATOS DEL ALUMNO
+            # ==========================================
 
             alumno.nombre = nombre
             alumno.apellido = apellido
@@ -211,21 +197,20 @@ class AlumnoView(ViewCustom):
                 ]
             )
 
-            id_usuario = request.session.get(
-                "id"
-            )
-
-            if not id_usuario:
-
-                raise Exception(
-                    "No existe usuario en sesión."
-                )
+            # ==========================================
+            # INSERTAR NUEVO ESTADO
+            # ==========================================
+            #
+            # Por ahora usamos usuario 1.
+            # Cuando migremos correctamente el login,
+            # lo reemplazamos por el usuario conectado.
+            #
 
             Alumno_Estado.objects.create(
-                id_estado_id=estado_id,
+                id_estado_id=int(estado_id),
                 id_alumno=alumno,
                 fecha=timezone.now(),
-                id_usuario=id_usuario,
+                id_usuario=1,
             )
 
             messages.success(
@@ -237,14 +222,13 @@ class AlumnoView(ViewCustom):
 
             messages.error(
                 request,
-                f"Error al actualizar aspirante: {e}"
+                f"Error al actualizar aspirante: {str(e)}"
             )
 
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina
         )
-
 
     # ============================================
     # REGISTRAR PAGO
@@ -275,7 +259,6 @@ class AlumnoView(ViewCustom):
             )
 
             if not monto or not medio_pago:
-
                 raise Exception(
                     "Debe ingresar monto y forma de pago."
                 )
@@ -298,23 +281,14 @@ class AlumnoView(ViewCustom):
                 fecha=timezone.now(),
             )
 
-            id_usuario = request.session.get(
-                "id"
-            )
-
-            if not id_usuario:
-
-                raise Exception(
-                    "No existe usuario en sesión."
-                )
-
-            # Igual que Flask:
-            # al registrar pago pasa a estado 18.
+            # Por ahora usamos usuario 1.
+            # Cuando migremos correctamente el login,
+            # se reemplaza por el usuario autenticado.
             Alumno_Estado.objects.create(
                 id_estado_id=18,
                 id_alumno=alumno,
                 fecha=timezone.now(),
-                id_usuario=id_usuario,
+                id_usuario=1,
             )
 
             messages.success(
@@ -326,7 +300,7 @@ class AlumnoView(ViewCustom):
 
             messages.error(
                 request,
-                f"Error al guardar pago: {e}"
+                f"Error al guardar pago: {str(e)}"
             )
 
         return AlumnoView._redirect_alumnos(

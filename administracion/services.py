@@ -6,7 +6,7 @@ def obtener_aspirantes_por_curso(curso_id):
     with connection.cursor() as cursor:
 
         query = """
-            SELECT DISTINCT
+            SELECT
                 a.id AS id,
                 a.nombre,
                 a.apellido,
@@ -29,8 +29,9 @@ def obtener_aspirantes_por_curso(curso_id):
                 c.id AS id_curso,
 
                 ea.estado,
-                u.nick AS modificado_por,
                 ea.id AS id_estado_alumno,
+
+                u.nick AS modificado_por,
 
                 c.costo,
                 a.ingreso,
@@ -42,13 +43,21 @@ def obtener_aspirantes_por_curso(curso_id):
                     AND p.id_curso = a.id_curso
                 ) AS total_pagos
 
-            FROM Alumno_Estado ae
-
-            INNER JOIN Alumno a
-                ON a.id = ae.id_alumno
+            FROM Alumno a
 
             INNER JOIN Curso c
                 ON c.id = a.id_curso
+
+            INNER JOIN Alumno_Estado ae
+                ON ae.id = (
+                    SELECT ae2.id
+                    FROM Alumno_Estado ae2
+                    WHERE ae2.id_alumno = a.id
+                    ORDER BY
+                        ae2.fecha DESC,
+                        ae2.id DESC
+                    LIMIT 1
+                )
 
             INNER JOIN Estado_Alumno ea
                 ON ea.id = ae.id_estado
@@ -56,42 +65,34 @@ def obtener_aspirantes_por_curso(curso_id):
             INNER JOIN Usuario u
                 ON u.id = ae.id_usuario
 
-            WHERE ae.id_estado = (
-
-                SELECT de.id_estado
-                FROM Alumno_Estado de
-                WHERE de.id_alumno = ae.id_alumno
-                ORDER BY de.fecha DESC
-                LIMIT 1
-
-            )
-
-            AND ae.fecha = (
-
-                SELECT de.fecha
-                FROM Alumno_Estado de
-                WHERE de.id_alumno = ae.id_alumno
-                ORDER BY de.fecha DESC
-                LIMIT 1
-
-            )
+            WHERE 1 = 1
         """
 
         parametros = []
 
         if curso_id is not None:
+
             query += """
                 AND c.id = %s
             """
-            parametros.append(curso_id)
+
+            parametros.append(
+                curso_id
+            )
 
         query += """
             ORDER BY a.id DESC
         """
 
-        cursor.execute(query, parametros)
+        cursor.execute(
+            query,
+            parametros
+        )
 
-        columnas = [col[0] for col in cursor.description]
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
 
         return [
             dict(zip(columnas, fila))
