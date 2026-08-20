@@ -1,0 +1,87 @@
+<button
+    type="button"
+    class="btn btn-primary btn-xs btn-modificar-alumno"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+    data-nombre="{{ row.nombre }}"
+    data-apellido="{{ row.apellido }}"
+    data-email="{{ row.email }}"
+    data-telefono="{{ row.telefono }}"
+    data-estado="{{ row.id_estado_alumno }}"
+
+    title="Modificar aspirante"
+>
+    <i class="fa fa-pencil"></i>
+</button>
+
+
+<button
+    type="button"
+    class="btn btn-success btn-xs btn-pago-alumno"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+    data-nombre="{{ row.nombre }} {{ row.apellido }}"
+
+    title="Agregar pago"
+>
+    <i class="fa fa-money"></i>
+</button>
+
+
+<a
+    href="{% url 'alumno_pagos' row.id row.id_curso %}"
+    class="btn btn-default btn-xs"
+    title="Ver pagos"
+>
+    <i class="fa fa-list"></i>
+</a>
+
+
+<button
+    type="button"
+    class="btn btn-warning btn-xs btn-aceptacion-alumno"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+    data-nombre="{{ row.nombre }} {{ row.apellido }}"
+    data-email="{{ row.email }}"
+
+    title="Correo aceptación"
+>
+    <i class="fa fa-thumbs-up"></i>
+</button>
+
+
+<button
+    type="button"
+    class="btn btn-info btn-xs btn-correo-pago"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+    data-nombre="{{ row.nombre }} {{ row.apellido }}"
+
+    title="Correo pago"
+>
+    <i class="fa fa-envelope"></i>
+</button>
+
+
+{% if "IEMCE" in row.codigo_curso or "AAMCE" in row.codigo_curso or "CBC" in row.codigo_curso or "AAC" in row.codigo_curso %}
+
+<button
+    type="button"
+    class="btn btn-success btn-xs btn-bienvenida-especial"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+    data-codigo="{{ row.codigo_curso }}"
+    data-nombre="{{ row.nombre }} {{ row.apellido }}"
+
+    title="Correo bienvenida"
+>
+    <i class="fa fa-graduation-cap"></i>
+</button>
+
+{% endif %}

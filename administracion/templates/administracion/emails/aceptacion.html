@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<body style="font-family:Arial,sans-serif;">
+
+    <h2>
+        IC Capacitación Laboral
+    </h2>
+
+    <p>
+        Estimado(a)
+        <strong>
+            {{ nombre_alumno }}
+        </strong>
+    </p>
+
+    <p>
+        Su postulación al curso
+        <strong>
+            {{ curso.nombre }}
+        </strong>
+        ha sido aceptada.
+    </p>
+
+    <p>
+        Inicio:
+        {{ fecha_inicio }}
+    </p>
+
+    <p>
+        Horario:
+        {{ dias }}
+        {{ horario }}
+    </p>
+
+    <p>
+        Valor:
+        ${{ valor_curso }}
+    </p>
+
+    <p>
+        Beca:
+        {{ porcentaje }}%
+    </p>
+
+    <p>
+
+        <a href="{{ url_pago }}">
+            Realizar pago
+        </a>
+
+    </p>
+
+    <hr>
+
+    <p>
+        {{ usuario.nombre }}
+    </p>
+
+    <p>
+        {{ usuario.correo }}
+    </p>
+
+    <p>
+        {{ usuario.numero }}
+    </p>
+
+</body>
+
+</html>

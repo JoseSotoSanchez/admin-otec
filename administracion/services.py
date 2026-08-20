@@ -26,6 +26,7 @@ def obtener_aspirantes_por_curso(curso_id):
 
                 c.nombre AS nombre_curso,
                 c.codigo_curso,
+                c.id AS id_curso,
 
                 ea.estado,
                 u.nick AS modificado_por,
@@ -257,6 +258,47 @@ def obtener_alumnos_correo_bienvenida(curso_id):
         """, [curso_id])
 
         columnas = [col[0] for col in cursor.description]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+def obtener_estados_alumno():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT id, estado
+            FROM Estado_Alumno
+            ORDER BY id
+        """)
+
+        return [
+            {
+                "id": fila[0],
+                "estado": fila[1],
+            }
+            for fila in cursor.fetchall()
+        ]
+
+
+def obtener_pagos_alumno(alumno_id, curso_id):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                id,
+                monto,
+                medio_pago,
+                fecha
+            FROM Pagos
+            WHERE id_alumno = %s
+              AND id_curso = %s
+            ORDER BY id DESC
+        """, [alumno_id, curso_id])
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
 
         return [
             dict(zip(columnas, fila))

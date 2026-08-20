@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<body style="font-family:Arial,sans-serif;">
+
+    <h2>
+        IC Capacitación Laboral
+    </h2>
+
+    <p>
+        Estimado(a)
+        <strong>
+            {{ nombre_alumno }}
+        </strong>
+    </p>
+
+    <p>
+        Información correspondiente al pago
+        del curso:
+    </p>
+
+    <h3>
+        {{ curso.nombre }}
+    </h3>
+
+    <p>
+        Código:
+        {{ curso.codigo_curso }}
+    </p>
+
+    <p>
+        Valor:
+        ${{ valor_curso }}
+    </p>
+
+    <p>
+        Medio de pago:
+        {{ medio_pago }}
+    </p>
+
+    <hr>
+
+    <p>
+        {{ usuario.nombre }}
+    </p>
+
+    <p>
+        {{ usuario.correo }}
+    </p>
+
+    <p>
+        {{ usuario.numero }}
+    </p>
+
+</body>
+
+</html>

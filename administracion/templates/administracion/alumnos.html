@@ -1,197 +1,889 @@
 {% extends "administracion/base_site.html" %}
 
-{% block title %} {% endblock title %}
+{% block title %}
+Aspirantes
+{% endblock title %}
 
-{% block stylesheets %}
-{{ block.super }}
-{% endblock stylesheets %}
 
 {% block content %}
 
-{% include "administracion/generic_table.html" with title="Alumnos" actions_bar="administracion/actions_bar/alumnos.html"  %}
+{% include "administracion/generic_table.html" with title="Aspirantes" %}
+
+
+<!-- ========================================= -->
+<!-- MODAL MODIFICAR -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalModificarAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formModificarAlumno"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="modificar_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="modificar_pagina"
+                    value="0"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Modificar Aspirante
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>Estado</label>
+
+                        <select
+                            name="estado"
+                            id="modificar_estado"
+                            class="form-control"
+                            required
+                        >
+
+                            {% for estado in estados %}
+
+                            <option value="{{ estado.id }}">
+                                {{ estado.estado }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Nombres</label>
+
+                        <input
+                            name="nombre"
+                            id="modificar_nombre"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Apellidos</label>
+
+                        <input
+                            name="apellido"
+                            id="modificar_apellido"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Correo</label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="modificar_email"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Celular</label>
+
+                        <input
+                            name="telefono"
+                            id="modificar_telefono"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cerrar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- MODAL PAGO -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalPagoAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formPagoAlumno"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="pago_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="pago_pagina"
+                    value="0"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Agregar Pago -
+                        <span id="pago_nombre"></span>
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+
+                        <label>
+                            Forma de Pago
+                        </label>
+
+                        <select
+                            name="medio_pago"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="Transferencia">
+                                Transferencia
+                            </option>
+
+                            <option value="Flow">
+                                Flow
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Monto</label>
+
+                        <input
+                            type="number"
+                            min="1"
+                            name="monto"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cerrar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Guardar Pago
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- CORREO ACEPTACIÓN -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalAceptacionAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formAceptacionAlumno"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="aceptacion_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="aceptacion_pagina"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Correo de Aceptación
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="aceptacion_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            URL de Pago
+                        </label>
+
+                        <input
+                            type="url"
+                            name="url_pago"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- CORREO PAGO -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalCorreoPago"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formCorreoPago"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="correo_pago_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="correo_pago_pagina"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Enviar correo de pago
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="correo_pago_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            Medio de Pago
+                        </label>
+
+                        <input
+                            type="text"
+                            name="medio_pago"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-info"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- BIENVENIDA ESPECIAL -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalBienvenidaEspecial"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formBienvenidaEspecial"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="bienvenida_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="bienvenida_pagina"
+                >
+
+                <input
+                    type="hidden"
+                    name="tipo"
+                    id="bienvenida_tipo"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Enviar Bienvenida
+                        <span id="bienvenida_tipo_texto"></span>
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="bienvenida_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            Link SENCE
+                        </label>
+
+                        <input
+                            type="url"
+                            name="link_sence"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-success"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 {% endblock content %}
 
+
 {% block javascripts %}
+
 {{ block.super }}
 
 <script>
-    // Configuración del menú contextual
-    $.contextMenu({
-        selector: '#datatable-buttons tbody tr',
-        callback: function (key, options) { 
-            let producto = get_row(this); 
-            switch (key) {
-                case "update": 
-                    poblarModalModificarProducto(producto);
-                    $('#modalModificarProducto').modal('show');
-                    break;
-                case "delete":
-                    setProductoDeleteId(producto);
-                    $('#modalEliminarProducto').modal('show');
-                    break;
-                case "ver": 
-                    poblarDetallesProducto(producto); 
-                    $('#modalDetalleProducto').modal('show');
-                    break;
-                default:
-                    console.log("Lo lamentamos, por el momento no disponemos de esa opción.");
-            } 
-        },
-        items: {
-            "update": { name: "Actualizar", icon: "fas fa-pen" },
-            "delete": { name: "Eliminar", icon: "fas fa-trash" },
-            "sep1": "---------",
-            "ver": { name: "Ver detalles", icon: "fas fa-eye" }
+
+$(document).ready(function () {
+
+
+    function paginaActual() {
+
+        if (
+            $.fn.DataTable.isDataTable(
+                "#datatable-buttons"
+            )
+        ) {
+
+            return $(
+                "#datatable-buttons"
+            )
+            .DataTable()
+            .page();
         }
-    });
 
-    // Doble clic para mostrar detalles del producto
-    $('#datatable-buttons tbody').on('dblclick', 'tr', function () {
-        let producto = get_row(this); 
-        poblarDetallesProducto(producto);  
-        $('#modalDetalleProducto').modal('show');
-    });
-
-    // Validación para eliminar caracteres no numéricos en inputs numéricos
-    $('#precio_neto, #precio_final, #stock_minimo').on('input', function () { 
-        filtrarNoNumerico($(this)); 
-    });
-
-    function filtrarNoNumerico(element) { 
-        let currentValue = element.val();
-        let filteredValue = currentValue.replace(/[^0-9]/g, ''); 
-        if (currentValue !== filteredValue) {
-            element.val(filteredValue);
-        }
+        return 0;
     }
 
-    // Función para calcular y actualizar el precio final
-    function actualizarPrecioFinal(inputPrecioNetoSelector, outputPrecioFinalSelector, checkboxIVA) {
-        funcion_cambio = function () {
-            var precioNeto = parseInt($(inputPrecioNetoSelector).val());
-            if (!isNaN(precioNeto)) {
-                // Leer porcentaje de ganancia
-                $.get('/leer_porcentaje', function (data) {
-                    let ganancia = (data && typeof data.ganancia === 'number') ? data.ganancia : 30;
 
-                    // Cálculo del precio bruto (sin IVA)
-                    var precioFinal = precioNeto / ((100 - ganancia) / 100); 
+    // ========================================
+    // MODIFICAR
+    // ========================================
 
-                    $(outputPrecioFinalSelector).val(Math.ceil(precioFinal)); 
+    $(document).on(
+        "click",
+        ".btn-modificar-alumno",
+        function () {
 
-                }).fail(function () {
-                    console.log("Error al leer archivo ganancia.txt");
-                    let ganancia = 30;
-                    var precioFinal = precioNeto / ((100 - ganancia) / 100);
-                    if ($(checkboxIVA).is(':checked')) {
-                        precioFinal *= 1.19;
-                    }
-                    $(outputPrecioFinalSelector).val(Math.ceil(precioFinal));
-                });
-            } else {
-                $(outputPrecioFinalSelector).val('');
+            let b = $(this);
+
+            $("#modificar_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#modificar_pagina").val(
+                paginaActual()
+            );
+
+            $("#modificar_nombre").val(
+                b.data("nombre")
+            );
+
+            $("#modificar_apellido").val(
+                b.data("apellido")
+            );
+
+            $("#modificar_email").val(
+                b.data("email")
+            );
+
+            $("#modificar_telefono").val(
+                b.data("telefono")
+            );
+
+            $("#modificar_estado").val(
+                b.data("estado")
+            );
+
+            $("#formModificarAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/actualizar"
+            );
+
+            $("#modalModificarAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // PAGO
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-pago-alumno",
+        function () {
+
+            let b = $(this);
+
+            $("#pago_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#pago_pagina").val(
+                paginaActual()
+            );
+
+            $("#pago_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formPagoAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/pago"
+            );
+
+            $("#modalPagoAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // ACEPTACIÓN
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-aceptacion-alumno",
+        function () {
+
+            let b = $(this);
+
+            $("#aceptacion_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#aceptacion_pagina").val(
+                paginaActual()
+            );
+
+            $("#aceptacion_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formAceptacionAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-aceptacion"
+            );
+
+            $("#modalAceptacionAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // CORREO PAGO
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-correo-pago",
+        function () {
+
+            let b = $(this);
+
+            $("#correo_pago_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#correo_pago_pagina").val(
+                paginaActual()
+            );
+
+            $("#correo_pago_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formCorreoPago").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-pago"
+            );
+
+            $("#modalCorreoPago").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // BIENVENIDA
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-bienvenida-especial",
+        function () {
+
+            let b = $(this);
+
+            let codigo = (
+                b.data("codigo")
+                || ""
+            );
+
+            let tipo = "";
+
+            if (
+                codigo.indexOf("IEMCE") !== -1
+            ) {
+                tipo = "IEMCE";
             }
-        };
+            else if (
+                codigo.indexOf("AAMCE") !== -1
+            ) {
+                tipo = "AAMCE";
+            }
+            else if (
+                codigo.indexOf("CBC") !== -1
+            ) {
+                tipo = "CBC";
+            }
+            else if (
+                codigo.indexOf("AAC") !== -1
+            ) {
+                tipo = "AAC";
+            }
 
-        // Escucha cambios en el input y checkbox
-        $(inputPrecioNetoSelector).on('input', funcion_cambio); 
-    }
+            $("#bienvenida_tipo").val(
+                tipo
+            );
 
+            $("#bienvenida_tipo_texto").text(
+                tipo
+            );
 
-    function aplicarIVA(inputSelector, checkboxSelector) {
-        // Obtener el valor del input y convertirlo a número
-        var precioNeto = parseInt($(inputSelector).val());
+            $("#bienvenida_nombre").text(
+                b.data("nombre")
+            );
 
-        if (isNaN(precioNeto)) {
-            // Si el valor no es un número, salir de la función
-            return;
+            $("#bienvenida_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#bienvenida_pagina").val(
+                paginaActual()
+            );
+
+            $("#formBienvenidaEspecial").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-bienvenida"
+            );
+
+            $("#modalBienvenidaEspecial").modal(
+                "show"
+            );
         }
+    );
 
-        // Verificar si el checkbox está marcado
-        var aplicarIva = $(checkboxSelector).is(':checked');
+});
 
-        // Calcular el precio con o sin IVA
-        var precioFinal = aplicarIva ? precioNeto * 1.19 : precioNeto;
 
-        // Actualizar el valor del input con el precio final
-        $(inputSelector).val(Math.ceil(precioFinal));
+// ============================================
+// RESTAURAR PÁGINA DATATABLE
+// ============================================
+
+$(window).on(
+    "load",
+    function () {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const pagina =
+            params.get("pagina");
+
+        if (
+            pagina !== null &&
+            $.fn.DataTable.isDataTable(
+                "#datatable-buttons"
+            )
+        ) {
+
+            const tabla =
+                $("#datatable-buttons")
+                .DataTable();
+
+            tabla
+                .page(
+                    parseInt(pagina)
+                )
+                .draw("page");
+        }
     }
-
-    // Selecciona el input y el checkbox
-    var inputSelector = '#precio_final';
-    var checkboxSelector = '#iva';
-
-    // Aplica IVA al cambiar el estado del checkbox
-    $(checkboxSelector).on('change', function() {
-        aplicarIVA(inputSelector, checkboxSelector);
-    });
-
-
-    // Llamar a la función para los modales
-    actualizarPrecioFinal('#precio_neto', '#precio_final', '#iva');
-    actualizarPrecioFinal('#precio_neto_update', '#precio_final_update', '#iva_update');
-
-    // Funciones auxiliares para poblar datos en los modales
-    function poblarModalModificarProducto(producto) {  
-        $('#id_producto_update').val(producto.id);
-        $('#codigo_barras_update').val(producto.codigo_barra);
-        $('#nombre_update').val(producto.nombre);
-        $('#precio_neto_update').val(producto.precio_neto);
-        $('#marca_update').val(producto.marca);
-        $('#stock_minimo_update').val(producto.stock_critico);
-        $('#alertar_update').prop('checked', producto.alerta.toLowerCase() == "true");
-        $('#precio_final_update').val(producto.precio_bruto);
-        $('#unidad_medida_update').val(producto.unidad_medida);  
-    }
-
-    function poblarDetallesProducto(producto) {
-        $('#detalle_nombre').text(producto.nombre);
-        $('#detalle_sku').text(producto.sku);
-        $('#detalle_unidad_medida').text(producto.unidad_medida);
-        $('#detalle_precio_bruto').text(producto.precio_bruto);
-        $('#detalle_precio_neto').text(producto.precio_neto);
-        $('#detalle_marca').text(producto.marca);
-        $('#detalle_stock_critico').text(producto.stock_critico);
-        $('#detalle_alerta').text(producto.alerta == "True" ? 'Sí' : 'No');
-        $('#detalle_fecha_creacion').text(producto.fecha_creacion);
-        $('#detalle_codigo_barra').text(producto.codigo_barra);
-        let precioClp = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(producto.precio_bruto);
-        $('#detalle_precio_final').text(precioClp);
-    }
-
-    function setProductoDeleteId(producto) {
-        $('#producto_delete_id').val(producto.id);
-    }
-
-
-    function cargarGananciaConfig() {
-        // Realiza la llamada GET para obtener la ganancia
-        $.get('/leer_porcentaje', function (data) {
-            let ganancia = (data && typeof data.ganancia === 'number') ? data.ganancia : 30;
-            // Actualiza el contenido del div con el valor de la ganancia
-            $('#ganancia_config').text(`Ganaancia configurda: ${ganancia}% por cada producto.`);
-        }).fail(function () {
-            console.log("Error al leer archivo ganancia.txt");
-            // Valor por defecto si falla la llamada
-            $('#ganancia_config').text("Ganancia configurada: 30% (valor por defecto)");
-        });
-    }
-
-    // Llamar al método al final de la carga de la página
-    $(document).ready(function () {
-        cargarGananciaConfig();
-
-        $('th').each(function() {
-            var text = $(this).html();
-            text = text.replace(/Precio Bruto/g, 'Precio Final').replace(/Precio Neto/g, 'Precio Base');
-            $(this).html(text);
-        });
-
-    });
-
-    
-
+);
 
 </script>
 

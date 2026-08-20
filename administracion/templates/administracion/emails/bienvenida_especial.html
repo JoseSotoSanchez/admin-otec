@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+</head>
+
+
+<body
+    style="
+        margin:0;
+        padding:0;
+        background:#ffffff;
+        font-family:Arial, Helvetica, sans-serif;
+    "
+>
+
+
+<table
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    style="
+        border-collapse:collapse;
+        background:#ffffff;
+    "
+>
+
+<tr>
+
+<td align="center">
+
+
+<table
+    width="900"
+    cellpadding="0"
+    cellspacing="0"
+    style="
+        width:100%;
+        max-width:900px;
+        border:1px solid #cccccc;
+        border-collapse:collapse;
+    "
+>
+
+
+<!-- ======================================= -->
+<!-- CABECERA -->
+<!-- ======================================= -->
+
+<tr>
+
+<td
+    align="center"
+    style="
+        background:#1c68c4;
+        padding:20px;
+    "
+>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/logo-ic-capacitacion-1.png"
+        alt="IC Capacitación Laboral"
+        width="300"
+        style="
+            max-width:100%;
+            height:auto;
+            display:block;
+        "
+    >
+
+</td>
+
+</tr>
+
+
+<!-- ======================================= -->
+<!-- CONTENIDO -->
+<!-- ======================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:36px 30px 42px 30px;
+        color:#153643;
+        font-size:16px;
+        line-height:24px;
+    "
+>
+
+
+<p>
+
+    Estimado(a)
+
+    <strong>
+        {{ nombre_alumno }}
+    </strong>,
+
+</p>
+
+
+<p>
+
+    Mi nombre es
+
+    <strong>
+        {{ usuario.nombre }}
+    </strong>,
+
+    Coordinador(a) de IC Capacitación Laboral.
+
+</p>
+
+
+<p>
+
+    Esperando te encuentres muy bien, quisiera comentarte
+    que fuiste beneficiado con nuestro
+
+    <strong>
+        Programa ICL Beca con un 75% de descuento
+    </strong>
+
+    en el curso
+
+    <strong>
+        {{ curso.nombre }}
+    </strong>,
+
+    con una duración de
+
+    <strong>
+        {{ horas }} horas
+    </strong>.
+
+</p>
+
+
+<p>
+
+    El curso de
+
+    <strong>
+        {{ curso.nombre }}
+    </strong>
+
+    le otorgará herramientas y conocimientos necesarios
+    para contribuir a su inserción laboral.
+
+</p>
+
+
+<p>
+    {{ descripcion }}
+</p>
+
+
+<!-- ======================================= -->
+<!-- SENCE -->
+<!-- ======================================= -->
+
+<h3>
+    Acreditación SENCE
+</h3>
+
+
+<p>
+
+    IC Capacitación Laboral se encuentra acreditado por
+    SENCE y bajo la norma NCH 2728/2015.
+
+</p>
+
+
+<p>
+
+    Puede verificar nuestra acreditación en:
+
+</p>
+
+
+<p>
+
+    <a href="{{ link_sence }}">
+        {{ link_sence }}
+    </a>
+
+</p>
+
+
+<p>
+
+    Verifique ingresando nuestro RUT:
+
+    <strong>
+        77.558.994-9
+    </strong>
+
+</p>
+
+
+<p>
+    Instituto de Capacitación Laboral SPA.
+</p>
+
+
+<!-- ======================================= -->
+<!-- PLAN FORMATIVO -->
+<!-- ======================================= -->
+
+<h3>
+    Plan formativo
+</h3>
+
+
+<p>
+
+    • Modalidad:
+
+    <strong>
+        {{ modalidad }}
+    </strong>
+
+</p>
+
+
+<p>
+
+    • Clases en vivo vía ZOOM y plataforma de aprendizaje
+    mediante Aula Virtual.
+
+</p>
+
+
+<h3>
+    ¿En qué consiste el curso?
+</h3>
+
+
+<p>
+
+    • Deberás conectarte vía Zoom para realizar las clases
+    online, donde podrás interactuar con el profesor(a) y
+    tus compañeros.
+
+</p>
+
+
+<p>
+
+    • También deberás realizar las respectivas evaluaciones
+    y exámenes.
+
+</p>
+
+
+<p>
+
+    • Terminado el proceso podrás obtener tu certificado
+    bajo la normativa correspondiente.
+
+</p>
+
+
+<!-- ======================================= -->
+<!-- APOYO LABORAL -->
+<!-- ======================================= -->
+
+<h3>
+    IC Capacitación Laboral
+</h3>
+
+
+<p>
+    {{ texto_practica }}
+</p>
+
+
+{% if tipo != "IEMCE" %}
+
+<p>
+
+    • Puedes comenzar a trabajar una vez terminado el curso.
+
+</p>
+
+{% endif %}
+
+
+<!-- ======================================= -->
+<!-- DURACIÓN -->
+<!-- ======================================= -->
+
+<h3>
+    Duración
+</h3>
+
+
+<p>
+
+    • Curso teórico:
+
+    <strong>
+        {{ horas }} horas académicas.
+    </strong>
+
+</p>
+
+
+<!-- ======================================= -->
+<!-- HORARIO -->
+<!-- ======================================= -->
+
+<h3>
+    Horario
+</h3>
+
+
+<p>
+
+    •
+
+    <strong>
+        {{ dias }}
+    </strong>
+
+    de
+
+    <strong>
+        {{ horario }}
+    </strong>
+
+</p>
+
+
+<!-- ======================================= -->
+<!-- FECHAS -->
+<!-- ======================================= -->
+
+<h3>
+    Próxima fecha
+</h3>
+
+
+<p>
+
+    •
+
+    <strong>
+        {{ fecha_inicio }}
+    </strong>
+
+    al
+
+    <strong>
+        {{ fecha_fin }}
+    </strong>
+
+</p>
+
+
+<!-- ======================================= -->
+<!-- CERTIFICADO -->
+<!-- ======================================= -->
+
+<h3>
+    Al finalizar el curso
+</h3>
+
+
+<p>
+
+    • Entrega de Certificado Digital con validación QR.
+
+</p>
+
+
+<!-- ======================================= -->
+<!-- VALORES -->
+<!-- ======================================= -->
+
+
+{% if valor_total %}
+
+<p>
+
+    <strong>
+        VALOR TOTAL DEL CURSO:
+        ${{ valor_total }}.-
+    </strong>
+
+</p>
+
+{% endif %}
+
+
+<h3>
+
+    VALOR A PAGAR CON BECA CURSO TEÓRICO:
+
+    <strong>
+        ${{ valor_curso }}.-
+    </strong>
+
+    pago único.
+
+</h3>
+
+
+<!-- ======================================= -->
+<!-- CUOTAS -->
+<!-- ======================================= -->
+
+{% if cuotas %}
+
+<h3>
+    VER FORMA DE PAGO CON COORDINACIÓN HASTA 3 CUOTAS:
+</h3>
+
+
+<ol>
+
+    {% for cuota in cuotas %}
+
+    <li>
+        {{ cuota }}
+    </li>
+
+    {% endfor %}
+
+</ol>
+
+{% endif %}
+
+
+
+{% if cuotas_dos %}
+
+<h3>
+    VER FORMA DE PAGO CON COORDINACIÓN HASTA 2 CUOTAS:
+</h3>
+
+
+<ol>
+
+    {% for cuota in cuotas_dos %}
+
+    <li>
+        {{ cuota }}
+    </li>
+
+    {% endfor %}
+
+</ol>
+
+{% endif %}
+
+
+<!-- ======================================= -->
+<!-- ADVERTENCIA -->
+<!-- ======================================= -->
+
+<p
+    style="
+        color:red;
+        text-align:center;
+        font-weight:bold;
+    "
+>
+
+    Punto importante:
+
+    No habrá devolución de dinero para aquellos que
+    comiencen el curso. Solo casos especiales con
+    justificación.
+
+</p>
+
+
+<p>
+
+    Esperando que sea de su agrado nuestro programa
+    formativo, quedamos atentos a su respuesta.
+
+</p>
+
+
+<p>
+    Saludos cordiales.
+</p>
+
+
+<p>
+
+    <strong>
+        Instituto de Capacitación Laboral
+    </strong>
+
+</p>
+
+
+</td>
+
+</tr>
+
+
+<!-- ======================================= -->
+<!-- FOOTER AZUL -->
+<!-- ======================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:25px;
+        background:#0a73b9;
+        color:#ffffff;
+    "
+>
+
+
+<p
+    style="
+        margin:0;
+        font-size:14px;
+    "
+>
+
+    La información recopilada es de carácter confidencial.
+
+</p>
+
+
+</td>
+
+</tr>
+
+
+<!-- ======================================= -->
+<!-- FIRMA -->
+<!-- ======================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:25px;
+        background:#ffffff;
+        color:#515A5A;
+    "
+>
+
+
+<p
+    style="
+        font-size:14px;
+        margin:0 0 4px 0;
+        font-weight:bold;
+    "
+>
+
+    {{ usuario.nombre }}
+
+</p>
+
+
+<p
+    style="
+        font-size:16px;
+        margin:0 0 4px 0;
+        font-weight:bold;
+    "
+>
+
+    Coordinador(a) de Curso
+    IC Capacitación Laboral
+
+</p>
+
+
+<p
+    style="
+        font-size:14px;
+        margin:0 0 4px 0;
+    "
+>
+
+    {{ usuario.correo }}
+
+</p>
+
+
+<p
+    style="
+        font-size:14px;
+        margin:0 0 4px 0;
+    "
+>
+
+    Contacto:
+    {{ usuario.numero }}
+    WhatsApp
+
+</p>
+
+
+<p>
+
+    <a href="https://iccapacitacionlaboral.cl">
+        iccapacitacionlaboral.cl
+    </a>
+
+</p>
+
+
+<table
+    cellpadding="0"
+    cellspacing="0"
+>
+
+<tr>
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo3.jpeg"
+        width="150"
+        alt=""
+    >
+
+</td>
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo2.jpeg"
+        width="150"
+        alt=""
+    >
+
+</td>
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo1.jpeg"
+        width="150"
+        alt=""
+    >
+
+</td>
+
+</tr>
+
+</table>
+
+
+</td>
+
+</tr>
+
+
+</table>
+
+
+</td>
+
+</tr>
+
+</table>
+
+
+</body>
+
+</html>

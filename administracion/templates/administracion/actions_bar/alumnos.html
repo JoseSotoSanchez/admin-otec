@@ -1,335 +1,118 @@
 <div class="row">
-    <div class="col-12">
+
+    <div class="col-md-12">
+
         <div class="x_panel">
+
             <div class="x_content">
 
-                <form method="post" class="form-inline">
+                <form
+                    method="POST"
+                    action="{% url 'alumnos' %}"
+                    class="form-inline"
+                >
+
                     {% csrf_token %}
 
-                    <div class="form-group mr-2">
-                        <label for="id_curso" class="mr-2">
-                            Curso
-                        </label>
+                    <div class="form-group">
 
-                        <select class="form-control" id="id_curso" name="id_curso" required>
-                            <option value="">Seleccione un curso</option>
+                        <select
+                            name="id_curso"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccione curso
+                            </option>
 
                             {% for curso in cursos %}
-                                <option value="{{ curso.id }}"
-                                    {% if curso.id|stringformat:"s" == curso_id|stringformat:"s" %}
+
+                                <option
+                                    value="{{ curso.id }}"
+
+                                    {% if curso_id == curso.id %}
                                         selected
-                                    {% endif %}>
-                                    {{ curso.codigo_curso }} - {{ curso.nombre }}
+                                    {% endif %}
+                                >
+                                    {{ curso.codigo_curso }}
+                                    -
+                                    {{ curso.nombre }}
                                 </option>
+
                             {% endfor %}
+
                         </select>
+
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="fa fa-search"></i>
                         Buscar
                     </button>
 
                 </form>
 
+
+                {% if curso_id %}
+
+                    <hr>
+
+                    <strong>
+                        Total aspirantes:
+                        {{ total }}
+                    </strong>
+
+                    <div
+                        class="pull-right"
+                    >
+
+                        <form
+                            method="POST"
+                            action="{% url 'alumnos_exportar' curso_id %}"
+                            style="display:inline;"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                class="btn btn-success"
+                            >
+                                <i class="fa fa-file-excel-o"></i>
+                                Descargar todos
+                            </button>
+
+                        </form>
+
+
+                        <form
+                            method="POST"
+                            action="{% url 'alumnos_exportar_pagados' curso_id %}"
+                            style="display:inline;"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                class="btn btn-info"
+                            >
+                                <i class="fa fa-download"></i>
+                                Descargar pagados Moodle
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
             </div>
+
         </div>
+
     </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="x_panel">
-            <div class="x_content">
-                <button type="button" class="btn btn-success ml-2" data-toggle="modal"
-                    data-target="#modalAgregarProducto">Agregar Nuevo Producto</button>
-                <button type="button" class="btn btn-success" data-toggle="modal"
-                    data-target="#modalAjustarPorcentaje">Ajustar Porcentaje Ganancia</button>
-
-                    <div class="alert alert-info">
-                       <strong id="ganancia_config" ></strong> 
-                    </div>
-            </div> 
-        </div>
-    </div>
-</div>
-
-<!--MODAL Agregar Producto-->
-<div class="modal" id="modalAgregarProducto" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel1">Agregar Nuevo Producto</h4>
-            </div>
-            <div class="modal-body">
-                <form action="/guardar_producto" method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="codigo_barras">Código de Barras</label>
-                        <input type="text" class="form-control" id="codigo_barras" name="codigo_barras" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nombre">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                    </div>
- 
-                    <div class="form-group">
-                        <label for="precio_neto">Precio base (Costo del Proveedor)</label>
-                        <input type="number" class="form-control" id="precio_neto" name="precio_neto" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nombre">Marca</label>
-                        <input type="text" class="form-control" id="marca" name="marca" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="stock_minimo">Stock mínimo alerta</label>
-                        <div class="d-flex">
-                            <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" required>
-                            <div class="form-check ml-2">
-                                <input type="checkbox" class="form-check-input" id="alertar" name="alertar">
-                                <label class="form-check-label" for="alertar">Alertar</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="precio_final">Precio final</label>
-                        <div>
-                            <small>Precio Base ÷ (1 - (Ganancia ÷ 100))</small>
-                        </div>
-                        <div class="d-flex">
-                            <input type="number" class="form-control" id="precio_final" name="precio_final" value="">
-                            <div class="form-check ml-2">
-                                <input type="checkbox" class="form-check-input" id="iva" name="iva">
-                                <label class="form-check-label" for="iva">Incluir IVA</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="unidad_medida">Unidad de Medida</label>
-                        <select class="form-control" id="unidad_medida" name="unidad_medida" required>
-                            <option value="unidad">Unidad</option>
-                            <option value="kg">Kilogramo</option>
-                            <option value="litro">Litro</option>
-                        </select>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
-                        <button type="submit" class="btn btn-success">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!--MODAL Ajustar Porcentaje de ganancia -->
-<div class="modal fade" id="modalAjustarPorcentaje" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel2">Ajustar Porcentaje Ganancia</h4>
-            </div>
-            <div class="modal-body">
-                <form action="ajustar_porcentaje" method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="porcentaje">Porcentaje</label>
-                        <input type="number" class="form-control" id="porcentaje" name="porcentaje" step="0.01" min="0"
-                            max="100" required value="{{porcentaje}}">
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
-                        <button type="submit" class="btn btn-success">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!--MODAL Modificar Producto-->
-<div class="modal" id="modalModificarProducto" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel1">Modificar Producto</h4>
-            </div>
-            <div class="modal-body">
-                <form action="/actualizar_producto" method="POST">
-                    <div class="modal-body">
-
-                        {% csrf_token %}
-
-                        <input type="hidden" class="form-control" id="id_producto_update" name="id_producto_update">
-
-                        <div class="form-group">
-                            <label for="codigo_barras">Código de Barras</label>
-                            <input type="text" class="form-control" id="codigo_barras_update"
-                                name="codigo_barras_update" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="nombre">Nombre</label>
-                            <input type="text" class="form-control" id="nombre_update" name="nombre_update" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="precio_neto">Precio Base (Costo del Provedor)</label>
-                            <input type="number" class="form-control" id="precio_neto_update" name="precio_neto_update"
-                                required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="nombre">Marca</label>
-                            <input type="text" class="form-control" id="marca_update" name="marca_update" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="stock_minimo">Stock mínimo alerta</label>
-                            <div class="d-flex">
-                                <input type="number" class="form-control" id="stock_minimo_update"
-                                    name="stock_minimo_update" required>
-                                <div class="form-check ml-2">
-                                    <input type="checkbox" class="form-check-input" id="alertar_update"
-                                        name="alertar_update">
-                                    <label class="form-check-label" for="alertar">Alertar</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="precio_final">Precio final</label>
-                            <div>
-                                <small>Precio Base ÷ (1 - (Ganancia ÷ 100))</small>
-                            </div>
-                            <div class="d-flex">
-                                    <input type="number" class="form-control" id="precio_final_update"  name="precio_final_update" value="">
-                                    <div class="form-check ml-2">
-                                        <input type="checkbox" class="form-check-input" id="iva_update" name="iva_update">
-                                        <label class="form-check-label" for="iva_update">Incluir IVA</label>
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="unidad_medida">Unidad de Medida</label>
-                            <select class="form-control" id="unidad_medida_update" name="unidad_medida_update">
-                                <option value="unidad" selected>Unidad</option>
-                                <option value="kg">Kilogramo</option>
-                                <option value="litro">Litro</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
-                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Detalle Producto -->
-<div class="modal fade" id="modalDetalleProducto" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel1">Detalle del Producto</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <h3 class="prod_title" id="detalle_nombre">NOMBRE DEL PRODUCTO</h3>
-
-                        <div class="product_price mb-2">
-
-                            <div class="col-md-6">
-                                <ul class="list-unstyled">
-                                    <!--<li><strong>SKU:</strong> <span id="detalle_sku">Crear forma de SKU segun categoria</span></li>-->
-                                    <li><strong>Unidad de Medida:</strong> <span
-                                            id="detalle_unidad_medida">Unidad</span></li>
-                                    <li><strong>Precio Final:</strong> <span id="detalle_precio_bruto">Ksh80.00</span>
-                                    </li><li><strong>Precio Base:</strong> <span id="detalle_precio_neto">Ksh80.00</span></li>
-                                    </li><li><strong>Marca:</strong> <span id="detalle_marca">Ksh80.00</span></li>
-                                    <li><strong>Stock Crítico:</strong> <span id="detalle_stock_critico">10</span></li>
-                                    <li><strong>Alerta:</strong> <span id="detalle_alerta">Sí</span></li>
-                                    <li><strong>Fecha de Creación:</strong> <span
-                                            id="detalle_fecha_creacion">2024-10-16</span></li>
-                                    <!--<li><strong>Marca:</strong> <span id="detalle_marca">Marca Ejemplo</span></li>
-                    <li><strong>Categoría:</strong> <span id="detalle_categoria">Categoría Ejemplo</span></li>-->
-                                </ul>
-                            </div>
-                            <div class="col-md-6 text-center">
-                                <img src="/static/images/306926.svg" width="100%" alt="Codigo de Barra">
-                                <h2 id="detalle_codigo_barra">23235234232</h2>
-                            </div>
-
-
-                            <h1 class="price" id="detalle_precio_final">342352</h1>
-                            <span class="price-tax" id="detalle_precio_ex">Precio Bruto</span>
-                            <br>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!--MODAL Eliminar producto -->
-<div class="modal fade" id="modalEliminarProducto" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-                <h4 class="modal-title" id="myModalLabel2">Advertencia</h4>
-            </div>
-            <div class="modal-body">
-                <form action="eliminar_producto" method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <h2>¿Está segur@ de eliminar este producto?</h2>
-                        <input type="hidden" class="form-control" id="producto_delete_id" name="producto_delete_id"
-                            hidden>
-
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
-                        <button type="submit" class="btn btn-success">Aceptar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
