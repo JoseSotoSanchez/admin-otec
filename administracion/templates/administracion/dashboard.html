@@ -4,37 +4,470 @@
 Dashboard
 {% endblock title %}
 
+
 {% block content %}
 
-<div class="right_col" role="main">
+<div
+    class="right_col"
+    role="main"
+>
+
+    <!-- ====================================== -->
+    <!-- TITULO -->
+    <!-- ====================================== -->
 
     <div class="page-title">
 
         <div class="title_left">
-            <h3>Dashboard</h3>
+
+            <h3>
+                Dashboard
+                <small>
+                    Administración OTEC
+                </small>
+            </h3>
+
         </div>
 
     </div>
 
     <div class="clearfix"></div>
 
+
+    <!-- ====================================== -->
+    <!-- TARJETAS -->
+    <!-- ====================================== -->
+
     <div class="row">
 
-        <div class="col-md-12">
+
+        <!-- TOTAL ALUMNOS -->
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+
+            <div class="x_panel dashboard-card">
+
+                <div class="x_content">
+
+                    <div class="dashboard-icon text-primary">
+
+                        <i class="fa fa-users"></i>
+
+                    </div>
+
+                    <div class="dashboard-info">
+
+                        <div class="dashboard-number">
+                            {{ resumen.total_alumnos }}
+                        </div>
+
+                        <div class="dashboard-label">
+                            Total alumnos
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CURSOS ACTIVOS -->
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+
+            <div class="x_panel dashboard-card">
+
+                <div class="x_content">
+
+                    <div class="dashboard-icon text-success">
+
+                        <i class="fa fa-graduation-cap"></i>
+
+                    </div>
+
+                    <div class="dashboard-info">
+
+                        <div class="dashboard-number">
+                            {{ resumen.cursos_activos }}
+                        </div>
+
+                        <div class="dashboard-label">
+                            Cursos activos
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ALUMNOS CURSOS ACTIVOS -->
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+
+            <div class="x_panel dashboard-card">
+
+                <div class="x_content">
+
+                    <div class="dashboard-icon text-info">
+
+                        <i class="fa fa-user-plus"></i>
+
+                    </div>
+
+                    <div class="dashboard-info">
+
+                        <div class="dashboard-number">
+                            {{ resumen.alumnos_cursos_activos }}
+                        </div>
+
+                        <div class="dashboard-label">
+                            Alumnos en cursos activos
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ALUMNOS HOY -->
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+
+            <div class="x_panel dashboard-card">
+
+                <div class="x_content">
+
+                    <div class="dashboard-icon text-warning">
+
+                        <i class="fa fa-calendar-plus-o"></i>
+
+                    </div>
+
+                    <div class="dashboard-info">
+
+                        <div class="dashboard-number">
+                            {{ resumen.alumnos_hoy }}
+                        </div>
+
+                        <div class="dashboard-label">
+                            Inscritos hoy
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- HORARIOS -->
+    <!-- ====================================== -->
+
+    <div class="row">
+
+
+        <div class="col-md-6 col-sm-6 col-xs-12">
 
             <div class="x_panel">
 
                 <div class="x_title">
-                    <h2>Dashboard Administración OTEC</h2>
+
+                    <h2>
+                        <i class="fa fa-arrow-up text-success"></i>
+                        Horario con más postulaciones
+                    </h2>
 
                     <div class="clearfix"></div>
+
                 </div>
+
+
+                <div class="x_content text-center">
+
+                    {% if horario_mayor %}
+
+                        <h2>
+                           {{ horario_mayor.franja }}
+                        </h2>
+
+                        <h1 class="text-success">
+
+                            {{ horario_mayor.cantidad }}
+
+                            <small>
+                                alumnos
+                            </small>
+
+                        </h1>
+
+                    {% else %}
+
+                        <p>
+                            Sin información.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6 col-sm-6 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        <i class="fa fa-arrow-down text-danger"></i>
+                        Horario con menor ingreso
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content text-center">
+
+                    {% if horario_menor %}
+
+                        <h2>
+                            {{ horario_menor.franja }}
+                        </h2>
+
+                        <h1 class="text-danger">
+
+                            {{ horario_menor.cantidad }}
+
+                            <small>
+                                alumnos
+                            </small>
+
+                        </h1>
+
+                    {% else %}
+
+                        <p>
+                            Sin información.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- GRAFICOS -->
+    <!-- ====================================== -->
+
+    <div class="row">
+
+
+        <!-- TORTA CURSOS -->
+
+        <div class="col-md-6 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        Alumnos por curso activo
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
 
                 <div class="x_content">
 
-                    <p>
-                        Dashboard en construcción.
-                    </p>
+                    <div style="height:350px;">
+
+                        <canvas
+                            id="graficoCursos"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BARRAS HORARIOS -->
+
+        <div class="col-md-6 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        Postulaciones por horario
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content">
+
+                    <div style="height:350px;">
+
+                        <canvas
+                            id="graficoHorarios"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ====================================== -->
+    <!-- CURSOS ACTIVOS -->
+    <!-- ====================================== -->
+
+    <div class="row">
+
+        <div class="col-md-12 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        Cursos activos actualmente
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content">
+
+                    <div class="table-responsive">
+
+                        <table
+                            class="table table-striped table-bordered"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+                                    <th>Curso</th>
+                                    <th>Código</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Horario</th>
+                                    <th>Alumnos</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for curso in cursos_activos %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ curso.id }}
+                                        </td>
+
+                                        <td>
+                                            {{ curso.nombre }}
+                                        </td>
+
+                                        <td>
+                                            {{ curso.codigo_curso }}
+                                        </td>
+
+                                        <td>
+                                            {{ curso.fecha_inicio|date:"d-m-Y" }}
+                                        </td>
+
+                                        <td>
+                                            {{ curso.fecha_fin|date:"d-m-Y" }}
+                                        </td>
+
+                                        <td>
+                                            {{ curso.horario }}
+                                        </td>
+
+                                        <td>
+
+                                            <span class="label label-success">
+                                                {{ curso.cantidad_alumnos }}
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% empty %}
+
+                                    <tr>
+
+                                        <td
+                                            colspan="7"
+                                            class="text-center"
+                                        >
+                                            No existen cursos activos.
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -44,6 +477,420 @@ Dashboard
 
     </div>
 
+
+    <!-- ====================================== -->
+    <!-- ULTIMOS ALUMNOS -->
+    <!-- ====================================== -->
+
+    <div class="row">
+
+        <div class="col-md-12 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        Últimos alumnos ingresados
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content">
+
+                    <div class="table-responsive">
+
+                        <table
+                            class="table table-striped table-hover"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+                                    <th>Nombres</th>
+                                    <th>Apellidos</th>
+                                    <th>RUT</th>
+                                    <th>Correo</th>
+                                    <th>Teléfono</th>
+                                    <th>Curso</th>
+                                    <th>Fecha</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for alumno in ultimos_alumnos %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ alumno.id }}
+                                        </td>
+
+                                        <td>
+                                            {{ alumno.nombre }}
+                                        </td>
+
+                                        <td>
+                                            {{ alumno.apellido }}
+                                        </td>
+
+                                        <td>
+                                            {{ alumno.rut }}
+                                        </td>
+
+                                        <td>
+                                            {{ alumno.email }}
+                                        </td>
+
+                                        <td>
+                                            {{ alumno.telefono }}
+                                        </td>
+
+                                        <td>
+
+                                            <strong>
+                                                {{ alumno.codigo_curso }}
+                                            </strong>
+
+                                            <br>
+
+                                            <small>
+                                                {{ alumno.curso }}
+                                            </small>
+
+                                        </td>
+
+                                        <td>
+
+                                            {{ alumno.fecha|date:"d-m-Y H:i" }}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% empty %}
+
+                                    <tr>
+
+                                        <td
+                                            colspan="8"
+                                            class="text-center"
+                                        >
+                                            No existen alumnos registrados.
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
 </div>
 
 {% endblock content %}
+
+
+{% block stylesheets %}
+
+{{ block.super }}
+
+<style>
+
+    .dashboard-card {
+
+        min-height: 125px;
+
+    }
+
+
+    .dashboard-card .x_content {
+
+        display: flex;
+
+        align-items: center;
+
+        padding-top: 20px;
+
+    }
+
+
+    .dashboard-icon {
+
+        font-size: 40px;
+
+        width: 65px;
+
+        text-align: center;
+
+        margin-right: 15px;
+
+    }
+
+
+    .dashboard-info {
+
+        flex: 1;
+
+    }
+
+
+    .dashboard-number {
+
+        font-size: 30px;
+
+        font-weight: 600;
+
+        line-height: 34px;
+
+        color: #34495e;
+
+    }
+
+
+    .dashboard-label {
+
+        color: #73879c;
+
+        font-size: 13px;
+
+        margin-top: 4px;
+
+    }
+
+
+    @media (max-width: 767px) {
+
+        .dashboard-card {
+
+            min-height: 105px;
+
+        }
+
+
+        .dashboard-number {
+
+            font-size: 25px;
+
+        }
+
+
+        .dashboard-icon {
+
+            font-size: 32px;
+
+        }
+
+    }
+
+</style>
+
+{% endblock stylesheets %}
+
+
+{% block javascripts %}
+
+{{ block.super }}
+
+
+<!-- Chart.js -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
+></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        // ==========================================
+        // TORTA: ALUMNOS POR CURSO
+        // ==========================================
+
+        const cursosLabels =
+            {{ cursos_labels|safe }};
+
+        const cursosData =
+            {{ cursos_data|safe }};
+
+
+        const canvasCursos =
+            document.getElementById(
+                "graficoCursos"
+            );
+
+
+        if (
+            canvasCursos &&
+            cursosLabels.length > 0
+        ) {
+
+            new Chart(
+                canvasCursos,
+                {
+
+                    type: "doughnut",
+
+                    data: {
+
+                        labels:
+                            cursosLabels,
+
+                        datasets: [
+
+                            {
+
+                                data:
+                                    cursosData
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        plugins: {
+
+                            legend: {
+
+                                position:
+                                    "bottom"
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // BARRAS: ALUMNOS POR HORARIO
+        // ==========================================
+
+        const horariosLabels =
+            {{ horarios_labels|safe }};
+
+        const horariosData =
+            {{ horarios_data|safe }};
+
+
+        const canvasHorarios =
+            document.getElementById(
+                "graficoHorarios"
+            );
+
+
+        if (
+            canvasHorarios &&
+            horariosLabels.length > 0
+        ) {
+
+            new Chart(
+                canvasHorarios,
+                {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels:
+                            horariosLabels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Alumnos",
+
+                                data:
+                                    horariosData
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        scales: {
+
+                            y: {
+
+                                beginAtZero: true,
+
+                                ticks: {
+
+                                    precision: 0
+
+                                }
+
+                            }
+
+                        },
+
+                        plugins: {
+
+                            legend: {
+
+                                display: false
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock javascripts %}

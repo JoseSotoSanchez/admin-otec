@@ -1,16 +1,42 @@
 from django.urls import path
-from .views import AlumnoView, CursoView, DashboardView
+from .views import (
+    AlumnoView,
+    CursoView,
+    DashboardView,
+    AuthView,
+)
 
 urlpatterns = [
 
+      # =============================================
+    # LOGIN
+    # =============================================
+
+    path(
+        "login",
+        AuthView.login,
+        name="login"
+    ),
+
+    path(
+        "logout",
+        AuthView.logout,
+        name="logout"
+    ),
+
+
+    # =============================================
     # DASHBOARD
+    # =============================================
     path(
         "dashboard",
         DashboardView.dashboard,
         name="dashboard"
     ),
 
+    # =============================================
     # ALUMNOS
+    # =============================================
     path(
         "",
         AlumnoView.alumnos,

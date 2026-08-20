@@ -21,6 +21,7 @@ from django.urls import reverse
 from openpyxl import Workbook
 from io import BytesIO
 from urllib.parse import urlencode
+import bcrypt
 
 from administracion.models import (
     AlumnoView,
@@ -32,6 +33,7 @@ from administracion.models import (
     Usuario,
     Alumno_Estado,
     Estado_Alumno,
+    LogUsuario,
 )
 
 from .services import (
@@ -41,6 +43,11 @@ from .services import (
     obtener_alumnos_correo_bienvenida,
     obtener_estados_alumno,
     obtener_pagos_alumno,
+    obtener_dashboard_resumen,
+    obtener_ultimos_alumnos_dashboard,
+    obtener_cursos_activos_dashboard,
+    obtener_alumnos_por_curso_activo,
+    obtener_alumnos_por_horario,
 )
 
 from .emails import (
@@ -67,11 +74,196 @@ class ViewCustom:
 
 
  
-# class InventarioView:
-#     def administracion(request):
-#         template = loader.get_template("administracion/index.html")
-#         return HttpResponse(template.render(request=request))
+class AuthView:
 
+    @staticmethod
+    def login(request):
+
+        # Si ya está conectado, no mostramos login nuevamente
+        if request.session.get("loggedin"):
+            return redirect("dashboard")
+
+        if request.method == "POST":
+
+            usuario_ingresado = request.POST.get(
+                "usuario",
+                ""
+            ).strip()
+
+            clave_ingresada = request.POST.get(
+                "clave",
+                ""
+            )
+
+            if not usuario_ingresado or not clave_ingresada:
+
+                messages.error(
+                    request,
+                    "Debe ingresar usuario y contraseña."
+                )
+
+                return render(
+                    request,
+                    "administracion/login.html"
+                )
+
+            try:
+
+                usuario = Usuario.objects.filter(
+                    nick=usuario_ingresado
+                ).first()
+
+                login_correcto = False
+
+                if usuario and usuario.clave:
+
+                    try:
+
+                        login_correcto = bcrypt.checkpw(
+                            clave_ingresada.encode("utf-8"),
+                            usuario.clave.encode("utf-8")
+                        )
+
+                    except (ValueError, TypeError):
+                        login_correcto = False
+
+
+                # ============================================
+                # LOGIN CORRECTO
+                # ============================================
+
+                if login_correcto:
+
+                    # Si activo = 0, no permitimos acceso
+                    if usuario.activo == 0:
+
+                        AuthView._registrar_log(
+                            request,
+                            usuario_ingresado,
+                            "Usuario inactivo"
+                        )
+
+                        messages.error(
+                            request,
+                            "El usuario se encuentra desactivado."
+                        )
+
+                        return render(
+                            request,
+                            "administracion/login.html"
+                        )
+
+
+                    # Limpiar cualquier sesión anterior
+                    request.session.flush()
+
+
+                    # Mismas variables que usaba Flask
+                    request.session["loggedin"] = True
+                    request.session["id"] = usuario.id
+                    request.session["usuario"] = usuario.nick
+                    request.session["nombre"] = usuario.nombre
+
+
+                    # Sesión válida por 8 horas
+                    request.session.set_expiry(
+                        60 * 60 * 8
+                    )
+
+
+                    AuthView._registrar_log(
+                        request,
+                        usuario.nick,
+                        "OK"
+                    )
+
+
+                    messages.success(
+                        request,
+                        f"Bienvenido(a), {usuario.nombre}."
+                    )
+
+
+                    return redirect(
+                        "dashboard"
+                    )
+
+
+                # ============================================
+                # LOGIN INCORRECTO
+                # ============================================
+
+                AuthView._registrar_log(
+                    request,
+                    usuario_ingresado,
+                    "fallido"
+                )
+
+
+                messages.error(
+                    request,
+                    "Usuario y/o contraseña incorrectos."
+                )
+
+
+            except Exception as e:
+
+                messages.error(
+                    request,
+                    f"Error al iniciar sesión: {str(e)}"
+                )
+
+
+        return render(
+            request,
+            "administracion/login.html"
+        )
+
+
+    @staticmethod
+    def logout(request):
+
+        request.session.flush()
+
+        return redirect(
+            "login"
+        )
+
+
+    @staticmethod
+    def _registrar_log(
+        request,
+        nick,
+        estado
+    ):
+
+        try:
+
+            ip = request.META.get(
+                "REMOTE_ADDR",
+                ""
+            )
+
+            LogUsuario.objects.create(
+                nick=nick,
+
+                # No guardamos contraseña ni derivados
+                # de la contraseña ingresada.
+                clave=None,
+
+                fecha=timezone.now(),
+                estado=estado,
+                ip=ip,
+                curso=None,
+                idAlumno=None,
+            )
+
+        except Exception as e:
+
+            # Un fallo del log no debe impedir iniciar sesión
+            print(
+                f"Error registrando login: {e}"
+            )
 # Para generar la vista con la tabla si o si debe existir el modelo (usen el verbose)
 class AlumnoView(ViewCustom):
 
@@ -210,7 +402,7 @@ class AlumnoView(ViewCustom):
                 id_estado_id=int(estado_id),
                 id_alumno=alumno,
                 fecha=timezone.now(),
-                id_usuario=1,
+                id_usuario = request.session["id"],
             )
 
             messages.success(
@@ -288,7 +480,7 @@ class AlumnoView(ViewCustom):
                 id_estado_id=18,
                 id_alumno=alumno,
                 fecha=timezone.now(),
-                id_usuario=1,
+                id_usuario = request.session["id"],
             )
 
             messages.success(
@@ -1344,639 +1536,105 @@ class DashboardView(ViewCustom):
     @staticmethod
     def dashboard(request):
 
+        resumen = obtener_dashboard_resumen()
+
+        ultimos_alumnos = (
+            obtener_ultimos_alumnos_dashboard(10)
+        )
+
+        cursos_activos = (
+            obtener_cursos_activos_dashboard()
+        )
+
+        alumnos_por_curso = (
+            obtener_alumnos_por_curso_activo()
+        )
+
+        alumnos_por_horario = (
+            obtener_alumnos_por_horario()
+        )
+
+
+        # ============================================
+        # HORARIO MAYOR / MENOR INGRESO
+        # ============================================
+
+        horario_mayor = None
+        horario_menor = None
+
+        if alumnos_por_horario:
+
+            horario_mayor = max(
+                alumnos_por_horario,
+                key=lambda x: x["cantidad"]
+            )
+
+            horario_menor = min(
+                alumnos_por_horario,
+                key=lambda x: x["cantidad"]
+            )
+
+
+        # ============================================
+        # DATOS PARA GRAFICOS
+        # ============================================
+
+        cursos_labels = [
+            curso["codigo_curso"]
+            for curso in alumnos_por_curso
+        ]
+
+        cursos_data = [
+            curso["cantidad"]
+            for curso in alumnos_por_curso
+        ]
+
+
+        horarios_labels = [
+            horario["franja"]
+            for horario in alumnos_por_horario
+        ]
+
+        horarios_data = [
+            horario["cantidad"]
+            for horario in alumnos_por_horario
+        ]
+
+
         context = {
-            "title": "Dashboard"
+
+            "title": "Dashboard",
+
+            "resumen": resumen,
+
+            "ultimos_alumnos":
+                ultimos_alumnos,
+
+            "cursos_activos":
+                cursos_activos,
+
+            "horario_mayor":
+                horario_mayor,
+
+            "horario_menor":
+                horario_menor,
+
+            "cursos_labels":
+                json.dumps(cursos_labels),
+
+            "cursos_data":
+                json.dumps(cursos_data),
+
+            "horarios_labels":
+                json.dumps(horarios_labels),
+
+            "horarios_data":
+                json.dumps(horarios_data),
         }
+
 
         return render(
             request,
             "administracion/dashboard.html",
             context
         )
-    # def ajustar_porcentaje(request): 
-    #     porcentaje = request.POST["porcentaje"] 
-    #     FileWriter("ganancia.txt", porcentaje).write_new_content() 
-    #     context  = ProductosView.get_context_base()
-    #     context["porcentaje"] = porcentaje  
-    #     return render(request, "administracion/productos.html", context)
-    
-    # def leer_porcentaje(request): 
-    #     if request.method == 'GET': 
-    #         current_dir = Path(__file__).parent
-    #         ganancia_path = current_dir.parent / 'config' / 'ganancia.txt' 
-    #         with open(ganancia_path, 'r') as file:
-    #             ganancia = file.read() 
-    #         response_data = {
-    #             'ganancia': ganancia
-    #         }
-    #         return JsonResponse(response_data)  
-    #     return HttpResponse(status=405)
-         
-    # def actualizar_producto(request): 
-    #     if request.method == 'POST': 
-    #         producto_id = request.POST.get('id_producto_update') 
-    #         producto = Producto.objects.get(id=producto_id)  
-    #         producto.nombre = request.POST.get('nombre_update')
-    #         producto.codigo_barra = request.POST.get('codigo_barras_update')
-    #         producto.precio_bruto = request.POST.get('precio_final_update')
-    #         producto.marca = request.POST.get('marca_update')
-    #         producto.unidad_medida = request.POST.get('unidad_medida_update')
-    #         producto.precio_neto = request.POST.get('precio_neto_update') 
-    #         producto.alerta = True if request.POST.get('alertar_update') == 'on' else False 
-    #         producto.stock_critico = request.POST.get('stock_minimo_update') 
-    #         producto.save()  
-    #         return render(request, "administracion/productos.html", ProductosView.get_context_base())
- 
-    # def eliminar_producto(request):
-    #     if request.method == 'POST':
-    #         producto_id = request.POST.get('producto_delete_id')
-    #         producto = Producto.objects.get(id=producto_id)
-    #         producto.es_eliminado = 1
-    #         producto.save()  
-    #         return render(request, "administracion/productos.html", ProductosView.get_context_base())
-    
-    # def agregar_producto(request):
-    #     if request.method=="POST": 
-    #         # producto.nombre = request.POST.get('nombre_update')
-    #         sku="123"
-    #         codigo_barra = request.POST.get("codigo_barras")
-    #         nombre = request.POST.get("nombre")
-    #         precio_neto = request.POST.get('precio_neto')
-    #         marca = request.POST.get('marca')
-    #         unidad_medida = request.POST.get('stock_minimo') 
-    #         alerta = True if request.POST.get('alertar') == 'on' else False 
-    #         stock_minimo = request.POST.get('stock_minimo')
-    #         unidad_medida = request.POST.get('unidad_medida') 
-    #         precio_bruto=  request.POST.get('precio_final') 
-    #         prod=Producto.objects.create(sku="123",
-    #                                      nombre = nombre,
-    #                                      codigo_barra = codigo_barra,
-    #                                      precio_bruto = precio_bruto,
-    #                                      precio_neto = precio_neto,
-    #                                      marca = marca,
-    #                                      fecha_creacion = datetime.now(),
-    #                                      stock_critico = stock_minimo,
-    #                                      unidad_medida = unidad_medida,
-    #                                      alerta = alerta) 
-    #         prod.save()  
-    #         return render(request, "administracion/productos.html", ProductosView.get_context_base())
-    
-
-# class ProveedoresView(ViewCustom):
-  
-#     @staticmethod
-#     def get_proveedores():  
-#         return Proveedor.objects.filter(es_eliminado=False)
-    
-#     def get_context_base():
-#         return {
-#             "atributos": ProveedoresView().get_atributos(Proveedor),
-#             "ids": ProveedoresView().get_ids(Proveedor),
-#             "data": ProveedoresView().get_proveedores()
-#         }
-          
-#     def proveedores(request): 
-#         return render(request, "administracion/proveedores.html", ProveedoresView.get_context_base())
-
-    
-#     def agregar_proveedor(request): 
-#         nuevo_proveedor = Proveedor(
-#             nombre=request.POST.get("nombre"),
-#             telefono=request.POST.get("telefono"),
-#             email=request.POST.get("email"),
-#             direccion=request.POST.get("direccion"),
-#             es_eliminado=False
-#         ) 
-#         nuevo_proveedor.save()  
-#         return render(request, "administracion/proveedores.html", ProveedoresView.get_context_base())
-    
-#     def actualizar_proveedor(request):
-#         if request.method == "POST":
-#             proveedor_id = request.POST.get("id_proveedor")
-#             proveedor = Proveedor.objects.get(id=proveedor_id)
-#             proveedor.nombre = request.POST.get("nombre")
-#             proveedor.telefono = request.POST.get("telefono")
-#             proveedor.email = request.POST.get("email")
-#             proveedor.direccion = request.POST.get("direccion")
-#             proveedor.save()   
-#             return render(request, "administracion/proveedores.html", ProveedoresView.get_context_base())
-        
-#     def eliminar_proveedor(request):
-#         if request.method == "POST":
-#             proveedor_id = request.POST.get("id_proveedor_eliminar")
-#             proveedor = Proveedor.objects.get(id=proveedor_id)
-#             proveedor.es_eliminado = True 
-#             proveedor.save()
-#             return render(request, "administracion/proveedores.html", ProveedoresView.get_context_base())
-
-
-# class SalidaInventarioView(ViewCustom):
-
-#     @staticmethod
-#     def get_stock():  
-#         return ProductoDetalle.objects.all()
-    
-#     @staticmethod
-#     def get_tipo_salida():
-#         return TipoSalida.objects.all()
-    
-#     def get_context_base_pedidos():
-#         return {
-#             "tipo_salida": SalidaInventarioView().get_tipo_salida()
-#         }
-    
-#     # Método para devolver el detalle de los productos en formato JSON
-#     #SOLO PRODCUTOS QUE CUENTEN CON STOCK EN BASE DE DATOS SUM(STOCK BY PRODUCTO)
-#     #MIRAR LA VISTA
-#     def detalle_producto_json(request): 
-#         productos = SalidaInventarioView.get_stock()
-#         # Convertir productos a una lista de diccionarios
-#         data = [
-#             {
-#                 "id": producto.id,
-#                 "sku": producto.sku,
-#                 "codigo_barra": producto.codigo_barra,
-#                 "nombre_producto": producto.nombre_producto, 
-#                 "precio_bruto": producto.precio_bruto,
-#                 "precio_neto": producto.precio_neto,   
-#                 "stock_actual": producto.stock_actual,
-#                 "fecha_vencimiento": producto.fecha_vencimiento.isoformat() if producto.fecha_vencimiento else None, 
-#             }
-#             for producto in productos
-#         ]
-#         return JsonResponse(data, safe=False)
-    
-    
-#     @staticmethod
-#     def decrementar_stock(id_producto, cantidad_comprada):
-#         with transaction.atomic():
-#             # Obtener todos los stocks disponibles ordenados por fecha de vencimiento
-#             stocks = Stock.objects.filter(id_producto=id_producto, cantidad_actual__gt=0).order_by('fecha_vencimiento')
-            
-#             for stock in stocks:
-#                 # Verificar si ya no queda cantidad por decrementar
-#                 if cantidad_comprada <= 0:
-#                     break
-                
-#                 # Si la cantidad disponible en el stock es mayor o igual a la cantidad que se quiere comprar
-#                 if stock.cantidad_actual >= cantidad_comprada:
-#                     stock.cantidad_actual -= cantidad_comprada
-#                     stock.save()
-#                     cantidad_comprada = 0  # Deja de comprar, ya no hay cantidad pendiente
-#                 else:
-#                     # Si la cantidad disponible en este stock no es suficiente
-#                     cantidad_comprada -= stock.cantidad_actual
-#                     stock.cantidad_actual = 0  # Se agota el stock actual
-#                     stock.save()
- 
-    
- 
-#     @staticmethod
-#     def registrar_venta(producto, cantidad):
-#         SalidaInventarioView.decrementar_stock(producto.id, cantidad)
-    
-    
-#     def salida_inventario(request):
-#         return render(request, "administracion/salida_inventario.html", SalidaInventarioView.get_context_base_pedidos())
-    
-#     @csrf_exempt
-#     def send_salida_inventario_json(request):
-#         query_dict = request.POST
-#         json_data = list(query_dict.keys())[0]
-        
-#         try:
-#             products = json.loads(json_data)
-
-#             model_tipo_salida = TipoSalida.objects.get(tipo=products['tipo_salida'])
-#             model_salida_inventario = SalidaInventario(id_tipo_salida=model_tipo_salida, fecha_salida=datetime.now())
-#             model_salida_inventario.save()
-
-#             for salidas in products['productos_carrito']:
-#                 producto = Producto.objects.get(codigo_barra=salidas['codigo_barra'])
-#                 #decrementar
-#                 SalidaInventarioView.decrementar_stock(producto,int(salidas['cantidad_comprar']))
-#                 model_producto_salida_inventario = ProductoSalidaInventario(
-#                     id_salida_inventario=model_salida_inventario,
-#                     id_producto=producto,
-#                     cantidad=salidas['cantidad_comprar'],
-#                     precio_bruto=salidas['precio_bruto'],
-#                     sub_total=salidas['precio_neto']
-#                 )
-#                 model_producto_salida_inventario.save()
-              
-#             return JsonResponse({'success': 'Salida de administracion registrada exitosamente.'}, status=201)
-#         except json.JSONDecodeError:
-#             return JsonResponse({'error': 'Error en terminar la salida de administracion.'}, status=400)
-
-
-
-# class PedidosView(ViewCustom):
-  
-#     @staticmethod
-#     def get_pedidos():  
-#         return Pedido.objects.all()
-    
-#     def get_context_base_pedidos():
-#         return {
-#             "atributos": PedidosView().get_atributos(PedidosTableView),
-#             "data": PedidosTableView.objects.all(), 
-#             "ids": PedidosView().get_ids(PedidosTableView), 
-#         }
-    
-#     def get_context_base():
-#         return {
-#             "atributos": PedidosView().get_atributos(Pedido),
-#             "data": PedidosView().get_pedidos(),
-#             "atributosProductos": ProductosView().get_atributos(Producto),
-#             "ids": PedidosView().get_ids(Pedido),
-#             "pedidos": PedidosView().get_pedidos(),
-#             "productos": ProductosView().get_productos(),
-#             "proveedores": ProveedoresView().get_proveedores()
-#         }
-    
-#     def lista_pedidos(request):  
-#         return render(request, "administracion/lista_pedidos.html", PedidosView.get_context_base_pedidos())
-    
-#     def get_productos_by_pedido_json(request, id_pedido): 
-#         productos_by_pedido = PedidosProductosView.objects.filter(id_pedido = id_pedido)
-#         data = [
-#             {  
-#                 "codigo_barra": producto.codigo_barra,
-#                 "nombre_producto": producto.nombre_producto, 
-#                 "precio_producto": producto.precio_producto,
-#                 "cantidad": producto.cantidad,   
-#                 "precio_total": producto.precio_total,
-#                 "precio_actual_venta": producto.precio_actual_venta, 
-#             }
-#             for producto in productos_by_pedido
-#         ]
-#         return JsonResponse(data, safe=False)
-
-#     @staticmethod
-#     def crear_pedido(request):
-#         if request.method == 'POST':  
-#             try:
-#                 data = json.loads(request.body)
-#                 proveedor_id = data.get('proveedor')
-#                 productos = data.get('productos')
-#                 total_pedido = data.get('total_pedido')
-#                 fecha_recepcion = datetime.now()
-#                 pedido = Pedido.objects.create(
-#                     id_proveedor=proveedor_id,
-#                     fecha_recepcion=str(fecha_recepcion),
-#                     total_pedido=str(total_pedido)
-#                 )
-#                 for producto_data in productos:
-#                     PedidosView.agregar_pedido_producto(pedido, producto_data)
-#                 return JsonResponse({'success': True})
-                
-#             except Producto.DoesNotExist:
-#                 return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=400)
-#             except Exception as e:
-#                 return JsonResponse({'success': False, 'error': str(e)}, status=400)
-#         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
-    
-#     def agregar_pedido_producto(pedido, producto_data):
-#         codigo_barra = producto_data['codigoBarra']
-#         cantidad = producto_data['cantidad']
-#         valor_neto = producto_data['valorNeto']
-#         ganancia = producto_data['ganancia']
-#         iva = producto_data['iva']
-#         precioVenta = producto_data['precioVenta']
-#         precio_bruto = valor_neto + ganancia + iva
-#         total = precio_bruto * cantidad - (ganancia * cantidad)
-#         producto = Producto.objects.filter(codigo_barra = codigo_barra)[0]
-#         pedido_producto = PedidoProducto.objects.create(
-#             id_pedido_id=pedido.id_pedido,
-#             id_producto_id=producto.id,
-#             cantidad=cantidad,
-#             precio_bruto=precio_bruto - ganancia,
-#             total=total
-#         )
-#         if producto.precio_neto != valor_neto or producto.precio_bruto != precioVenta:
-#             producto.precio_neto = valor_neto
-#             producto.precio_bruto = precioVenta
-#             producto.save()
-#         PedidosView.agregar_stock(producto, pedido, cantidad)
-
-#     def agregar_stock(producto, pedido, cantidad):
-#         stock, created = Stock.objects.get_or_create(
-#                         id_producto=producto,
-#                         id_pedido=pedido,
-#                         defaults={
-#                             'cantidad_inicial': cantidad,
-#                             'cantidad_actual': cantidad,
-#                             'fecha_vencimiento': date.today() 
-#                         }
-#                     )
-#         if not created:
-#                         stock.cantidad_actual += cantidad
-#                         stock.save()
-
-#     def pedidos(request): 
-#        return render(request, "administracion/pedidos.html", PedidosView.get_context_base())
-
-# class StockView(ViewCustom):
-    
-#     @staticmethod
-#     def get_stock_resumen():
-#         return ProductoDetalleStockView.objects.all()
-    
-#     def get_context_base():
-#         return {
-#             "atributos": StockView().get_atributos(ProductoDetalleStockView),
-#             "ids": StockView().get_ids(ProductoDetalleStockView),
-#             "data": StockView().get_stock_resumen()
-#         }
- 
-#     def stock_resumen(request): 
-#         context = StockView.get_context_base()
-#         return render(request, "administracion/stock_resumen.html", context)
-    
-#     def stock_pedidos_by_producto_json(request, id_producto):  
-#         stock_by_pedido = StockResumenPedidosView.objects.filter(id=id_producto).order_by('-fecha_recepcion')[:20]
-#         data = [
-#             {   
-#                 "nombre_proveedor": pedido.nombre_proveedor, 
-#                 "stock_compra": pedido.stock_compra,
-#                 "total_pedido": pedido.total_pedido,
-#                 "fecha_recepcion": pedido.fecha_recepcion
-#             }
-#             for pedido in stock_by_pedido
-#         ]
-#         return JsonResponse(data, safe=False)
-
-# def DashboardView(request):
-#     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-#     cursor = connection.cursor()
-
-#     #Selecciona los 10 pedidos con el valor total más alto del último mes
-#     cursor.execute(
-#         """
-#         SELECT * 
-#         from (SELECT sum(ppv.precio_total) as precio_total, sum(ppv.cantidad), id_pedido, date(fecha_recepcion)
-#         FROM (  SELECT 	pp.total as precio_total,
-#                         pp.cantidad,
-#                         ip.id_pedido,
-#                         ip.fecha_recepcion
-#                 FROM 	inventario_pedidoproducto pp
-#                 JOIN 	inventario_producto pr on pr.id = pp.id_producto_id
-#                 JOIN	inventario_pedido ip ON ip.id_pedido = pp.id_pedido_id 
-#                 WHERE 	ip.fecha_recepcion BETWEEN datetime('now', 'localtime', '-1 month') AND datetime('now', 'localtime')) ppv
-#         GROUP BY ppv.id_pedido
-#         ORDER BY sum(ppv.precio_total) DESC 
-#         LIMIT 10)
-#         order by id_pedido;
-#         """)
-    
-#     id_pedido = []
-#     cantidad = []
-#     precio_total = []
-#     fecha_recepcion = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'precio_total':     row[0],
-#             'cantidad':         row[1],
-#             'id_pedido':        row[2],
-#             'fecha_recepcion':  datetime.strptime(row[3], "%Y-%m-%d").strftime("%a %d de %b")  
-#         }
-#         id_pedido.append(result_dict['id_pedido'])
-#         cantidad.append(result_dict['cantidad'])
-#         precio_total.append(result_dict['precio_total'])
-#         fecha_recepcion.append(result_dict['fecha_recepcion'])
-
-#     #Selecciona los tipos de salida con count de cada grupo
-#     cursor.execute(
-#         """
-#         SELECT ts.tipo AS tipo_salida, count(*) as cantidad_salida
-#         FROM inventario_producto pr JOIN inventario_productosalidainventario ps ON pr.id = ps.id_producto_id
-#         JOIN inventario_salidainventario si ON si.id = ps.id_salida_inventario_id
-#         JOIN inventario_tiposalida ts ON ts.id = si.id_tipo_salida_id
-#         GROUP BY si.id_tipo_salida_id 
-#         """)
-
-#     tipo_salida = []
-#     cantidad_salida = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'tipo_salida':      row[0],
-#             'cantidad_salida':  row[1]
-#         }
-#         tipo_salida.append(result_dict['tipo_salida'])
-#         cantidad_salida.append(result_dict['cantidad_salida'])
-    
-#     #Selecciona los 10 productos mas vendidos del último mes
-#     cursor.execute(
-#         """
-#         SELECT pr.id as id_producto, count(*) as numero_productos, pr.nombre as nombre_producto, COUNT(*) * pr.precio_bruto as valor_venta
-#         FROM inventario_producto pr JOIN inventario_productosalidainventario ps ON pr.id = ps.id_producto_id
-#         JOIN inventario_salidainventario si ON si.id = ps.id_salida_inventario_id
-#         JOIN inventario_tiposalida ts ON ts.id = si.id_tipo_salida_id
-#         WHERE ts.tipo = 'Venta'
-#         AND si.fecha_salida BETWEEN datetime('now', 'localtime', '-1 month') AND datetime('now', 'localtime')
-#         group by pr.id
-#         order by nombre_producto
-#         limit 10
-#         """)
-    
-#     id_producto = []
-#     numero_productos = []
-#     nombre_producto = []
-#     valor_venta = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'id_producto':      row[0],
-#             'numero_productos': row[1],
-#             'nombre_producto':  row[2],
-#             'valor_venta':      row[3]
-#         }
-#         id_producto.append(result_dict['id_producto'])
-#         numero_productos.append(result_dict['numero_productos'])
-#         nombre_producto.append(result_dict['nombre_producto'])
-#         valor_venta.append(result_dict['valor_venta'])
-
-#     #Selecciona los 10 productos mas vendidos de los últimos 3 meses
-#     cursor.execute(
-#         """
-#         SELECT pr.id as id_producto, count(*) as numero_productos, pr.nombre as nombre_producto, COUNT(*) * pr.precio_bruto as valor_venta
-#         FROM inventario_producto pr JOIN inventario_productosalidainventario ps ON pr.id = ps.id_producto_id
-#         JOIN inventario_salidainventario si ON si.id = ps.id_salida_inventario_id
-#         JOIN inventario_tiposalida ts ON ts.id = si.id_tipo_salida_id
-#         WHERE ts.tipo = 'Venta'
-#         AND si.fecha_salida BETWEEN datetime('now', 'localtime', '-3 month') AND datetime('now', 'localtime')
-#         group by pr.id
-#         order by nombre_producto
-#         limit 10
-#         """)
-    
-#     id_producto_3mes = []
-#     numero_productos_3mes = []
-#     nombre_producto_3mes = []
-#     valor_venta_3mes = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'id_producto_3mes':      row[0],
-#             'numero_productos_3mes': row[1],
-#             'nombre_producto_3mes':  row[2],
-#             'valor_venta_3mes':      row[3]
-#         }
-#         id_producto_3mes.append(result_dict['id_producto_3mes'])
-#         numero_productos_3mes.append(result_dict['numero_productos_3mes'])
-#         nombre_producto_3mes.append(result_dict['nombre_producto_3mes'])
-#         valor_venta_3mes.append(result_dict['valor_venta_3mes'])
-
-#     #Selecciona top 10 proveedores con mayor cantidad de pedidos del ultimo año
-#     cursor.execute(
-#         """
-#         select numero_pedidos, id_proveedor, nombre_proveedor
-#         from (select count(*) as numero_pedidos, pv.id as id_proveedor, pv.nombre as nombre_proveedor
-#         from inventario_pedido pe 
-#         join inventario_proveedor pv on pe.id_proveedor = pv.id
-#         where pe.fecha_recepcion BETWEEN datetime('now', 'localtime', '-1 year') AND datetime('now', 'localtime')
-#         group by  pv.id
-#         order by numero_pedidos DESC 
-#         limit 10)
-#         order by nombre_proveedor;
-#         """)
-
-#     numero_pedidos = []
-#     id_proveedor = []
-#     nombre_proveedor = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'numero_pedidos':           row[0],
-#             'id_proveedor':             row[1],
-#             'nombre_proveedor':         row[2]
-#         }
-#         numero_pedidos.append(result_dict['numero_pedidos'])
-#         id_proveedor.append(result_dict['id_proveedor'])
-#         nombre_proveedor.append(result_dict['nombre_proveedor'])
-    
-#     #Selecciona top 10 proveedores con mayor valor todal de pedidos del ultimo año
-#     cursor.execute(
-#         """
-#         select total_pedidos, id_proveedor, nombre_proveedor
-#         from (select sum(pe.total_pedido) as total_pedidos, pv.id as id_proveedor, pv.nombre as nombre_proveedor
-#         from inventario_pedido pe 
-#         join inventario_proveedor pv on pe.id_proveedor = pv.id
-#         where pe.fecha_recepcion BETWEEN datetime('now', 'localtime', '-1 year') AND datetime('now', 'localtime')
-#         group by  pv.id
-#         order by total_pedidos DESC
-#         limit 10)
-#         order by nombre_proveedor;
-#         """)
-
-#     total_pedidos = []
-#     id_proveedor2 = []
-#     nombre_proveedor2 = []
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'total_pedidos':        row[0],
-#             'id_proveedor2':        row[1],
-#             'nombre_proveedor2':    row[2]
-#         }
-#         total_pedidos.append(result_dict['total_pedidos'])
-#         id_proveedor2.append(result_dict['id_proveedor2'])
-#         nombre_proveedor2.append(result_dict['nombre_proveedor2'])
-
-#     top_metricas = []
-#     # Cantidad de ventas anuales
-#     query_ventas = """
-#     SELECT count(*)
-#     FROM inventario_productosalidainventario producto
-#     JOIN inventario_salidainventario salida ON salida.id = producto.id_salida_inventario_id
-#     WHERE strftime('%Y', fecha_salida) = strftime('%Y', 'now')
-#     AND id_tipo_salida_id = 1;
-#     """
-
-#     cursor.execute(query_ventas)
-#     ventas_anuales = cursor.fetchone()[0]
-#     top_metricas.append(ventas_anuales)
-
-#     # Cantidad de productos vendidos anuales
-#     query_sum_productos = """
-#     SELECT sum(cantidad)
-#     FROM inventario_productosalidainventario producto
-#     JOIN inventario_salidainventario salida ON salida.id = producto.id_salida_inventario_id
-#     WHERE strftime('%Y', fecha_salida) = strftime('%Y', 'now')
-#     AND id_tipo_salida_id = 1;
-#     """
-
-#     cursor.execute(query_sum_productos)
-#     productos_anuales = cursor.fetchone()[0]  # Obtener el resultado como un número
-#     top_metricas.append(productos_anuales)
-    
-#     # Cantidad de productos vendidos anuales
-#     query_precio = """
-#     SELECT sum(precio_bruto)
-#     FROM inventario_productosalidainventario producto
-#     JOIN inventario_salidainventario salida ON salida.id = producto.id_salida_inventario_id
-#     WHERE strftime('%Y', fecha_salida) = strftime('%Y', 'now')
-#     AND id_tipo_salida_id = 1;
-#     """
-
-#     cursor.execute(query_precio)
-#     precio_productos = cursor.fetchone()[0]  # Obtener el resultado como un número
-#     top_metricas.append(precio_productos)  
-    
-
-    
-#     # Cantidad de productos vendidos anuales
-#     query_precio = """
-#         SELECT 
-#             producto.id_producto_id,
-#             SUM(producto.cantidad) AS total_vendido,
-#             inventario_producto.nombre as producto
-#         FROM 
-#             inventario_productosalidainventario producto
-#         JOIN 
-#             inventario_salidainventario salida ON salida.id = producto.id_salida_inventario_id
-#         JOIN 
-#             inventario_producto ON producto.id_producto_id = inventario_producto.id
-#         WHERE 
-#             strftime('%Y', salida.fecha_salida) = strftime('%Y', 'now')
-#             AND salida.id_tipo_salida_id = 1
-#         GROUP BY 
-#             producto.id_producto_id, inventario_producto.nombre
-#         ORDER BY 
-#             total_vendido DESC
-#         LIMIT 1;
-#     """
-
-#     cursor.execute(query_precio)
-
-#     top_producto = []  
-#     for row in cursor.fetchall():
-#         result_dict = {
-#             'total_vendido': row[1],
-#             'producto':      row[2],
-#         }
-#         top_producto.append(result_dict['total_vendido'])
-#         top_producto.append(result_dict['producto']) 
-
-#     top_metricas.append(top_producto)  
-    
-#     context = {
-#         'precio_total':             json.dumps(precio_total),
-#         'cantidad':                 json.dumps(cantidad),
-#         'id_pedido':                json.dumps(id_pedido),
-#         'fecha_recepcion':          json.dumps(fecha_recepcion),
-#         'tipo_salida':              json.dumps(tipo_salida),
-#         'cantidad_salida':          json.dumps(cantidad_salida),
-#         'id_producto':              json.dumps(id_producto),
-#         'numero_productos':         json.dumps(numero_productos),
-#         'nombre_producto':          json.dumps(nombre_producto),
-#         'valor_venta':              json.dumps(valor_venta),
-#         'id_producto_3mes':         json.dumps(id_producto_3mes),
-#         'numero_productos_3mes':    json.dumps(numero_productos_3mes),
-#         'nombre_producto_3mes':     json.dumps(nombre_producto_3mes),
-#         'valor_venta_3mes':         json.dumps(valor_venta_3mes),
-#         'numero_pedidos':           json.dumps(numero_pedidos),
-#         'id_proveedor':             json.dumps(id_proveedor),
-#         'nombre_proveedor':         json.dumps(nombre_proveedor),
-#         'total_pedidos':            json.dumps(total_pedidos),
-#         'id_proveedor2':            json.dumps(id_proveedor2),
-#         'nombre_proveedor2':        json.dumps(nombre_proveedor2), 
-#         'top_metricas':             json.dumps(top_metricas)
-#     }
-#     return render(request, "administracion/dashboard.html", context)

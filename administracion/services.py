@@ -305,3 +305,218 @@ def obtener_pagos_alumno(alumno_id, curso_id):
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
+def obtener_dashboard_resumen():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM Curso
+            WHERE activo = 1
+        """)
+
+        cursos_activos = cursor.fetchone()[0]
+
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM Alumno a
+            INNER JOIN Curso c
+                ON c.id = a.id_curso
+            WHERE c.activo = 1
+        """)
+
+        alumnos_cursos_activos = cursor.fetchone()[0]
+
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM Alumno
+        """)
+
+        total_alumnos = cursor.fetchone()[0]
+
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM Alumno
+            WHERE DATE(fecha) = CURDATE()
+        """)
+
+        alumnos_hoy = cursor.fetchone()[0]
+
+
+    return {
+        "cursos_activos": cursos_activos,
+        "alumnos_cursos_activos": alumnos_cursos_activos,
+        "total_alumnos": total_alumnos,
+        "alumnos_hoy": alumnos_hoy,
+    }
+
+
+def obtener_ultimos_alumnos_dashboard(limite=10):
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                a.id,
+                a.nombre,
+                a.apellido,
+                a.rut,
+                a.email,
+                a.telefono,
+                a.fecha,
+                c.id AS id_curso,
+                c.nombre AS curso,
+                c.codigo_curso
+            FROM Alumno a
+            INNER JOIN Curso c
+                ON c.id = a.id_curso
+            ORDER BY
+                a.fecha DESC,
+                a.id DESC
+            LIMIT %s
+        """, [limite])
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+
+def obtener_cursos_activos_dashboard():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                c.id,
+                c.nombre,
+                c.codigo_curso,
+                c.fecha_inicio,
+                c.fecha_fin,
+                h.rango AS horario,
+                COUNT(a.id) AS cantidad_alumnos
+            FROM Curso c
+
+            INNER JOIN Horario h
+                ON h.id = c.id_horario
+
+            LEFT JOIN Alumno a
+                ON a.id_curso = c.id
+
+            WHERE c.activo = 1
+
+            GROUP BY
+                c.id,
+                c.nombre,
+                c.codigo_curso,
+                c.fecha_inicio,
+                c.fecha_fin,
+                h.rango
+
+            ORDER BY
+                c.id DESC
+        """)
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+
+def obtener_alumnos_por_curso_activo():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                c.nombre,
+                c.codigo_curso,
+                COUNT(a.id) AS cantidad
+            FROM Curso c
+
+            LEFT JOIN Alumno a
+                ON a.id_curso = c.id
+
+            WHERE c.activo = 1
+
+            GROUP BY
+                c.id,
+                c.nombre,
+                c.codigo_curso
+
+            ORDER BY cantidad DESC
+        """)
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+
+def obtener_alumnos_por_horario():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                franja,
+                COUNT(*) AS cantidad
+            FROM
+            (
+                SELECT
+                    CASE
+
+                        WHEN TIME(fecha) >= '08:00:00'
+                         AND TIME(fecha) < '12:00:00'
+                        THEN 'Mañana (08:00 - 12:00)'
+
+                        WHEN TIME(fecha) >= '12:00:00'
+                         AND TIME(fecha) < '17:00:00'
+                        THEN 'Día (12:00 - 17:00)'
+
+                        WHEN TIME(fecha) >= '17:00:00'
+                         AND TIME(fecha) < '21:00:00'
+                        THEN 'Tarde (17:00 - 21:00)'
+
+                        ELSE 'Noche (21:00 - 08:00)'
+
+                    END AS franja
+
+                FROM Alumno
+
+                WHERE fecha IS NOT NULL
+
+            ) AS postulaciones
+
+            GROUP BY franja
+
+            ORDER BY cantidad DESC
+        """)
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
