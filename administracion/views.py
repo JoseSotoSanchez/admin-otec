@@ -49,6 +49,7 @@ from .services import (
     obtener_alumnos_por_curso_activo,
     obtener_alumnos_por_horario,
     obtener_resumen_cursos_activos_dashboard,
+    buscar_aspirantes,
 )
 
 from .emails import (
@@ -1084,25 +1085,79 @@ class BusquedaView(ViewCustom):
 
         estados = obtener_estados_alumno()
 
-        # None significa: TODOS los cursos
-        alumnos = obtener_aspirantes_por_curso(None)
+        alumnos = []
+
+        busqueda_realizada = False
+
+
+        # ==========================================
+        # PARAMETROS
+        # ==========================================
+
+        alumno_id = request.GET.get(
+            "id",
+            ""
+        ).strip()
+
+        rut = request.GET.get(
+            "rut",
+            ""
+        ).strip()
+
+        correo = request.GET.get(
+            "correo",
+            ""
+        ).strip()
+
+        nombre = request.GET.get(
+            "nombre",
+            ""
+        ).strip()
+
+
+        # ==========================================
+        # BUSCAR SOLO SI EXISTE ALGUN CRITERIO
+        # ==========================================
+
+        if (
+            alumno_id
+            or rut
+            or correo
+            or nombre
+        ):
+
+            busqueda_realizada = True
+
+            alumnos = buscar_aspirantes(
+                alumno_id=alumno_id or None,
+                rut=rut or None,
+                correo=correo or None,
+                nombre=nombre or None,
+            )
+
 
         context = {
 
-            "title": "Búsqueda",
+            "title":
+                "Búsqueda",
+
+            "actions_bar":
+                "administracion/actions_bar/busqueda.html",
 
             "row_actions":
                 "administracion/row_actions/alumnos.html",
 
-            "table_order": "desc",
+            "table_order":
+                "desc",
+
+            "mostrar_estado_alumno":
+                True,
 
             "ids": [
                 "id",
                 "id_curso",
                 "id_estado_alumno",
             ],
-
-            "mostrar_estado_alumno": True,
 
             "atributos": [
                 "id",
@@ -1117,16 +1172,36 @@ class BusquedaView(ViewCustom):
                 "total_pagos",
             ],
 
-            "data": alumnos,
+            "data":
+                alumnos,
 
-            "estados": estados,
+            "estados":
+                estados,
 
-            "total": len(alumnos),
+            "total":
+                len(alumnos),
 
-            # Lo usaremos para saber que estamos
-            # trabajando desde Búsqueda
-            "es_busqueda": True,
+            "es_busqueda":
+                True,
+
+            "busqueda_realizada":
+                busqueda_realizada,
+
+            # Mantener filtros escritos
+            "filtro_id":
+                alumno_id,
+
+            "filtro_rut":
+                rut,
+
+            "filtro_correo":
+                correo,
+
+            "filtro_nombre":
+                nombre,
+                
         }
+
 
         return render(
             request,

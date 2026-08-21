@@ -1,0 +1,136 @@
+<div class="row">
+
+    <div class="col-md-12">
+
+        <div class="x_panel">
+
+            <div class="x_content">
+
+
+                <form
+                    method="GET"
+                    action="{% url 'busqueda' %}"
+                >
+
+                    <div class="row">
+
+
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+
+                            <label>
+                                ID
+                            </label>
+
+                            <input
+                                type="number"
+                                name="id"
+                                class="form-control"
+                                placeholder="ID"
+                                value="{{ filtro_id }}"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+
+                            <label>
+                                RUT
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rut"
+                                class="form-control"
+                                placeholder="RUT"
+                                value="{{ filtro_rut }}"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+
+                            <label>
+                                Correo
+                            </label>
+
+                            <input
+                                type="text"
+                                name="correo"
+                                class="form-control"
+                                placeholder="Correo"
+                                value="{{ filtro_correo }}"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+
+                            <label>
+                                Nombre / Apellido
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nombre"
+                                class="form-control"
+                                placeholder="Nombre o apellido"
+                                value="{{ filtro_nombre }}"
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                    <br>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+
+                        <i class="fa fa-search"></i>
+
+                        Buscar
+
+                    </button>
+
+
+                    <a
+                        href="{% url 'busqueda' %}"
+                        class="btn btn-default"
+                    >
+
+                        <i class="fa fa-eraser"></i>
+
+                        Limpiar
+
+                    </a>
+
+
+                    {% if busqueda_realizada %}
+
+                        <span class="text-muted">
+
+                            {{ total }}
+                            resultado{{ total|pluralize }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
