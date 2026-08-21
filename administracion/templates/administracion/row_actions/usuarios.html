@@ -1,0 +1,63 @@
+<!-- EDITAR -->
+
+<button
+    type="button"
+    class="btn btn-primary btn-xs btn-editar-usuario"
+
+    data-id="{{ row.id }}"
+    data-nombre="{{ row.nombre }}"
+    data-nick="{{ row.nick }}"
+    data-correo="{{ row.correo }}"
+    data-numero="{{ row.numero }}"
+
+    title="Editar usuario"
+>
+
+    <i class="fa fa-pencil"></i>
+
+</button>
+
+
+<!-- ACTIVAR / DESACTIVAR -->
+
+<form
+    method="POST"
+    action="{% url 'usuario_estado' row.id %}"
+    style="display:inline;"
+>
+
+    {% csrf_token %}
+
+
+    {% if row.activo == 1 %}
+
+        <button
+            type="submit"
+            class="btn btn-danger btn-xs"
+            title="Desactivar usuario"
+            onclick="
+                return confirm(
+                    '¿Desea desactivar este usuario?'
+                );
+            "
+        >
+
+            <i class="fa fa-ban"></i>
+
+        </button>
+
+    {% else %}
+
+        <button
+            type="submit"
+            class="btn btn-success btn-xs"
+            title="Activar usuario"
+        >
+
+            <i class="fa fa-check"></i>
+
+        </button>
+
+    {% endif %}
+
+</form>

@@ -1,0 +1,70 @@
+<div class="row">
+
+    <div class="col-md-12">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div
+                    class="
+                        alert
+
+                        {% if message.tags == 'success' %}
+                            alert-success
+
+                        {% elif message.tags == 'error' %}
+                            alert-danger
+
+                        {% elif message.tags == 'warning' %}
+                            alert-warning
+
+                        {% else %}
+                            alert-info
+                        {% endif %}
+
+                        alert-dismissible
+                    "
+                >
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="alert"
+                    >
+                        ×
+                    </button>
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <div class="x_panel">
+
+            <div class="x_content">
+
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    data-toggle="modal"
+                    data-target="#modalAgregarUsuario"
+                >
+
+                    <i class="fa fa-plus"></i>
+
+                    Agregar Usuario
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,5 +1,8 @@
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import (
+    EmailMultiAlternatives,
+    get_connection,
+)
 from django.template.loader import render_to_string
 
 def enviar_email_bienvenida(
@@ -52,7 +55,8 @@ def _enviar_template(
     asunto,
     destinatario,
     template,
-    context
+    context,
+    cuenta="postulaciones"
 ):
 
     html = render_to_string(
@@ -60,11 +64,44 @@ def _enviar_template(
         context
     )
 
+
+    if cuenta == "pagos":
+
+        conexion = _conexion_pagos()
+
+        remitente = (
+            settings.EMAIL_PAGOS_USER
+        )
+
+
+    elif cuenta == "administracion":
+
+        conexion = (
+            _conexion_administracion()
+        )
+
+        remitente = (
+            settings.EMAIL_ADMINISTRACION_USER
+        )
+
+
+    else:
+
+        conexion = (
+            _conexion_postulaciones()
+        )
+
+        remitente = (
+            settings.EMAIL_POSTULACIONES_USER
+        )
+
+
     email = EmailMultiAlternatives(
         subject=asunto,
         body=asunto,
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=remitente,
         to=[destinatario],
+        connection=conexion,
     )
 
     email.attach_alternative(
@@ -156,7 +193,8 @@ def enviar_email_aceptacion(
         "Postulación aceptada - IC Capacitación Laboral",
         alumno.email,
         "administracion/emails/aceptacion.html",
-        context
+        context,
+        cuenta="postulaciones"
     )
 
 
@@ -181,7 +219,8 @@ def enviar_email_pago(
         "Información de pago - IC Capacitación Laboral",
         alumno.email,
         "administracion/emails/pago.html",
-        context
+        context,
+        cuenta="pagos"
     )
 
 
@@ -336,5 +375,41 @@ def enviar_email_bienvenida_especial(
         ),
         alumno.email,
         "administracion/emails/bienvenida_especial.html",
-        context
+        context,
+        cuenta="postulaciones"
+    )
+
+def _conexion_postulaciones():
+
+    return get_connection(
+        backend="django.core.mail.backends.smtp.EmailBackend",
+        host=settings.EMAIL_HOST,
+        port=settings.EMAIL_PORT,
+        username=settings.EMAIL_POSTULACIONES_USER,
+        password=settings.EMAIL_POSTULACIONES_PASSWORD,
+        use_tls=settings.EMAIL_USE_TLS,
+    )
+
+
+def _conexion_pagos():
+
+    return get_connection(
+        backend="django.core.mail.backends.smtp.EmailBackend",
+        host=settings.EMAIL_HOST,
+        port=settings.EMAIL_PORT,
+        username=settings.EMAIL_PAGOS_USER,
+        password=settings.EMAIL_PAGOS_PASSWORD,
+        use_tls=settings.EMAIL_USE_TLS,
+    )
+
+
+def _conexion_administracion():
+
+    return get_connection(
+        backend="django.core.mail.backends.smtp.EmailBackend",
+        host=settings.EMAIL_HOST,
+        port=settings.EMAIL_PORT,
+        username=settings.EMAIL_ADMINISTRACION_USER,
+        password=settings.EMAIL_ADMINISTRACION_PASSWORD,
+        use_tls=settings.EMAIL_USE_TLS,
     )

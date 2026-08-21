@@ -270,6 +270,365 @@ class AuthView:
                 f"Error registrando login: {e}"
             )
 # Para generar la vista con la tabla si o si debe existir el modelo (usen el verbose)
+
+class UsuarioView(ViewCustom):
+
+    @staticmethod
+    def usuarios(request):
+
+        usuarios_bd = Usuario.objects.all().order_by("-id")
+
+        usuarios = []
+
+        for usuario in usuarios_bd:
+
+            usuarios.append({
+                "id": usuario.id,
+                "nombre": usuario.nombre,
+                "nick": usuario.nick,
+                "correo": usuario.correo or "",
+                "numero": usuario.numero or "",
+                "activo": usuario.activo,
+                "estado": (
+                    "Activo"
+                    if usuario.activo == 1
+                    else "Inactivo"
+                ),
+            })
+
+
+        context = {
+
+            "title": "Usuarios",
+
+            "actions_bar":
+                "administracion/actions_bar/usuarios.html",
+
+            "row_actions":
+                "administracion/row_actions/usuarios.html",
+
+            "table_order": "desc",
+
+            "mostrar_estado_activo": True,
+
+            "ids": [
+                "id",
+                "activo",
+            ],
+
+            "atributos": [
+                "id",
+                "nombre",
+                "nick",
+                "correo",
+                "numero",
+                "estado",
+            ],
+
+            "data": usuarios,
+        }
+
+
+        return render(
+            request,
+            "administracion/usuarios.html",
+            context
+        )
+
+
+    # ============================================
+    # CREAR
+    # ============================================
+
+    @staticmethod
+    @require_POST
+    def agregar_usuario(request):
+
+        try:
+
+            nombre = request.POST.get(
+                "nombre",
+                ""
+            ).strip()
+
+            nick = request.POST.get(
+                "nick",
+                ""
+            ).strip()
+
+            correo = request.POST.get(
+                "correo",
+                ""
+            ).strip()
+
+            numero = request.POST.get(
+                "numero",
+                ""
+            ).strip()
+
+            clave = request.POST.get(
+                "clave",
+                ""
+            )
+
+
+            if not nombre:
+                raise Exception(
+                    "Debe ingresar el nombre."
+                )
+
+            if not nick:
+                raise Exception(
+                    "Debe ingresar el usuario."
+                )
+
+            if not clave:
+                raise Exception(
+                    "Debe ingresar una contraseña."
+                )
+
+
+            if Usuario.objects.filter(
+                nick=nick
+            ).exists():
+
+                raise Exception(
+                    "Ya existe un usuario con ese nombre de usuario."
+                )
+
+
+            clave_hash = bcrypt.hashpw(
+                clave.encode("utf-8"),
+                bcrypt.gensalt()
+            ).decode("utf-8")
+
+
+            Usuario.objects.create(
+                nombre=nombre,
+                nick=nick,
+                clave=clave_hash,
+                correo=correo,
+                numero=numero,
+                activo=1,
+            )
+
+
+            messages.success(
+                request,
+                "Usuario creado correctamente."
+            )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al crear usuario: {str(e)}"
+            )
+
+
+        return redirect(
+            "usuarios"
+        )
+
+
+    # ============================================
+    # MODIFICAR
+    # ============================================
+
+    @staticmethod
+    @require_POST
+    def actualizar_usuario(request):
+
+        try:
+
+            usuario_id = request.POST.get(
+                "id_usuario"
+            )
+
+            usuario = get_object_or_404(
+                Usuario,
+                id=usuario_id
+            )
+
+
+            nombre = request.POST.get(
+                "nombre",
+                ""
+            ).strip()
+
+            nick = request.POST.get(
+                "nick",
+                ""
+            ).strip()
+
+            correo = request.POST.get(
+                "correo",
+                ""
+            ).strip()
+
+            numero = request.POST.get(
+                "numero",
+                ""
+            ).strip()
+
+            clave = request.POST.get(
+                "clave",
+                ""
+            )
+
+
+            if not nombre:
+                raise Exception(
+                    "Debe ingresar el nombre."
+                )
+
+            if not nick:
+                raise Exception(
+                    "Debe ingresar el usuario."
+                )
+
+
+            existe_nick = (
+                Usuario.objects
+                .filter(nick=nick)
+                .exclude(id=usuario.id)
+                .exists()
+            )
+
+
+            if existe_nick:
+
+                raise Exception(
+                    "Ya existe otro usuario con ese nombre de usuario."
+                )
+
+
+            usuario.nombre = nombre
+            usuario.nick = nick
+            usuario.correo = correo
+            usuario.numero = numero
+
+
+            # Solo cambia contraseña si se escribió una nueva
+            if clave:
+
+                usuario.clave = bcrypt.hashpw(
+                    clave.encode("utf-8"),
+                    bcrypt.gensalt()
+                ).decode("utf-8")
+
+
+            usuario.save()
+
+
+            # Si el usuario editó su propio perfil,
+            # actualizamos el nombre de la sesión.
+            if (
+                int(request.session["id"])
+                == usuario.id
+            ):
+
+                request.session["nombre"] = (
+                    usuario.nombre
+                )
+
+                request.session["usuario"] = (
+                    usuario.nick
+                )
+
+
+            messages.success(
+                request,
+                "Usuario actualizado correctamente."
+            )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al actualizar usuario: {str(e)}"
+            )
+
+
+        return redirect(
+            "usuarios"
+        )
+
+
+    # ============================================
+    # ACTIVAR / DESACTIVAR
+    # ============================================
+
+    @staticmethod
+    @require_POST
+    def actualizar_estado(
+        request,
+        usuario_id
+    ):
+
+        try:
+
+            usuario = get_object_or_404(
+                Usuario,
+                id=usuario_id
+            )
+
+
+            # No permitir que el usuario conectado
+            # se desactive a sí mismo
+            if (
+                usuario.id
+                == int(request.session["id"])
+                and usuario.activo == 1
+            ):
+
+                raise Exception(
+                    "No puede desactivar el usuario con el que tiene la sesión iniciada."
+                )
+
+
+            if usuario.activo == 1:
+
+                usuario.activo = 0
+
+                mensaje = (
+                    "Usuario desactivado correctamente."
+                )
+
+            else:
+
+                usuario.activo = 1
+
+                mensaje = (
+                    "Usuario activado correctamente."
+                )
+
+
+            usuario.save(
+                update_fields=["activo"]
+            )
+
+
+            messages.success(
+                request,
+                mensaje
+            )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al cambiar estado: {str(e)}"
+            )
+
+
+        return redirect(
+            "usuarios"
+        )
+
 class AlumnoView(ViewCustom):
 
     @staticmethod
@@ -797,9 +1156,10 @@ class AlumnoView(ViewCustom):
             "0"
         )
 
-        url_pago = request.POST.get(
-            "url_pago"
-        )
+        if url_pago and not url_pago.startswith(
+            ("http://", "https://")
+        ):
+            url_pago = "https://" + url_pago
 
         origen = request.POST.get(
             "origen",

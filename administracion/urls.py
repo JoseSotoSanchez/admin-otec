@@ -6,6 +6,7 @@ from .views import (
     AuthView,
     BusquedaView,
     MoverAspirantesView,
+    UsuarioView,
 )
 
 urlpatterns = [
@@ -170,5 +171,33 @@ urlpatterns = [
         "alumnos/<int:alumno_id>/correo-bienvenida",
         AlumnoView.correo_bienvenida_especial,
         name="alumno_correo_bienvenida"
+    ),
+
+    # =============================================
+    # USUARIOS
+    # =============================================
+
+    path(
+        "usuarios",
+        UsuarioView.usuarios,
+        name="usuarios"
+    ),
+
+    path(
+        "usuarios/agregar",
+        UsuarioView.agregar_usuario,
+        name="usuario_agregar"
+    ),
+
+    path(
+        "usuarios/actualizar",
+        UsuarioView.actualizar_usuario,
+        name="usuario_actualizar"
+    ),
+
+    path(
+        "usuarios/<int:usuario_id>/estado",
+        UsuarioView.actualizar_estado,
+        name="usuario_estado"
     ),
 ]

@@ -1,0 +1,390 @@
+{% extends "administracion/base_site.html" %}
+
+{% block title %}
+Usuarios
+{% endblock title %}
+
+
+{% block content %}
+
+{% include "administracion/generic_table.html" with title="Usuarios del Sistema" %}
+
+
+<!-- ============================================= -->
+<!-- MODAL AGREGAR -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalAgregarUsuario"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+
+            <form
+                method="POST"
+                action="{% url 'usuario_agregar' %}"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Agregar Usuario
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nombre"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Usuario
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nick"
+                            class="form-control"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Correo
+                        </label>
+
+                        <input
+                            type="email"
+                            name="correo"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="text"
+                            name="numero"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            name="clave"
+                            class="form-control"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================= -->
+<!-- MODAL EDITAR -->
+<!-- ============================================= -->
+
+<div
+    class="modal fade"
+    id="modalEditarUsuario"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+
+            <form
+                method="POST"
+                action="{% url 'usuario_actualizar' %}"
+            >
+
+                {% csrf_token %}
+
+
+                <input
+                    type="hidden"
+                    name="id_usuario"
+                    id="editar_usuario_id"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4 class="modal-title">
+                        Editar Usuario
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nombre"
+                            id="editar_usuario_nombre"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Usuario
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nick"
+                            id="editar_usuario_nick"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Correo
+                        </label>
+
+                        <input
+                            type="email"
+                            name="correo"
+                            id="editar_usuario_correo"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="text"
+                            name="numero"
+                            id="editar_usuario_numero"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Nueva Contraseña
+                        </label>
+
+                        <input
+                            type="password"
+                            name="clave"
+                            class="form-control"
+                            autocomplete="new-password"
+                            minlength="6"
+                        >
+
+                        <small class="text-muted">
+                            Deje este campo vacío para mantener
+                            la contraseña actual.
+                        </small>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Actualizar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock content %}
+
+
+
+{% block javascripts %}
+
+{{ block.super }}
+
+
+<script>
+
+$(document).ready(function () {
+
+
+    $(document).on(
+        "click",
+        ".btn-editar-usuario",
+        function () {
+
+            const boton = $(this);
+
+
+            $("#editar_usuario_id").val(
+                boton.data("id")
+            );
+
+            $("#editar_usuario_nombre").val(
+                boton.data("nombre")
+            );
+
+            $("#editar_usuario_nick").val(
+                boton.data("nick")
+            );
+
+            $("#editar_usuario_correo").val(
+                boton.data("correo")
+            );
+
+            $("#editar_usuario_numero").val(
+                boton.data("numero")
+            );
+
+
+            $("#modalEditarUsuario").modal(
+                "show"
+            );
+
+        }
+    );
+
+});
+
+</script>
+
+{% endblock javascripts %}

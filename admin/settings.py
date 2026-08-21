@@ -173,3 +173,44 @@ SESSION_COOKIE_SAMESITE = "Lax"
 
 # En producción con HTTPS lo cambiaremos a True.
 SESSION_COOKIE_SECURE = False
+
+EMAIL_HOST = os.getenv(
+    "EMAIL_HOST",
+    "iccapacitacionlaboral.cl"
+)
+
+EMAIL_PORT = int(
+    os.getenv(
+        "EMAIL_PORT",
+        "587"
+    )
+)
+
+EMAIL_USE_TLS = True
+
+
+EMAIL_POSTULACIONES_USER = os.getenv(
+    "EMAIL_POSTULACIONES_USER"
+)
+
+EMAIL_POSTULACIONES_PASSWORD = os.getenv(
+    "EMAIL_POSTULACIONES_PASSWORD"
+)
+
+
+EMAIL_PAGOS_USER = os.getenv(
+    "EMAIL_PAGOS_USER"
+)
+
+EMAIL_PAGOS_PASSWORD = os.getenv(
+    "EMAIL_PAGOS_PASSWORD"
+)
+
+
+EMAIL_ADMINISTRACION_USER = os.getenv(
+    "EMAIL_ADMINISTRACION_USER"
+)
+
+EMAIL_ADMINISTRACION_PASSWORD = os.getenv(
+    "EMAIL_ADMINISTRACION_PASSWORD"
+)
