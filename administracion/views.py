@@ -357,6 +357,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        filtro_id = request.POST.get("filtro_id", "")
+        filtro_rut = request.POST.get("filtro_rut", "")
+        filtro_correo = request.POST.get("filtro_correo", "")
+        filtro_nombre = request.POST.get("filtro_nombre", "")
         try:
 
             alumno = get_object_or_404(
@@ -425,7 +429,11 @@ class AlumnoView(ViewCustom):
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina,
-            origen
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
         )
 
     # ============================================
@@ -449,6 +457,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        filtro_id = request.POST.get("filtro_id", "")
+        filtro_rut = request.POST.get("filtro_rut", "")
+        filtro_correo = request.POST.get("filtro_correo", "")
+        filtro_nombre = request.POST.get("filtro_nombre", "")
         try:
 
             monto = request.POST.get(
@@ -507,7 +519,11 @@ class AlumnoView(ViewCustom):
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina,
-            origen
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
         )
 
 
@@ -786,6 +802,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        filtro_id = request.POST.get("filtro_id", "")
+        filtro_rut = request.POST.get("filtro_rut", "")
+        filtro_correo = request.POST.get("filtro_correo", "")
+        filtro_nombre = request.POST.get("filtro_nombre", "")
         try:
 
             alumno, curso, usuario = (
@@ -825,7 +845,11 @@ class AlumnoView(ViewCustom):
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina,
-            origen
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
         )
 
 
@@ -854,6 +878,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        filtro_id = request.POST.get("filtro_id", "")
+        filtro_rut = request.POST.get("filtro_rut", "")
+        filtro_correo = request.POST.get("filtro_correo", "")
+        filtro_nombre = request.POST.get("filtro_nombre", "")
         try:
 
             alumno, curso, usuario = (
@@ -893,7 +921,11 @@ class AlumnoView(ViewCustom):
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina,
-            origen
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
         )
 
 
@@ -930,6 +962,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        filtro_id = request.POST.get("filtro_id", "")
+        filtro_rut = request.POST.get("filtro_rut", "")
+        filtro_correo = request.POST.get("filtro_correo", "")
+        filtro_nombre = request.POST.get("filtro_nombre", "")
         try:
 
             if tipo not in (
@@ -981,7 +1017,11 @@ class AlumnoView(ViewCustom):
         return AlumnoView._redirect_alumnos(
             curso_id,
             pagina,
-            origen
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
         )
 
 
@@ -1048,26 +1088,30 @@ class AlumnoView(ViewCustom):
 
     @staticmethod
     def _redirect_alumnos(
-        curso_id,
-        pagina=0,
-        origen="alumnos"
-    ):
+            curso_id,
+            pagina=0,
+            origen="alumnos",
+            filtro_id="",
+            filtro_rut="",
+            filtro_correo="",
+            filtro_nombre=""
+        ):
 
         if origen == "busqueda":
 
-            url = reverse(
-                "busqueda"
-            )
+            url = reverse("busqueda")
 
             query = urlencode({
                 "pagina": pagina,
+                "id": filtro_id,
+                "rut": filtro_rut,
+                "correo": filtro_correo,
+                "nombre": filtro_nombre,
             })
 
         else:
 
-            url = reverse(
-                "alumnos"
-            )
+            url = reverse("alumnos")
 
             query = urlencode({
                 "curso": curso_id,
