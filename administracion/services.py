@@ -520,3 +520,50 @@ def obtener_alumnos_por_horario():
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
+def obtener_resumen_cursos_activos_dashboard():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                c.id,
+                c.nombre,
+                c.codigo_curso,
+
+                COUNT(DISTINCT a.id) AS aspirantes,
+
+                COUNT(
+                    DISTINCT CASE
+                        WHEN p.id IS NOT NULL
+                        THEN a.id
+                    END
+                ) AS pagados
+
+            FROM Curso c
+
+            LEFT JOIN Alumno a
+                ON a.id_curso = c.id
+
+            LEFT JOIN Pagos p
+                ON p.id_alumno = a.id
+                AND p.id_curso = c.id
+
+            WHERE c.activo = 1
+
+            GROUP BY
+                c.id,
+                c.nombre,
+                c.codigo_curso
+
+            ORDER BY c.id DESC
+        """)
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]

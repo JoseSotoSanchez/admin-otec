@@ -33,7 +33,101 @@ Dashboard
 
     <div class="clearfix"></div>
 
+      <div class="row">
 
+    <div class="col-md-12">
+
+        <div class="x_panel">
+
+            <div class="x_title">
+                <h2>
+                    <i class="fa fa-graduation-cap"></i>
+                    Cursos activos
+                </h2>
+
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="x_content">
+
+                <div class="row">
+
+                    {% for curso in resumen_cursos %}
+
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+
+                            <div class="curso-resumen">
+
+                                <div class="curso-resumen-codigo">
+                                    {{ curso.codigo_curso }}
+                                </div>
+
+                                <div
+                                    class="curso-resumen-nombre"
+                                    title="{{ curso.nombre }}"
+                                >
+                                    {{ curso.nombre }}
+                                </div>
+
+                                <div class="curso-resumen-numeros">
+
+                                    <span class="aspirantes-num">
+                                        {{ curso.aspirantes }}
+                                    </span>
+
+                                    <small>
+                                        Aspirantes
+                                    </small>
+
+                                    <span class="separador">
+                                        /
+                                    </span>
+
+                                    <span class="pagados-num">
+                                        {{ curso.pagados }}
+                                    </span>
+
+                                    <small>
+                                        Pagados
+                                    </small>
+
+                                </div>
+
+                                <div class="conversion-texto">
+
+                                  Conversión:
+
+                                  <strong>
+
+                                      {% if curso.aspirantes > 0 %}
+
+                                          {% widthratio curso.pagados curso.aspirantes 100 %}%
+
+                                      {% else %}
+
+                                          0 %
+
+                                      {% endif %}
+
+                                  </strong>
+
+                              </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
     <!-- ====================================== -->
     <!-- TARJETAS -->
     <!-- ====================================== -->
@@ -62,7 +156,7 @@ Dashboard
                         </div>
 
                         <div class="dashboard-label">
-                            Total alumnos
+                            Total aspirantes
                         </div>
 
                     </div>
@@ -128,7 +222,7 @@ Dashboard
                         </div>
 
                         <div class="dashboard-label">
-                            Alumnos en cursos activos
+                            Aspirantes en cursos activos
                         </div>
 
                     </div>
@@ -212,7 +306,7 @@ Dashboard
                             {{ horario_mayor.cantidad }}
 
                             <small>
-                                alumnos
+                                aspirantes
                             </small>
 
                         </h1>
@@ -261,7 +355,7 @@ Dashboard
                             {{ horario_menor.cantidad }}
 
                             <small>
-                                alumnos
+                                aspirantes
                             </small>
 
                         </h1>
@@ -300,7 +394,7 @@ Dashboard
                 <div class="x_title">
 
                     <h2>
-                        Alumnos por curso activo
+                        Aspirantes por curso activo
                     </h2>
 
                     <div class="clearfix"></div>
@@ -491,7 +585,7 @@ Dashboard
                 <div class="x_title">
 
                     <h2>
-                        Últimos alumnos ingresados
+                        Últimos aspirantes ingresados
                     </h2>
 
                     <div class="clearfix"></div>
@@ -704,6 +798,56 @@ Dashboard
 
     }
 
+    .curso-resumen {
+        border: 1px solid #e6e9ed;
+        border-radius: 5px;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        background: #fff;
+        min-height: 115px;
+    }
+
+    .curso-resumen-codigo {
+        font-weight: bold;
+        color: #337ab7;
+        font-size: 14px;
+    }
+
+    .curso-resumen-nombre {
+        color: #73879c;
+        font-size: 12px;
+        margin: 4px 0 10px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .curso-resumen-numeros {
+        font-size: 13px;
+    }
+
+    .aspirantes-num {
+        color: #3498db;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .pagados-num {
+        color: #26b99a;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .separador {
+        margin: 0 8px;
+        color: #bbb;
+    }
+
+    .conversion-texto {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #73879c;
+    }
 </style>
 
 {% endblock stylesheets %}

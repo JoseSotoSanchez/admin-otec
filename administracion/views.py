@@ -48,6 +48,7 @@ from .services import (
     obtener_cursos_activos_dashboard,
     obtener_alumnos_por_curso_activo,
     obtener_alumnos_por_horario,
+    obtener_resumen_cursos_activos_dashboard,
 )
 
 from .emails import (
@@ -1554,6 +1555,7 @@ class DashboardView(ViewCustom):
             obtener_alumnos_por_horario()
         )
 
+        resumen_cursos = obtener_resumen_cursos_activos_dashboard()
 
         # ============================================
         # HORARIO MAYOR / MENOR INGRESO
@@ -1630,6 +1632,8 @@ class DashboardView(ViewCustom):
 
             "horarios_data":
                 json.dumps(horarios_data),
+
+            "resumen_cursos": resumen_cursos,
         }
 
 
