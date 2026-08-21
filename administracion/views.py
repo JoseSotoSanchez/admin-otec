@@ -50,6 +50,9 @@ from .services import (
     obtener_alumnos_por_horario,
     obtener_resumen_cursos_activos_dashboard,
     buscar_aspirantes,
+    obtener_aspirante_para_mover,
+    contar_nuevos_aspirantes_curso,
+    mover_nuevos_aspirantes,
 )
 
 from .emails import (
@@ -1253,6 +1256,250 @@ class BusquedaView(ViewCustom):
             context
         )
 
+class MoverAspirantesView(ViewCustom):
+
+    @staticmethod
+    def mover(request):
+
+        cursos = obtener_cursos()
+
+        aspirante = None
+
+        alumno_id = request.GET.get(
+            "alumno_id",
+            ""
+        ).strip()
+
+        if alumno_id:
+
+            aspirante = obtener_aspirante_para_mover(
+                alumno_id
+            )
+
+            if not aspirante:
+
+                messages.error(
+                    request,
+                    "No se encontró un aspirante con ese ID."
+                )
+
+
+        context = {
+
+            "title":
+                "Mover Aspirantes",
+
+            "cursos":
+                cursos,
+
+            "aspirante":
+                aspirante,
+
+            "alumno_id":
+                alumno_id,
+        }
+
+
+        return render(
+            request,
+            "administracion/mover_aspirantes.html",
+            context
+        )
+
+
+    # ==========================================
+    # MOVER UN ASPIRANTE
+    # ==========================================
+
+    @staticmethod
+    @require_POST
+    @transaction.atomic
+    def mover_uno(request):
+
+        alumno_id = request.POST.get(
+            "alumno_id"
+        )
+
+        curso_destino_id = request.POST.get(
+            "curso_destino"
+        )
+
+        try:
+
+            if not alumno_id:
+                raise Exception(
+                    "Debe indicar el aspirante."
+                )
+
+            if not curso_destino_id:
+                raise Exception(
+                    "Debe seleccionar un curso destino."
+                )
+
+
+            aspirante = (
+                obtener_aspirante_para_mover(
+                    alumno_id
+                )
+            )
+
+
+            if not aspirante:
+
+                raise Exception(
+                    "El aspirante no existe."
+                )
+
+
+
+            if (
+                int(aspirante["id_curso"])
+                == int(curso_destino_id)
+            ):
+
+                raise Exception(
+                    "El curso destino debe ser diferente "
+                    "al curso actual."
+                )
+
+
+            curso_destino = get_object_or_404(
+                Curso,
+                id=curso_destino_id
+            )
+
+
+            alumno = get_object_or_404(
+                Alumno,
+                id=alumno_id
+            )
+
+
+            alumno.id_curso = curso_destino
+
+            alumno.save(
+                update_fields=[
+                    "id_curso"
+                ]
+            )
+
+
+            messages.success(
+                request,
+                (
+                    f"Aspirante {alumno.nombre} "
+                    f"{alumno.apellido} movido correctamente "
+                    f"al curso {curso_destino.nombre}."
+                )
+            )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al mover aspirante: {str(e)}"
+            )
+
+
+        return redirect(
+            "mover_aspirantes"
+        )
+
+
+    # ==========================================
+    # MOVER TODOS LOS ESTADO 6
+    # ==========================================
+
+    @staticmethod
+    @require_POST
+    @transaction.atomic
+    def mover_todos(request):
+
+        curso_origen_id = request.POST.get(
+            "curso_origen"
+        )
+
+        curso_destino_id = request.POST.get(
+            "curso_destino"
+        )
+
+        try:
+
+            if (
+                not curso_origen_id
+                or not curso_destino_id
+            ):
+
+                raise Exception(
+                    "Debe seleccionar curso origen y destino."
+                )
+
+
+            if (
+                int(curso_origen_id)
+                == int(curso_destino_id)
+            ):
+
+                raise Exception(
+                    "El curso origen y destino "
+                    "no pueden ser iguales."
+                )
+
+
+            curso_origen = get_object_or_404(
+                Curso,
+                id=curso_origen_id
+            )
+
+            curso_destino = get_object_or_404(
+                Curso,
+                id=curso_destino_id
+            )
+
+
+            cantidad = contar_nuevos_aspirantes_curso(
+                curso_origen_id
+            )
+
+
+            if cantidad == 0:
+
+                raise Exception(
+                    (
+                        "El curso seleccionado no tiene "
+                        "aspirantes en estado Nuevo Aspirante."
+                    )
+                )
+
+
+            movidos = mover_nuevos_aspirantes(
+                curso_origen_id,
+                curso_destino_id
+            )
+
+
+            messages.success(
+                request,
+                (
+                    f"Se movieron {movidos} aspirantes "
+                    f"desde {curso_origen.codigo_curso} "
+                    f"hacia {curso_destino.codigo_curso}."
+                )
+            )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error al mover aspirantes: {str(e)}"
+            )
+
+
+        return redirect(
+            "mover_aspirantes"
+        )
 class CursoView(ViewCustom):
 
     @staticmethod

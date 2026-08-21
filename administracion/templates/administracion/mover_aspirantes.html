@@ -1,0 +1,451 @@
+{% extends "administracion/base_site.html" %}
+
+{% block title %}
+Mover Aspirantes
+{% endblock title %}
+
+
+{% block content %}
+
+<div class="right_col" role="main">
+
+
+    <div class="page-title">
+
+        <div class="title_left">
+
+            <h3>
+                Mover Aspirantes
+            </h3>
+
+        </div>
+
+    </div>
+
+
+    <div class="clearfix"></div>
+
+
+    <!-- ========================================== -->
+    <!-- MENSAJES -->
+    <!-- ========================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="
+                    alert
+
+                    {% if message.tags == 'success' %}
+                        alert-success
+                    {% elif message.tags == 'error' %}
+                        alert-danger
+                    {% elif message.tags == 'warning' %}
+                        alert-warning
+                    {% else %}
+                        alert-info
+                    {% endif %}
+
+                    alert-dismissible
+                "
+            >
+
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                >
+                    ×
+                </button>
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <div class="row">
+
+
+        <!-- ====================================== -->
+        <!-- MOVER SOLO UNO -->
+        <!-- ====================================== -->
+
+        <div class="col-md-6 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        <i class="fa fa-user"></i>
+                        Mover un aspirante
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content">
+
+
+                    <p class="text-muted">
+
+                        Busca al aspirante por ID antes de moverlo.
+
+                    </p>
+
+
+                    <form
+                        method="GET"
+                        action="{% url 'mover_aspirantes' %}"
+                    >
+
+                        <div class="form-group">
+
+                            <label>
+                                ID Aspirante
+                            </label>
+
+                            <div class="input-group">
+
+                                <input
+                                    type="number"
+                                    name="alumno_id"
+                                    class="form-control"
+                                    value="{{ alumno_id }}"
+                                    min="1"
+                                    required
+                                >
+
+                                <span class="input-group-btn">
+
+                                    <button
+                                        class="btn btn-primary"
+                                        type="submit"
+                                    >
+
+                                        <i class="fa fa-search"></i>
+
+                                        Buscar
+
+                                    </button>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+
+                    {% if aspirante %}
+
+                        <hr>
+
+
+                        <div class="well">
+
+                            <strong>
+                                {{ aspirante.nombre }}
+                                {{ aspirante.apellido }}
+                            </strong>
+
+                            <br>
+
+                            RUT:
+                            {{ aspirante.rut }}
+
+                            <br>
+
+                            Curso actual:
+
+                            <strong>
+                                {{ aspirante.codigo_curso }}
+                            </strong>
+
+                            <br>
+
+                            Estado:
+
+                            <span class="label label-info">
+                                {{ aspirante.estado }}
+                            </span>
+
+                        </div>
+
+
+                            <form
+                                method="POST"
+                                action="{% url 'mover_aspirante_uno' %}"
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="alumno_id"
+                                    value="{{ aspirante.id }}"
+                                >
+
+                                <div class="form-group">
+
+                                    <label>
+                                        Curso destino
+                                    </label>
+
+                                    <select
+                                        name="curso_destino"
+                                        class="form-control"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Seleccione curso destino
+                                        </option>
+
+                                        {% for curso in cursos %}
+
+                                            {% if curso.id != aspirante.id_curso %}
+
+                                                <option value="{{ curso.id }}">
+
+                                                    {{ curso.codigo_curso }}
+                                                    -
+                                                    {{ curso.nombre }}
+
+                                                </option>
+
+                                            {% endif %}
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success"
+                                    onclick="
+                                        return confirm(
+                                            '¿Está seguro que desea mover este aspirante?'
+                                        );
+                                    "
+                                >
+
+                                    <i class="fa fa-exchange"></i>
+
+                                    Mover Aspirante
+
+                                </button>
+
+                            </form>
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- MOVER TODOS -->
+        <!-- ====================================== -->
+
+        <div class="col-md-6 col-sm-12 col-xs-12">
+
+            <div class="x_panel">
+
+                <div class="x_title">
+
+                    <h2>
+                        <i class="fa fa-users"></i>
+                        Mover todos los nuevos aspirantes
+                    </h2>
+
+                    <div class="clearfix"></div>
+
+                </div>
+
+
+                <div class="x_content">
+
+
+                    <div class="alert alert-info">
+
+                        Solo se moverán aspirantes cuyo
+                        <strong>último estado sea Nuevo Aspirante (6)</strong>.
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{% url 'mover_aspirantes_todos' %}"
+                        id="formMoverTodos"
+                    >
+
+                        {% csrf_token %}
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Curso origen
+                            </label>
+
+                            <select
+                                name="curso_origen"
+                                id="curso_origen"
+                                class="form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Seleccione curso origen
+                                </option>
+
+                                {% for curso in cursos %}
+
+                                    <option value="{{ curso.id }}">
+
+                                        {{ curso.codigo_curso }}
+                                        -
+                                        {{ curso.nombre }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Curso destino
+                            </label>
+
+                            <select
+                                name="curso_destino"
+                                id="curso_destino"
+                                class="form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Seleccione curso destino
+                                </option>
+
+                                {% for curso in cursos %}
+
+                                    <option value="{{ curso.id }}">
+
+                                        {{ curso.codigo_curso }}
+                                        -
+                                        {{ curso.nombre }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-warning"
+                        >
+
+                            <i class="fa fa-exchange"></i>
+
+                            Mover Todos
+
+                        </button>
+
+                    </form>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+{% endblock content %}
+
+
+{% block javascripts %}
+
+{{ block.super }}
+
+
+<script>
+
+$(document).ready(function () {
+
+    $("#formMoverTodos").on(
+        "submit",
+        function (e) {
+
+            const origen =
+                $("#curso_origen").val();
+
+            const destino =
+                $("#curso_destino").val();
+
+
+            if (origen === destino) {
+
+                e.preventDefault();
+
+                alert(
+                    "El curso origen y destino no pueden ser iguales."
+                );
+
+                return false;
+            }
+
+
+            const confirmar = confirm(
+                "¿Está seguro que desea mover TODOS los aspirantes "
+                + "en estado Nuevo Aspirante del curso seleccionado?"
+            );
+
+
+            if (!confirmar) {
+
+                e.preventDefault();
+
+                return false;
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+{% endblock javascripts %}

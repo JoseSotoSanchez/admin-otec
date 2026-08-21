@@ -5,6 +5,7 @@ from .views import (
     DashboardView,
     AuthView,
     BusquedaView,
+    MoverAspirantesView,
 )
 
 urlpatterns = [
@@ -59,7 +60,27 @@ urlpatterns = [
         BusquedaView.busqueda,
         name="busqueda"
     ),
-    
+    # =============================================
+    # MOVER ASPIRANTES
+    # =============================================
+
+    path(
+        "mover-aspirantes",
+        MoverAspirantesView.mover,
+        name="mover_aspirantes"
+    ),
+
+    path(
+        "mover-aspirantes/uno",
+        MoverAspirantesView.mover_uno,
+        name="mover_aspirante_uno"
+    ),
+
+    path(
+        "mover-aspirantes/todos",
+        MoverAspirantesView.mover_todos,
+        name="mover_aspirantes_todos"
+    ),
     # =============================================
     # CURSOS
     # =============================================

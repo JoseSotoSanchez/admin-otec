@@ -734,3 +734,141 @@ def buscar_aspirantes(
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
+
+def obtener_aspirante_para_mover(alumno_id):
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                a.id,
+                a.nombre,
+                a.apellido,
+                a.rut,
+                a.email,
+                a.telefono,
+
+                c.id AS id_curso,
+                c.nombre AS nombre_curso,
+                c.codigo_curso,
+
+                ea.id AS id_estado,
+                ea.estado
+
+            FROM Alumno a
+
+            INNER JOIN Curso c
+                ON c.id = a.id_curso
+
+            INNER JOIN Alumno_Estado ae
+                ON ae.id = (
+                    SELECT ae2.id
+                    FROM Alumno_Estado ae2
+                    WHERE ae2.id_alumno = a.id
+                    ORDER BY
+                        ae2.fecha DESC,
+                        ae2.id DESC
+                    LIMIT 1
+                )
+
+            INNER JOIN Estado_Alumno ea
+                ON ea.id = ae.id_estado
+
+            WHERE a.id = %s
+
+            LIMIT 1
+        """, [alumno_id])
+
+        fila = cursor.fetchone()
+
+        if not fila:
+            return None
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return dict(
+            zip(columnas, fila)
+        )
+
+
+def contar_nuevos_aspirantes_curso(curso_id):
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT COUNT(*)
+
+            FROM Alumno a
+
+            INNER JOIN Alumno_Estado ae
+                ON ae.id = (
+                    SELECT ae2.id
+                    FROM Alumno_Estado ae2
+                    WHERE ae2.id_alumno = a.id
+                    ORDER BY
+                        ae2.fecha DESC,
+                        ae2.id DESC
+                    LIMIT 1
+                )
+
+            WHERE a.id_curso = %s
+              AND ae.id_estado = 6
+        """, [curso_id])
+
+        return cursor.fetchone()[0]
+
+
+def mover_nuevos_aspirantes(
+    curso_origen_id,
+    curso_destino_id
+):
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            UPDATE Alumno
+
+            SET id_curso = %s
+
+            WHERE id IN (
+
+                SELECT id_alumno
+
+                FROM (
+
+                    SELECT
+                        a.id AS id_alumno
+
+                    FROM Alumno a
+
+                    INNER JOIN Alumno_Estado ae
+                        ON ae.id = (
+
+                            SELECT ae2.id
+
+                            FROM Alumno_Estado ae2
+
+                            WHERE ae2.id_alumno = a.id
+
+                            ORDER BY
+                                ae2.fecha DESC,
+                                ae2.id DESC
+
+                            LIMIT 1
+                        )
+
+                    WHERE a.id_curso = %s
+                      AND ae.id_estado = 6
+
+                ) AS nuevos
+
+            )
+        """, [
+            curso_destino_id,
+            curso_origen_id
+        ])
+
+        return cursor.rowcount
