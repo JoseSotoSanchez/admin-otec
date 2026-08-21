@@ -4,6 +4,7 @@ from .views import (
     CursoView,
     DashboardView,
     AuthView,
+    BusquedaView,
 )
 
 urlpatterns = [
@@ -49,7 +50,19 @@ urlpatterns = [
         name="alumnos"
     ),
 
+    # =============================================
+    # BUSQUEDA
+    # =============================================
+
+    path(
+        "busqueda",
+        BusquedaView.busqueda,
+        name="busqueda"
+    ),
+    
+    # =============================================
     # CURSOS
+    # =============================================
     path(
         "cursos",
         CursoView.cursos,

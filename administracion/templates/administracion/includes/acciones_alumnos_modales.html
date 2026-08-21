@@ -1,0 +1,577 @@
+
+<!-- ========================================= -->
+<!-- MODAL MODIFICAR -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalModificarAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formModificarAlumno"
+            >
+
+                {% csrf_token %}
+                <input
+                    type="hidden"
+                    name="origen"
+                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                >
+
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="modificar_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="modificar_pagina"
+                    value="0"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Modificar Aspirante
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>Estado</label>
+
+                        <select
+                            name="estado"
+                            id="modificar_estado"
+                            class="form-control"
+                            required
+                        >
+
+                            {% for estado in estados %}
+
+                            <option value="{{ estado.id }}">
+                                {{ estado.estado }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Nombres</label>
+
+                        <input
+                            name="nombre"
+                            id="modificar_nombre"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Apellidos</label>
+
+                        <input
+                            name="apellido"
+                            id="modificar_apellido"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Correo</label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="modificar_email"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Celular</label>
+
+                        <input
+                            name="telefono"
+                            id="modificar_telefono"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cerrar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- MODAL PAGO -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalPagoAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formPagoAlumno"
+            >
+
+                {% csrf_token %}
+                <input
+                    type="hidden"
+                    name="origen"
+                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                >
+                <input
+                    type="hidden"
+                    name="curso_id"
+                    id="pago_curso_id"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="pago_pagina"
+                    value="0"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Agregar Pago -
+                        <span id="pago_nombre"></span>
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+
+                        <label>
+                            Forma de Pago
+                        </label>
+
+                        <select
+                            name="medio_pago"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="Transferencia">
+                                Transferencia
+                            </option>
+
+                            <option value="Flow">
+                                Flow
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Monto</label>
+
+                        <input
+                            type="number"
+                            min="1"
+                            name="monto"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-default"
+                        data-dismiss="modal"
+                    >
+                        Cerrar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Guardar Pago
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- CORREO ACEPTACIÓN -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalAceptacionAlumno"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formAceptacionAlumno"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="origen"
+                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="aceptacion_pagina"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Correo de Aceptación
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="aceptacion_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            URL de Pago
+                        </label>
+
+                        <input
+                            type="url"
+                            name="url_pago"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- CORREO PAGO -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalCorreoPago"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formCorreoPago"
+            >
+
+                 {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="origen"
+                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="correo_pago_pagina"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Enviar correo de pago
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="correo_pago_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            Medio de Pago
+                        </label>
+
+                        <input
+                            type="text"
+                            name="medio_pago"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-info"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- BIENVENIDA ESPECIAL -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalBienvenidaEspecial"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                id="formBienvenidaEspecial"
+            >
+
+                 {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="origen"
+                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                >
+
+                <input
+                    type="hidden"
+                    name="pagina"
+                    id="bienvenida_pagina"
+                >
+
+                <input
+                    type="hidden"
+                    name="tipo"
+                    id="bienvenida_tipo"
+                >
+
+
+                <div class="modal-header">
+
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                    >
+                        ×
+                    </button>
+
+                    <h4>
+                        Enviar Bienvenida
+                        <span id="bienvenida_tipo_texto"></span>
+                    </h4>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <p id="bienvenida_nombre"></p>
+
+                    <div class="form-group">
+
+                        <label>
+                            Link SENCE
+                        </label>
+
+                        <input
+                            type="url"
+                            name="link_sence"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-success"
+                        type="submit"
+                    >
+                        Enviar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

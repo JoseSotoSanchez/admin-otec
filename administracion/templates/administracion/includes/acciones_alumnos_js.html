@@ -1,0 +1,301 @@
+
+<script>
+
+$(document).ready(function () {
+
+
+    function paginaActual() {
+
+        if (
+            $.fn.DataTable.isDataTable(
+                "#datatable-buttons"
+            )
+        ) {
+
+            return $(
+                "#datatable-buttons"
+            )
+            .DataTable()
+            .page();
+        }
+
+        return 0;
+    }
+
+
+    // ========================================
+    // MODIFICAR
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-modificar-alumno",
+        function () {
+
+            let b = $(this);
+
+            $("#modificar_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#modificar_pagina").val(
+                paginaActual()
+            );
+
+            $("#modificar_nombre").val(
+                b.data("nombre")
+            );
+
+            $("#modificar_apellido").val(
+                b.data("apellido")
+            );
+
+            $("#modificar_email").val(
+                b.data("email")
+            );
+
+            $("#modificar_telefono").val(
+                b.data("telefono")
+            );
+
+            $("#modificar_estado").val(
+                b.data("estado")
+            );
+
+            $("#formModificarAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/actualizar"
+            );
+
+            $("#modalModificarAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // PAGO
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-pago-alumno",
+        function () {
+
+            let b = $(this);
+
+            $("#pago_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#pago_pagina").val(
+                paginaActual()
+            );
+
+            $("#pago_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formPagoAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/pago"
+            );
+
+            $("#modalPagoAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // ACEPTACIÓN
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-aceptacion-alumno",
+        function () {
+
+            let b = $(this);
+
+            $("#aceptacion_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#aceptacion_pagina").val(
+                paginaActual()
+            );
+
+            $("#aceptacion_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formAceptacionAlumno").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-aceptacion"
+            );
+
+            $("#modalAceptacionAlumno").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // CORREO PAGO
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-correo-pago",
+        function () {
+
+            let b = $(this);
+
+            $("#correo_pago_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#correo_pago_pagina").val(
+                paginaActual()
+            );
+
+            $("#correo_pago_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#formCorreoPago").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-pago"
+            );
+
+            $("#modalCorreoPago").modal(
+                "show"
+            );
+        }
+    );
+
+
+    // ========================================
+    // BIENVENIDA
+    // ========================================
+
+    $(document).on(
+        "click",
+        ".btn-bienvenida-especial",
+        function () {
+
+            let b = $(this);
+
+            let codigo = (
+                b.data("codigo")
+                || ""
+            );
+
+            let tipo = "";
+
+            if (
+                codigo.indexOf("IEMCE") !== -1
+            ) {
+                tipo = "IEMCE";
+            }
+            else if (
+                codigo.indexOf("AAMCE") !== -1
+            ) {
+                tipo = "AAMCE";
+            }
+            else if (
+                codigo.indexOf("CBC") !== -1
+            ) {
+                tipo = "CBC";
+            }
+            else if (
+                codigo.indexOf("AAC") !== -1
+            ) {
+                tipo = "AAC";
+            }
+
+            $("#bienvenida_tipo").val(
+                tipo
+            );
+
+            $("#bienvenida_tipo_texto").text(
+                tipo
+            );
+
+            $("#bienvenida_nombre").text(
+                b.data("nombre")
+            );
+
+            $("#bienvenida_curso_id").val(
+                b.data("curso")
+            );
+
+            $("#bienvenida_pagina").val(
+                paginaActual()
+            );
+
+            $("#formBienvenidaEspecial").attr(
+                "action",
+                "/alumnos/"
+                + b.data("id")
+                + "/correo-bienvenida"
+            );
+
+            $("#modalBienvenidaEspecial").modal(
+                "show"
+            );
+        }
+    );
+
+});
+
+
+// ============================================
+// RESTAURAR PÁGINA DATATABLE
+// ============================================
+
+$(window).on(
+    "load",
+    function () {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const pagina =
+            params.get("pagina");
+
+        if (
+            pagina !== null &&
+            $.fn.DataTable.isDataTable(
+                "#datatable-buttons"
+            )
+        ) {
+
+            const tabla =
+                $("#datatable-buttons")
+                .DataTable();
+
+            tabla
+                .page(
+                    parseInt(pagina)
+                )
+                .draw("page");
+        }
+    }
+);
+
+</script>

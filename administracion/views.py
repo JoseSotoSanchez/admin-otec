@@ -352,7 +352,10 @@ class AlumnoView(ViewCustom):
 
         curso_id = request.POST.get("curso_id")
         pagina = request.POST.get("pagina", "0")
-
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
         try:
 
             alumno = get_object_or_404(
@@ -420,7 +423,8 @@ class AlumnoView(ViewCustom):
 
         return AlumnoView._redirect_alumnos(
             curso_id,
-            pagina
+            pagina,
+            origen
         )
 
     # ============================================
@@ -440,7 +444,10 @@ class AlumnoView(ViewCustom):
             "pagina",
             "0"
         )
-
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
         try:
 
             monto = request.POST.get(
@@ -498,7 +505,8 @@ class AlumnoView(ViewCustom):
 
         return AlumnoView._redirect_alumnos(
             curso_id,
-            pagina
+            pagina,
+            origen
         )
 
 
@@ -773,6 +781,10 @@ class AlumnoView(ViewCustom):
             "url_pago"
         )
 
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
         try:
 
             alumno, curso, usuario = (
@@ -811,7 +823,8 @@ class AlumnoView(ViewCustom):
 
         return AlumnoView._redirect_alumnos(
             curso_id,
-            pagina
+            pagina,
+            origen
         )
 
 
@@ -836,7 +849,10 @@ class AlumnoView(ViewCustom):
         medio_pago = request.POST.get(
             "medio_pago"
         )
-
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
         try:
 
             alumno, curso, usuario = (
@@ -875,7 +891,8 @@ class AlumnoView(ViewCustom):
 
         return AlumnoView._redirect_alumnos(
             curso_id,
-            pagina
+            pagina,
+            origen
         )
 
 
@@ -908,7 +925,10 @@ class AlumnoView(ViewCustom):
         tipo = request.POST.get(
             "tipo"
         )
-
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
         try:
 
             if tipo not in (
@@ -959,7 +979,8 @@ class AlumnoView(ViewCustom):
 
         return AlumnoView._redirect_alumnos(
             curso_id,
-            pagina
+            pagina,
+            origen
         )
 
 
@@ -1027,20 +1048,90 @@ class AlumnoView(ViewCustom):
     @staticmethod
     def _redirect_alumnos(
         curso_id,
-        pagina=0
+        pagina=0,
+        origen="alumnos"
     ):
 
-        url = reverse(
-            "alumnos"
-        )
+        if origen == "busqueda":
 
-        query = urlencode({
-            "curso": curso_id,
-            "pagina": pagina,
-        })
+            url = reverse(
+                "busqueda"
+            )
+
+            query = urlencode({
+                "pagina": pagina,
+            })
+
+        else:
+
+            url = reverse(
+                "alumnos"
+            )
+
+            query = urlencode({
+                "curso": curso_id,
+                "pagina": pagina,
+            })
 
         return redirect(
             f"{url}?{query}"
+        )
+
+class BusquedaView(ViewCustom):
+
+    @staticmethod
+    def busqueda(request):
+
+        estados = obtener_estados_alumno()
+
+        # None significa: TODOS los cursos
+        alumnos = obtener_aspirantes_por_curso(None)
+
+        context = {
+
+            "title": "Búsqueda",
+
+            "row_actions":
+                "administracion/row_actions/alumnos.html",
+
+            "table_order": "desc",
+
+            "ids": [
+                "id",
+                "id_curso",
+                "id_estado_alumno",
+            ],
+
+            "mostrar_estado_alumno": True,
+
+            "atributos": [
+                "id",
+                "nombre",
+                "apellido",
+                "rut",
+                "email",
+                "telefono",
+                "nombre_curso",
+                "estado",
+                "modificado_por",
+                "total_pagos",
+            ],
+
+            "data": alumnos,
+
+            "estados": estados,
+
+            "total": len(alumnos),
+
+            # Lo usaremos para saber que estamos
+            # trabajando desde Búsqueda
+            "es_busqueda": True,
+        }
+
+        return render(
+            request,
+            "administracion/busqueda.html",
+            context
         )
 
 class CursoView(ViewCustom):
