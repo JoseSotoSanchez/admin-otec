@@ -59,55 +59,77 @@
 
                 {% if curso_id %}
 
-                    <hr>
+                <hr>
 
-                    <strong>
+                <div
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:12px;
+                        flex-wrap:wrap;
+                    "
+                >
+
+                    <strong
+                        style="
+                            margin-right:10px;
+                        "
+                    >
                         Total aspirantes:
                         {{ total }}
                     </strong>
 
-                    <div
-                        class="pull-right"
+
+                    <form
+                        method="POST"
+                        action="{% url 'alumnos_exportar' curso_id %}"
+                        style="
+                            display:inline-block;
+                            margin:0;
+                        "
                     >
 
-                        <form
-                            method="POST"
-                            action="{% url 'alumnos_exportar' curso_id %}"
-                            style="display:inline;"
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                            style="margin:0;"
                         >
+                            <i class="fa fa-file-excel-o"></i>
 
-                            {% csrf_token %}
+                            Descargar todos
+                        </button>
 
-                            <button
-                                class="btn btn-success"
-                            >
-                                <i class="fa fa-file-excel-o"></i>
-                                Descargar todos
-                            </button>
-
-                        </form>
+                    </form>
 
 
-                        <form
-                            method="POST"
-                            action="{% url 'alumnos_exportar_pagados' curso_id %}"
-                            style="display:inline;"
+                    <form
+                        method="POST"
+                        action="{% url 'alumnos_exportar_pagados' curso_id %}"
+                        style="
+                            display:inline-block;
+                            margin:0;
+                        "
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-info"
+                            style="margin:0;"
                         >
+                            <i class="fa fa-download"></i>
 
-                            {% csrf_token %}
+                            Descargar pagados
+                        </button>
 
-                            <button
-                                class="btn btn-info"
-                            >
-                                <i class="fa fa-download"></i>
-                                Descargar pagados
-                            </button>
+                    </form>
 
-                        </form>
+                </div>
 
-                    </div>
-
-                {% endif %}
+            {% endif %}
 
             </div>
 
