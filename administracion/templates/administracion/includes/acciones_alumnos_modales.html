@@ -240,9 +240,14 @@
 
                         <select
                             name="medio_pago"
+                            id="pago_medio_pago"
                             class="form-control"
                             required
                         >
+
+                            <option value="">
+                                Seleccione
+                            </option>
 
                             <option value="Transferencia">
                                 Transferencia
@@ -270,7 +275,174 @@
                         >
 
                     </div>
+                    
+                    <!-- ========================================= -->
+                    <!-- TRANSFERENCIA -->
+                    <!-- ========================================= -->
 
+                    <div
+                        id="datos_transferencia"
+                        style="display:none;"
+                    >
+
+                        <hr>
+
+                        <h4>
+                            Datos de Transferencia
+                        </h4>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                RUT origen
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rut_origen"
+                                class="form-control"
+                                placeholder="12.345.678-9"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Nombre titular
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nombre_origen"
+                                class="form-control"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Banco origen
+                            </label>
+
+                            <input
+                                type="text"
+                                name="banco_origen"
+                                class="form-control"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Número de transacción
+                            </label>
+
+                            <input
+                                type="text"
+                                name="numero_transaccion"
+                                class="form-control"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Fecha transferencia
+                            </label>
+
+                            <input
+                                type="datetime-local"
+                                name="fecha_transferencia"
+                                class="form-control"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Comprobante
+                            </label>
+
+                            <input
+                                type="file"
+                                name="comprobante"
+                                class="form-control"
+                                accept="image/*,application/pdf"
+                            >
+
+                            <small class="text-muted">
+                                Imagen o PDF.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ========================================= -->
+                    <!-- FLOW -->
+                    <!-- ========================================= -->
+
+                    <div
+                        id="datos_flow"
+                        style="display:none;"
+                    >
+
+                        <hr>
+
+                        <h4>
+                            Datos Flow
+                        </h4>
+
+                        <div class="alert alert-info">
+
+                            Idealmente estos datos no se ingresarán
+                            manualmente. Se obtendrán desde Flow.
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Flow Order
+                            </label>
+
+                            <input
+                                type="number"
+                                name="flow_order"
+                                class="form-control"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Observación
+                        </label>
+
+                        <textarea
+                            name="observacion"
+                            class="form-control"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
                 </div>
 
 

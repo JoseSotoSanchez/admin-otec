@@ -601,4 +601,30 @@ $(window).on(
     }
 );
 
+$(document).on(
+    "change",
+    "#pago_medio_pago",
+    function () {
+
+        const medio = $(this).val();
+
+        $("#datos_transferencia").hide();
+        $("#datos_flow").hide();
+
+
+        if (medio === "Transferencia") {
+
+            $("#datos_transferencia").show();
+
+        }
+
+        else if (medio === "Flow") {
+
+            $("#datos_flow").show();
+
+        }
+
+    }
+);
+
 </script>

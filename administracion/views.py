@@ -34,6 +34,7 @@ from administracion.models import (
     Alumno_Estado,
     Estado_Alumno,
     LogUsuario,
+    PagoDetalle,
 )
 
 from .services import (
@@ -840,10 +841,13 @@ class AlumnoView(ViewCustom):
                 "medio_pago"
             )
 
+
             if not monto or not medio_pago:
+
                 raise Exception(
                     "Debe ingresar monto y forma de pago."
                 )
+
 
             alumno = get_object_or_404(
                 Alumno,
@@ -855,7 +859,12 @@ class AlumnoView(ViewCustom):
                 id=curso_id
             )
 
-            Pagos.objects.create(
+
+            # ============================================
+            # CREAR PAGO
+            # ============================================
+
+            pago = Pagos.objects.create(
                 id_alumno=alumno,
                 id_curso=curso,
                 monto=int(monto),
@@ -863,15 +872,158 @@ class AlumnoView(ViewCustom):
                 fecha=timezone.now(),
             )
 
-            # Por ahora usamos usuario 1.
-            # Cuando migremos correctamente el login,
-            # se reemplaza por el usuario autenticado.
+
+            # ============================================
+            # TRANSFERENCIA
+            # ============================================
+
+            if medio_pago == "Transferencia":
+
+                rut_origen = request.POST.get(
+                    "rut_origen",
+                    ""
+                ).strip()
+
+                nombre_origen = request.POST.get(
+                    "nombre_origen",
+                    ""
+                ).strip()
+
+                banco_origen = request.POST.get(
+                    "banco_origen",
+                    ""
+                ).strip()
+
+                numero_transaccion = request.POST.get(
+                    "numero_transaccion",
+                    ""
+                ).strip()
+
+                fecha_transferencia = request.POST.get(
+                    "fecha_transferencia"
+                )
+
+                comprobante = request.FILES.get(
+                    "comprobante"
+                )
+
+
+                if not rut_origen:
+
+                    raise Exception(
+                        "Debe ingresar el RUT de origen."
+                    )
+
+
+                if not numero_transaccion:
+
+                    raise Exception(
+                        "Debe ingresar el número de transacción."
+                    )
+
+
+                if not comprobante:
+
+                    raise Exception(
+                        "Debe adjuntar el comprobante."
+                    )
+
+
+                # Por ejemplo 5 MB
+                if comprobante.size > 5 * 1024 * 1024:
+
+                    raise Exception(
+                        "El comprobante no puede superar 5 MB."
+                    )
+
+
+                contenido = comprobante.read()
+
+
+                PagoDetalle.objects.create(
+
+                    id_pago=pago,
+
+                    tipo="Transferencia",
+
+                    rut_origen=rut_origen,
+
+                    nombre_origen=nombre_origen,
+
+                    banco_origen=banco_origen,
+
+                    numero_transaccion=numero_transaccion,
+
+                    fecha_transferencia=(
+                        fecha_transferencia
+                        if fecha_transferencia
+                        else None
+                    ),
+
+                    comprobante=contenido,
+
+                    comprobante_nombre=comprobante.name,
+
+                    comprobante_tipo=(
+                        comprobante.content_type
+                    ),
+
+                    observacion=request.POST.get(
+                        "observacion",
+                        ""
+                    ),
+
+                    id_usuario=request.session["id"],
+
+                    fecha_registro=timezone.now(),
+                )
+
+
+            # ============================================
+            # FLOW
+            # ============================================
+
+            elif medio_pago == "Flow":
+
+                flow_order = request.POST.get(
+                    "flow_order"
+                )
+
+
+                PagoDetalle.objects.create(
+
+                    id_pago=pago,
+
+                    tipo="Flow",
+
+                    flow_order=(
+                        int(flow_order)
+                        if flow_order
+                        else None
+                    ),
+
+                    observacion=request.POST.get(
+                        "observacion",
+                        ""
+                    ),
+
+                    id_usuario=request.session["id"],
+
+                    fecha_registro=timezone.now(),
+                )
+
+
+            # ============================================
+            # ESTADO 18
+            # ============================================
+
             Alumno_Estado.objects.create(
                 id_estado_id=18,
                 id_alumno=alumno,
                 fecha=timezone.now(),
-                id_usuario = request.session["id"],
+                id_usuario=request.session["id"],
             )
+
 
             messages.success(
                 request,

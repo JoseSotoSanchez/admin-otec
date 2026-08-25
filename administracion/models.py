@@ -145,7 +145,101 @@ class Pagos(models.Model):
 
     class Meta:
         db_table = "Pagos"
-    
+
+class PagoDetalle(models.Model):
+
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    id_pago = models.OneToOneField(
+        Pagos,
+        db_column="id_pago",
+        on_delete=models.CASCADE
+    )
+
+    tipo = models.TextField()
+
+    # TRANSFERENCIA
+
+    rut_origen = models.TextField(
+        null=True
+    )
+
+    nombre_origen = models.TextField(
+        null=True
+    )
+
+    banco_origen = models.TextField(
+        null=True
+    )
+
+    numero_transaccion = models.TextField(
+        null=True
+    )
+
+    fecha_transferencia = models.DateTimeField(
+        null=True
+    )
+
+    comprobante = models.BinaryField(
+        null=True
+    )
+
+    comprobante_nombre = models.TextField(
+        null=True
+    )
+
+    comprobante_tipo = models.TextField(
+        null=True
+    )
+
+
+    # FLOW
+
+    flow_order = models.BigIntegerField(
+        null=True
+    )
+
+    commerce_order = models.TextField(
+        null=True
+    )
+
+    flow_token = models.TextField(
+        null=True
+    )
+
+    flow_estado = models.IntegerField(
+        null=True
+    )
+
+    flow_medio_pago = models.TextField(
+        null=True
+    )
+
+    flow_fecha_pago = models.DateTimeField(
+        null=True
+    )
+
+    flow_card_number = models.TextField(
+        null=True
+    )
+
+
+    observacion = models.TextField(
+        null=True
+    )
+
+    id_usuario = models.IntegerField(
+        null=True
+    )
+
+    fecha_registro = models.DateTimeField()
+
+
+    class Meta:
+        db_table = "Pago_Detalle"
+        
 class Alumno_Estado(models.Model):
     id = models.AutoField(primary_key=True)
     id_estado = models.ForeignKey(Estado_Alumno, db_column='id_estado', on_delete=models.CASCADE)
