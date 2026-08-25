@@ -22,6 +22,7 @@ from openpyxl import Workbook
 from io import BytesIO
 from urllib.parse import urlencode
 import bcrypt
+from django.http import HttpResponse
 
 from administracion.models import (
     AlumnoView,
@@ -2271,16 +2272,19 @@ class AlumnoView(ViewCustom):
             )
 
 
-        response = HttpResponse(
-            bytes(detalle.comprobante),
-            content_type=(
-                detalle.comprobante_tipo
-                or "application/octet-stream"
-            )
+        content_type = (
+            detalle.comprobante_tipo
+            or "application/octet-stream"
         )
 
 
-        nombre = (
+        response = HttpResponse(
+            bytes(detalle.comprobante),
+            content_type=content_type
+        )
+
+
+        nombre_archivo = (
             detalle.comprobante_nombre
             or "comprobante"
         )
@@ -2289,7 +2293,7 @@ class AlumnoView(ViewCustom):
         response[
             "Content-Disposition"
         ] = (
-            f'inline; filename="{nombre}"'
+            f'inline; filename="{nombre_archivo}"'
         )
 
 

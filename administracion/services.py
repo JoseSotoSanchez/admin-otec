@@ -290,31 +290,32 @@ def obtener_pagos_alumno(
 
         cursor.execute("""
             SELECT
-                p.id,
-                p.monto,
-                p.medio_pago,
-                p.fecha,
+                p.id AS id,
+                p.monto AS monto,
+                p.medio_pago AS medio_pago,
+                p.fecha AS fecha,
 
                 pd.id AS id_detalle,
-                pd.tipo,
+                pd.tipo AS tipo,
 
-                pd.rut_origen,
-                pd.nombre_origen,
-                pd.banco_origen,
-                pd.numero_transaccion,
-                pd.fecha_transferencia,
+                pd.rut_origen AS rut_origen,
+                pd.nombre_origen AS nombre_origen,
+                pd.banco_origen AS banco_origen,
+                pd.numero_transaccion AS numero_transaccion,
+                pd.fecha_transferencia AS fecha_transferencia,
 
-                pd.comprobante_nombre,
-                pd.comprobante_tipo,
+                pd.comprobante_nombre AS comprobante_nombre,
+                pd.comprobante_tipo AS comprobante_tipo,
 
-                pd.observacion,
+                pd.observacion AS observacion,
 
-                pd.flow_order,
-                pd.commerce_order,
-                pd.flow_estado,
-                pd.flow_medio_pago,
-                pd.flow_fecha_pago,
-                pd.flow_card_number,
+                pd.flow_order AS flow_order,
+                pd.commerce_order AS commerce_order,
+                pd.flow_token AS flow_token,
+                pd.flow_estado AS flow_estado,
+                pd.flow_medio_pago AS flow_medio_pago,
+                pd.flow_fecha_pago AS flow_fecha_pago,
+                pd.flow_card_number AS flow_card_number,
 
                 u.nombre AS registrado_por
 
@@ -335,18 +336,16 @@ def obtener_pagos_alumno(
             curso_id
         ])
 
-
         columnas = [
             col[0]
             for col in cursor.description
         ]
 
-
         return [
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
-        
+
 def obtener_dashboard_resumen():
 
     with connection.cursor() as cursor:

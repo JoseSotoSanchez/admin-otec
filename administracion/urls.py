@@ -217,4 +217,5 @@ urlpatterns = [
         AlumnoView.comprobante_pago,
         name="pago_comprobante"
     ),
+    
 ]
