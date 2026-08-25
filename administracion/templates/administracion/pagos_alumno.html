@@ -24,9 +24,22 @@ Pagos realizados
 
     </div>
 
-
     <div class="clearfix"></div>
+     <div class="left">
 
+            <div class="pull-left">
+
+                <a
+                    href="{% url 'alumnos' %}?curso={{ curso_id }}&pagina={{ pagina|default:'0' }}"
+                    class="btn btn-default"
+                >
+                    <i class="fa fa-arrow-left"></i>
+                    Volver a aspirantes
+                </a>
+
+            </div>
+
+        </div>
 
     <!-- ========================================== -->
     <!-- MENSAJES -->
@@ -580,44 +593,30 @@ Pagos realizados
 
                                         {% if pago.comprobante_nombre %}
 
-                                            <hr>
+                                            {% if "image/" in pago.comprobante_tipo %}
 
-                                            <div class="comprobante-box">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#modalComprobante{{ pago.id }}"
+                                                >
+                                                    <i class="fa fa-image"></i>
+                                                    Ver comprobante
+                                                </button>
 
-                                                <div>
+                                            {% else %}
 
-                                                    <strong>
-                                                        Comprobante
-                                                    </strong>
+                                                <a
+                                                    href="{% url 'pago_comprobante' pago.id %}"
+                                                    target="_blank"
+                                                    class="btn btn-primary"
+                                                >
+                                                    <i class="fa fa-file-pdf-o"></i>
+                                                    Ver comprobante
+                                                </a>
 
-                                                    <br>
-
-                                                    <span class="text-muted">
-
-                                                        {{ pago.comprobante_nombre }}
-
-                                                    </span>
-
-                                                </div>
-
-
-                                                <div>
-
-                                                    <a
-                                                        href="{% url 'pago_comprobante' pago.id %}"
-                                                        target="_blank"
-                                                        class="btn btn-primary"
-                                                    >
-
-                                                        <i class="fa fa-file-image-o"></i>
-
-                                                        Ver comprobante
-
-                                                    </a>
-
-                                                </div>
-
-                                            </div>
+                                            {% endif %}
 
                                         {% endif %}
 
@@ -825,8 +824,102 @@ Pagos realizados
 
         {% endif %}
 
-    {% endfor %}
+        {% endfor %}
+        {% for pago in pagos %}
 
+        {% if pago.comprobante_nombre and "image/" in pago.comprobante_tipo %}
+
+            <div
+                class="modal fade"
+                id="modalComprobante{{ pago.id }}"
+                tabindex="-1"
+                role="dialog"
+            >
+
+                <div
+                    class="modal-dialog modal-lg"
+                    role="document"
+                >
+
+                    <div class="modal-content">
+
+
+                        <div class="modal-header">
+
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                            >
+                                <span>&times;</span>
+                            </button>
+
+                            <h4 class="modal-title">
+
+                                <i class="fa fa-image"></i>
+
+                                Comprobante Pago #{{ pago.id }}
+
+                            </h4>
+
+                        </div>
+
+
+                        <div
+                            class="modal-body"
+                            style="
+                                text-align:center;
+                                background:#f7f7f7;
+                            "
+                        >
+
+                            <img
+                                src="{% url 'pago_comprobante' pago.id %}"
+                                alt="Comprobante de pago"
+                                style="
+                                    max-width:100%;
+                                    max-height:75vh;
+                                    height:auto;
+                                    border:1px solid #ddd;
+                                    border-radius:4px;
+                                    background:#fff;
+                                "
+                            >
+
+                        </div>
+
+
+                        <div class="modal-footer">
+
+                            <a
+                                href="{% url 'pago_comprobante' pago.id %}"
+                                target="_blank"
+                                class="btn btn-default"
+                            >
+                                <i class="fa fa-external-link"></i>
+                                Abrir original
+                            </a>
+
+                            <button
+                                type="button"
+                                class="btn btn-primary"
+                                data-dismiss="modal"
+                            >
+                                Cerrar
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    {% endfor %}
 
 </div>
 
