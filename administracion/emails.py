@@ -90,6 +90,10 @@ def _enviar_template(
     )
 
 
+    # ============================================
+    # SELECCIONAR CUENTA SMTP
+    # ============================================
+
     if cuenta == "pagos":
 
         conexion = _conexion_pagos()
@@ -121,7 +125,14 @@ def _enviar_template(
         )
 
 
-        email = EmailMultiAlternatives(
+    # ============================================
+    # CREAR CORREO
+    # ============================================
+    # IMPORTANTE:
+    # esto debe quedar FUERA del if/elif/else.
+    # ============================================
+
+    email = EmailMultiAlternatives(
         subject=asunto,
         body=asunto,
         from_email=formataddr(
@@ -130,16 +141,20 @@ def _enviar_template(
                 remitente
             )
         ),
-        to=[destinatario],
+        to=[
+            destinatario
+        ],
         connection=conexion,
     )
+
 
     email.attach_alternative(
         html,
         "text/html"
     )
 
-    email.send(
+
+    return email.send(
         fail_silently=False
     )
 
@@ -312,18 +327,50 @@ def enviar_email_pago(
     medio_pago
 ):
 
-    context = _contexto_base(
-        alumno,
-        curso,
-        usuario
+    nombre_alumno = (
+        f"{alumno.nombre} {alumno.apellido}"
+    ).strip().title()
+
+
+    # Total pagado acumulado para este alumno/curso
+    from .models import Pagos
+
+    monto_curso = (
+        f"${curso.costo:,}".replace(",", ".")
+        if curso.costo
+        else "$0"
     )
 
-    context[
-        "medio_pago"
-    ] = medio_pago
+    context = {
 
-    _enviar_template(
-        "Información de pago - IC Capacitación Laboral",
+        "nombre":
+            nombre_alumno,
+
+        "nombreCurso":
+            curso.nombre or "",
+
+        "codigoCurso":
+            curso.codigo_curso or "",
+
+        "montoCurso":
+            monto_curso,
+
+        "medioPago":
+            medio_pago,
+
+        "nombreUsuario":
+            usuario.nombre or "",
+
+        "correoUsuario":
+            usuario.correo or "",
+
+        "numeroUsuario":
+            usuario.numero or "",
+    }
+
+
+    return _enviar_template(
+        "Aviso de pago recibido",
         alumno.email,
         "administracion/emails/pago.html",
         context,

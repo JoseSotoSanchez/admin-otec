@@ -1,56 +1,646 @@
 <!DOCTYPE html>
-<html lang="es">
 
-<body style="font-family:Arial,sans-serif;">
+<html
+    lang="es"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:o="urn:schemas-microsoft-com:office:office"
+>
 
-    <h2>
-        IC Capacitación Laboral
-    </h2>
+<head>
 
-    <p>
-        Estimado(a)
-        <strong>
-            {{ nombre_alumno }}
-        </strong>
-    </p>
+    <meta charset="UTF-8">
 
-    <p>
-        Información correspondiente al pago
-        del curso:
-    </p>
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1"
+    >
 
-    <h3>
-        {{ curso.nombre }}
-    </h3>
+    <meta
+        name="x-apple-disable-message-reformatting"
+    >
 
-    <p>
-        Código:
-        {{ curso.codigo_curso }}
-    </p>
+    <title>
+        Aviso de pago recibido
+    </title>
 
-    <p>
-        Valor:
-        ${{ valor_curso }}
-    </p>
+</head>
 
-    <p>
+
+<body style="margin:0;padding:0;">
+
+
+<table
+    role="presentation"
+    style="
+        width:100%;
+        border-collapse:collapse;
+        border:0;
+        border-spacing:0;
+        background:#ffffff;
+    "
+>
+
+<tr>
+
+<td
+    align="center"
+    style="padding:0;"
+>
+
+
+<table
+    role="presentation"
+    style="
+        width:602px;
+        max-width:100%;
+        border-collapse:collapse;
+        border:1px solid #cccccc;
+        border-spacing:0;
+        text-align:left;
+    "
+>
+
+
+<!-- ========================================= -->
+<!-- CABECERA -->
+<!-- ========================================= -->
+
+<tr>
+
+<td
+    align="center"
+    style="background:#1c68c4;"
+>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/logo-ic-capacitacion-1.png"
+        alt="IC Capacitación Laboral"
+        width="300"
+        style="
+            height:auto;
+            max-width:100%;
+            display:block;
+        "
+    >
+
+</td>
+
+</tr>
+
+
+<!-- ========================================= -->
+<!-- CONTENIDO -->
+<!-- ========================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:36px 30px 42px 30px;
+    "
+>
+
+
+<table
+    role="presentation"
+    style="
+        width:100%;
+        border-collapse:collapse;
+        border:0;
+        border-spacing:0;
+    "
+>
+
+<tr>
+
+<td
+    style="
+        padding:0 0 36px 0;
+        color:#153643;
+    "
+>
+
+
+<h1
+    style="
+        font-size:30px;
+        margin:0 0 20px 0;
+        font-family:Arial,sans-serif;
+        color:#1c68c4;
+        text-align:center;
+    "
+>
+
+    GRACIAS POR SU PAGO
+
+</h1>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Estimado (a)
+
+    <strong>
+        {{ nombre }}
+    </strong>
+
+    IC Capacitación agradece su preferencia y confianza,
+    esperando cumplir con sus expectativas de desarrollo
+    e ingreso a un mejor campo laboral.
+
+</p>
+
+
+<h1
+    style="
+        font-size:17px;
+        margin:0 0 20px 0;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Detalles del pago:
+
+</h1>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+        text-align:center;
+    "
+>
+
+    <strong>
+        Concepto:
+    </strong>
+
+    Pago Curso
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+        text-align:center;
+    "
+>
+
+    <strong>
+        Cohorte - curso:
+    </strong>
+
+    {{ codigoCurso }}
+    /
+    {{ nombreCurso }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+        text-align:center;
+    "
+>
+
+    <strong>
+        Monto:
+    </strong>
+
+    {{ montoCurso }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+        text-align:center;
+    "
+>
+
+    <strong>
         Medio de pago:
-        {{ medio_pago }}
+    </strong>
+
+    {{ medioPago }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Si considera algún error en los datos,
+    por favor responder a este correo para
+    realizar la revisión y ajuste correspondiente.
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Esperamos que el curso cumpla con todas
+    sus expectativas.
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:14px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Atentamente:
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:13px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Equipo técnico IC Capacitación Laboral
+
+</p>
+
+
+</td>
+
+</tr>
+
+</table>
+
+
+</td>
+
+</tr>
+
+
+<!-- ========================================= -->
+<!-- BARRA CONFIDENCIALIDAD -->
+<!-- ========================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:30px;
+        background:#0a73b9;
+    "
+>
+
+
+<table
+    role="presentation"
+    style="
+        width:100%;
+        border-collapse:collapse;
+        border:0;
+        border-spacing:0;
+        font-size:9px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+<tr>
+
+
+<td
+    style="
+        padding:0;
+        width:70%;
+    "
+    align="left"
+>
+
+    <p
+        style="
+            margin:0;
+            font-size:14px;
+            line-height:20px;
+            font-family:Arial,sans-serif;
+            color:#ffffff;
+        "
+    >
+
+        La información es de carácter confidencial.
+
     </p>
 
-    <hr>
+</td>
 
-    <p>
-        {{ usuario.nombre }}
-    </p>
 
-    <p>
-        {{ usuario.correo }}
-    </p>
+<td
+    style="
+        padding:0;
+        width:30%;
+    "
+    align="right"
+>
 
-    <p>
-        {{ usuario.numero }}
-    </p>
+    <a
+        href="https://api.whatsapp.com/send?phone=56920742757"
+        style="color:#ffffff;"
+    >
+
+        <img
+            src="https://assets.stickpng.com/images/580b57fcd9996e24bc43c543.png"
+            alt="WhatsApp"
+            width="38"
+            style="
+                height:auto;
+                display:block;
+                border:0;
+            "
+        >
+
+    </a>
+
+</td>
+
+
+</tr>
+
+</table>
+
+
+</td>
+
+</tr>
+
+
+<!-- ========================================= -->
+<!-- FIRMA -->
+<!-- ========================================= -->
+
+<tr>
+
+<td
+    style="
+        padding:30px;
+        background:#ffffff;
+    "
+>
+
+
+<h1
+    style="
+        font-size:14px;
+        margin:0 0 2px 0;
+        font-family:Arial,sans-serif;
+        font-style:oblique;
+        color:#515A5A;
+    "
+>
+
+    {{ nombreUsuario }}
+
+</h1>
+
+
+<h1
+    style="
+        font-size:17px;
+        margin:0 0 2px 0;
+        font-family:Arial,sans-serif;
+        font-style:oblique;
+        color:#515A5A;
+    "
+>
+
+    Coordinador de Curso IC capacitación Laboral
+
+</h1>
+
+
+<p
+    style="
+        margin:0 0 2px 0;
+        font-size:14px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+        font-style:oblique;
+    "
+>
+
+    {{ correoUsuario }}
+
+</p>
+
+
+<h1
+    style="
+        font-size:14px;
+        margin:0 0 2px 0;
+        font-family:Arial,sans-serif;
+        font-style:oblique;
+        color:#515A5A;
+    "
+>
+
+    contacto:
+    {{ numeroUsuario }}
+    Whatsapp
+
+</h1>
+
+
+<p
+    style="
+        font-size:14px;
+        margin:0 0 10px 0;
+    "
+>
+
+    <a href="https://iccapacitacionlaboral.cl">
+
+        iccapacitacionlaboral.cl
+
+    </a>
+
+</p>
+
+
+<!-- ========================================= -->
+<!-- IMAGENES -->
+<!-- ========================================= -->
+
+<table
+    role="presentation"
+    style="
+        border-collapse:collapse;
+        border:0;
+        border-spacing:0;
+    "
+>
+
+<tr>
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo3.jpeg"
+        alt=""
+        width="160"
+        style="
+            height:auto;
+            display:block;
+            border:0;
+        "
+    >
+
+</td>
+
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo2.jpeg"
+        alt=""
+        width="160"
+        style="
+            height:auto;
+            display:block;
+            border:0;
+        "
+    >
+
+</td>
+
+
+<td>
+
+    <img
+        src="https://iccapacitacionlaboral.cl/static/Imagenes/correo1.jpeg"
+        alt=""
+        width="160"
+        style="
+            height:auto;
+            display:block;
+            border:0;
+        "
+    >
+
+</td>
+
+</tr>
+
+</table>
+
+
+<!-- ========================================= -->
+<!-- ALIANZA -->
+<!-- ========================================= -->
+
+<table
+    role="presentation"
+    style="
+        margin-top:10px;
+        border-collapse:collapse;
+        border:0;
+        border-spacing:0;
+    "
+>
+
+<tr>
+
+<td>
+
+    <h1
+        style="
+            font-size:17px;
+            margin:0 10px 2px 0;
+            font-family:Arial,sans-serif;
+            font-style:oblique;
+            color:#515A5A;
+        "
+    >
+
+        Alianza con:
+
+    </h1>
+
+</td>
+
+
+<td>
+
+    <img
+        src="https://sumando.cl/wp-content/uploads/2019/08/44-03.png"
+        alt=""
+        width="180"
+        style="
+            height:auto;
+            display:block;
+            border:0;
+        "
+    >
+
+</td>
+
+</tr>
+
+</table>
+
+
+</td>
+
+</tr>
+
+
+</table>
+
+
+</td>
+
+</tr>
+
+</table>
+
 
 </body>
 

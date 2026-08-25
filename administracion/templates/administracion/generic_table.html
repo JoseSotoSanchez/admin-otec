@@ -148,7 +148,30 @@
 
                           {% endif %}
 
+                      {% elif mostrar_whatsapp and atributo == "telefono" %}
 
+                          {% if valor %}
+
+                              <a
+                                  href="https://wa.me/{{ valor|telefono_whatsapp_url }}"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Abrir WhatsApp"
+                              >
+
+                                  <i
+                                      class="fa fa-whatsapp"
+                                      style="
+                                          color:#25D366;
+                                          margin-right:4px;
+                                      "
+                                  ></i>
+
+                                  {{ valor|telefono_whatsapp }}
+
+                              </a>
+
+                          {% endif %}
                       {% else %}
 
                           {{ valor }}

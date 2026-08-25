@@ -683,7 +683,7 @@ class AlumnoView(ViewCustom):
             ],
 
             "mostrar_estado_alumno": True,
-            
+            "mostrar_whatsapp": True,
             "atributos": [
                 "id",
                 "nombre",
@@ -1310,17 +1310,58 @@ class AlumnoView(ViewCustom):
         )
 
         medio_pago = request.POST.get(
-            "medio_pago"
-        )
+            "medio_pago",
+            ""
+        ).strip()
+
         origen = request.POST.get(
             "origen",
             "alumnos"
         )
-        filtro_id = request.POST.get("filtro_id", "")
-        filtro_rut = request.POST.get("filtro_rut", "")
-        filtro_correo = request.POST.get("filtro_correo", "")
-        filtro_nombre = request.POST.get("filtro_nombre", "")
+
+        filtro_id = request.POST.get(
+            "filtro_id",
+            ""
+        )
+
+        filtro_rut = request.POST.get(
+            "filtro_rut",
+            ""
+        )
+
+        filtro_correo = request.POST.get(
+            "filtro_correo",
+            ""
+        )
+
+        filtro_nombre = request.POST.get(
+            "filtro_nombre",
+            ""
+        )
+
+
+        # ============================================
+        # RECUPERAR CURSO SI NO VINO DESDE EL MODAL
+        # ============================================
+
+        if not curso_id or curso_id == "None":
+
+            alumno_bd = get_object_or_404(
+                Alumno,
+                id=alumno_id
+            )
+
+            curso_id = alumno_bd.id_curso_id
+
+
         try:
+
+            if not medio_pago:
+
+                raise Exception(
+                    "Debe ingresar el medio de pago."
+                )
+
 
             alumno, curso, usuario = (
                 AlumnoView._datos_correo(
@@ -1330,6 +1371,7 @@ class AlumnoView(ViewCustom):
                 )
             )
 
+
             enviar_email_pago(
                 alumno=alumno,
                 curso=curso,
@@ -1337,24 +1379,28 @@ class AlumnoView(ViewCustom):
                 medio_pago=medio_pago,
             )
 
-            # Flask agregaba estado 19
+
+            # Estado 19 = correo pago enviado
             AlumnoView._agregar_estado(
                 request,
                 alumno,
                 19
             )
 
+
             messages.success(
                 request,
                 "Correo de pago enviado correctamente."
             )
 
+
         except Exception as e:
 
             messages.error(
                 request,
-                f"Error enviando correo: {e}"
+                f"Error enviando correo: {str(e)}"
             )
+
 
         return AlumnoView._redirect_alumnos(
             curso_id,
@@ -1650,7 +1696,7 @@ class BusquedaView(ViewCustom):
 
             "mostrar_estado_alumno":
                 True,
-
+            "mostrar_whatsapp": True,
             "ids": [
                 "id",
                 "id_curso",
