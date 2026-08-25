@@ -25,21 +25,13 @@ Pagos realizados
     </div>
 
     <div class="clearfix"></div>
-     <div class="left">
-
-            <div class="pull-left">
-
-                <a
-                    href="{% url 'alumnos' %}?curso={{ curso_id }}&pagina={{ pagina|default:'0' }}"
-                    class="btn btn-default"
-                >
-                    <i class="fa fa-arrow-left"></i>
-                    Volver a aspirantes
-                </a>
-
-            </div>
-
-        </div>
+     <a
+            href="{% url 'alumnos' %}?curso={{ curso_id }}&pagina={{ pagina|default:'0' }}"
+            class="btn btn-default"
+        >
+            <i class="fa fa-arrow-left"></i>
+            Volver a aspirantes
+        </a>
 
     <!-- ========================================== -->
     <!-- MENSAJES -->

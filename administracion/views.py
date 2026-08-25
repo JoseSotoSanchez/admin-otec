@@ -2299,6 +2299,65 @@ class AlumnoView(ViewCustom):
 
         return response
 
+    @staticmethod
+    def pagos_alumno(request, alumno_id):
+
+        pagina = request.GET.get(
+            "pagina",
+            "0"
+        )
+
+        curso_id = request.GET.get(
+            "curso"
+        )
+
+
+        alumno = get_object_or_404(
+            Alumno,
+            id=alumno_id
+        )
+
+
+        # Si no viene curso por GET, usar el curso actual del alumno
+        if not curso_id or curso_id == "None":
+
+            curso_id = alumno.id_curso_id
+
+
+        pagos = obtener_pagos_alumno(
+            alumno_id,
+            curso_id
+        )
+
+
+        context = {
+
+            "title":
+                "Pagos realizados",
+
+            "alumno":
+                alumno,
+
+            "alumno_id":
+                alumno.id,
+
+            "curso_id":
+                curso_id,
+
+            "pagina":
+                pagina,
+
+            "pagos":
+                pagos,
+        }
+
+
+        return render(
+            request,
+            "administracion/pagos_alumno.html",
+            context
+        )
+
 class BusquedaView(ViewCustom):
 
     @staticmethod
