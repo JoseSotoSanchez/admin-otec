@@ -675,7 +675,7 @@ class AlumnoView(ViewCustom):
                 "administracion/row_actions/alumnos.html",
 
             "table_order": "desc",
-
+            "seleccion_masiva": True,
             "ids": [
                 "id",
                 "id_curso",
@@ -1523,7 +1523,411 @@ class AlumnoView(ViewCustom):
             filtro_correo,
             filtro_nombre
         )
+    # ============================================
+    # CORREO ACEPTACIÓN MASIVO
+    # ============================================
 
+    @staticmethod
+    @require_POST
+    def correo_aceptacion_masivo(request):
+
+        alumno_ids = request.POST.getlist(
+            "alumno_ids"
+        )
+
+        url_pago = request.POST.get(
+            "url_pago",
+            ""
+        ).strip()
+
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
+
+        curso_id = request.POST.get(
+            "curso_id"
+        )
+
+        pagina = request.POST.get(
+            "pagina",
+            "0"
+        )
+
+        filtro_id = request.POST.get(
+            "filtro_id",
+            ""
+        )
+
+        filtro_rut = request.POST.get(
+            "filtro_rut",
+            ""
+        )
+
+        filtro_correo = request.POST.get(
+            "filtro_correo",
+            ""
+        )
+
+        filtro_nombre = request.POST.get(
+            "filtro_nombre",
+            ""
+        )
+
+
+        if (
+            url_pago
+            and not url_pago.startswith(
+                ("http://", "https://")
+            )
+        ):
+            url_pago = "https://" + url_pago
+
+
+        enviados = 0
+        errores = []
+
+
+        try:
+
+            if len(alumno_ids) < 2:
+
+                raise Exception(
+                    "Debe seleccionar al menos dos aspirantes."
+                )
+
+
+            if not url_pago:
+
+                raise Exception(
+                    "Debe ingresar la URL de pago."
+                )
+
+
+            usuario_id = request.session.get(
+                "id"
+            )
+
+            if not usuario_id:
+
+                raise Exception(
+                    "No existe usuario en sesión."
+                )
+
+
+            usuario = get_object_or_404(
+                Usuario,
+                id=usuario_id
+            )
+
+
+            alumnos = (
+                Alumno.objects
+                .select_related(
+                    "id_curso",
+                    "id_curso__id_dias",
+                    "id_curso__id_horario",
+                )
+                .filter(
+                    id__in=alumno_ids
+                )
+            )
+
+
+            for alumno in alumnos:
+
+                try:
+
+                    curso = alumno.id_curso
+
+
+                    enviar_email_aceptacion(
+                        alumno=alumno,
+                        curso=curso,
+                        usuario=usuario,
+                        url_pago=url_pago,
+                    )
+
+
+                    AlumnoView._agregar_estado(
+                        request,
+                        alumno,
+                        13
+                    )
+
+
+                    enviados += 1
+
+
+                except Exception as e:
+
+                    errores.append(
+                        (
+                            f"{alumno.nombre} "
+                            f"{alumno.apellido}: {str(e)}"
+                        )
+                    )
+
+
+            if enviados:
+
+                messages.success(
+                    request,
+                    (
+                        f"Se enviaron correctamente "
+                        f"{enviados} correos de aceptación."
+                    )
+                )
+
+
+            if errores:
+
+                messages.warning(
+                    request,
+                    (
+                        f"No se pudieron enviar "
+                        f"{len(errores)} correos. "
+                        + " | ".join(errores)
+                    )
+                )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error enviando correos: {str(e)}"
+            )
+
+
+        return AlumnoView._redirect_alumnos(
+            curso_id,
+            pagina,
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
+        )
+
+
+    # ============================================
+    # CORREO BIENVENIDA MASIVO
+    # ============================================
+
+    @staticmethod
+    @require_POST
+    def correo_bienvenida_masivo(request):
+
+        alumno_ids = request.POST.getlist(
+            "alumno_ids"
+        )
+
+        link_sence = request.POST.get(
+            "link_sence",
+            ""
+        ).strip()
+
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
+
+        curso_id = request.POST.get(
+            "curso_id"
+        )
+
+        pagina = request.POST.get(
+            "pagina",
+            "0"
+        )
+
+        filtro_id = request.POST.get(
+            "filtro_id",
+            ""
+        )
+
+        filtro_rut = request.POST.get(
+            "filtro_rut",
+            ""
+        )
+
+        filtro_correo = request.POST.get(
+            "filtro_correo",
+            ""
+        )
+
+        filtro_nombre = request.POST.get(
+            "filtro_nombre",
+            ""
+        )
+
+
+        if (
+            link_sence
+            and not link_sence.startswith(
+                ("http://", "https://")
+            )
+        ):
+            link_sence = "https://" + link_sence
+
+
+        enviados = 0
+        errores = []
+
+
+        try:
+
+            if len(alumno_ids) < 2:
+
+                raise Exception(
+                    "Debe seleccionar al menos dos aspirantes."
+                )
+
+
+            if not link_sence:
+
+                raise Exception(
+                    "Debe ingresar el Link SENCE."
+                )
+
+
+            usuario_id = request.session.get(
+                "id"
+            )
+
+            if not usuario_id:
+
+                raise Exception(
+                    "No existe usuario en sesión."
+                )
+
+
+            usuario = get_object_or_404(
+                Usuario,
+                id=usuario_id
+            )
+
+
+            alumnos = (
+                Alumno.objects
+                .select_related(
+                    "id_curso",
+                    "id_curso__id_dias",
+                    "id_curso__id_horario",
+                )
+                .filter(
+                    id__in=alumno_ids
+                )
+            )
+
+
+            for alumno in alumnos:
+
+                try:
+
+                    curso = alumno.id_curso
+
+                    codigo = (
+                        curso.codigo_curso
+                        or ""
+                    ).upper()
+
+
+                    tipo = None
+
+                    if "IEMCE" in codigo:
+                        tipo = "IEMCE"
+
+                    elif "AAMCE" in codigo:
+                        tipo = "AAMCE"
+
+                    elif "CBC" in codigo:
+                        tipo = "CBC"
+
+                    elif "AAC" in codigo:
+                        tipo = "AAC"
+
+
+                    if not tipo:
+
+                        raise Exception(
+                            (
+                                "El curso no corresponde a "
+                                "IEMCE, AAMCE, CBC o AAC."
+                            )
+                        )
+
+
+                    enviar_email_bienvenida_especial(
+                        alumno=alumno,
+                        curso=curso,
+                        usuario=usuario,
+                        link_sence=link_sence,
+                        tipo=tipo,
+                    )
+
+
+                    AlumnoView._agregar_estado(
+                        request,
+                        alumno,
+                        14
+                    )
+
+
+                    enviados += 1
+
+
+                except Exception as e:
+
+                    errores.append(
+                        (
+                            f"{alumno.nombre} "
+                            f"{alumno.apellido}: {str(e)}"
+                        )
+                    )
+
+
+            if enviados:
+
+                messages.success(
+                    request,
+                    (
+                        f"Se enviaron correctamente "
+                        f"{enviados} correos de bienvenida."
+                    )
+                )
+
+
+            if errores:
+
+                messages.warning(
+                    request,
+                    (
+                        f"No se pudieron enviar "
+                        f"{len(errores)} correos. "
+                        + " | ".join(errores)
+                    )
+                )
+
+
+        except Exception as e:
+
+            messages.error(
+                request,
+                f"Error enviando correos: {str(e)}"
+            )
+
+
+        return AlumnoView._redirect_alumnos(
+            curso_id,
+            pagina,
+            origen,
+            filtro_id,
+            filtro_rut,
+            filtro_correo,
+            filtro_nombre
+        )
 
     # ============================================
     # AUXILIARES
@@ -1621,6 +2025,7 @@ class AlumnoView(ViewCustom):
         return redirect(
             f"{url}?{query}"
         )
+    
 
 class BusquedaView(ViewCustom):
 
@@ -1693,7 +2098,7 @@ class BusquedaView(ViewCustom):
 
             "table_order":
                 "desc",
-
+            "seleccion_masiva": True,
             "mostrar_estado_alumno":
                 True,
             "mostrar_whatsapp": True,

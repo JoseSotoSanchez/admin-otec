@@ -65,7 +65,57 @@
       <div class="col-md-12 col-sm-12 col-xs-12">
 
         {% load custom_filters %}
+        {% if seleccion_masiva %}
 
+      <div
+          id="barra_seleccion_masiva"
+          class="alert alert-info"
+          style="
+              display:none;
+              margin-bottom:15px;
+          "
+      >
+
+          <strong>
+
+              <span id="cantidad_seleccionados">
+                  0
+              </span>
+
+              aspirantes seleccionados
+
+          </strong>
+
+
+          <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              id="btn_aceptacion_masiva"
+              style="margin-left:15px;"
+          >
+
+              <i class="fa fa-envelope"></i>
+
+              Correo aceptación
+
+          </button>
+
+
+          <button
+              type="button"
+              class="btn btn-success btn-sm"
+              id="btn_bienvenida_masiva"
+          >
+
+              <i class="fa fa-envelope-o"></i>
+
+              Correo bienvenida
+
+          </button>
+
+      </div>
+
+      {% endif %}
         <div class="x_panel">
           <div class="x_content">
             <table
@@ -73,11 +123,33 @@
                   class="table table-striped table-bordered"
 
                   {% if table_order %}
-                      data-order='[[0, "{{ table_order }}"]]'
+
+                      {% if seleccion_masiva %}
+
+                          data-order='[[1, "{{ table_order }}"]]'
+
+                      {% else %}
+
+                          data-order='[[0, "{{ table_order }}"]]'
+
+                      {% endif %}
+
                   {% endif %}
               >
               <thead>
                 <tr>
+                  {% if seleccion_masiva %}
+
+                    <th style="width:35px;text-align:center;">
+
+                        <input
+                            type="checkbox"
+                            id="seleccionar_todos_pagina"
+                        >
+
+                    </th>
+
+                  {% endif %}
                   {% for atributo in atributos %}
                   {% if atributo|length > 0 %}
                   <th>{{ atributo|capfirst }}</th>
@@ -93,7 +165,27 @@
                   <tr {% for id in ids %}
                         data-{{ id|lower }}="{{ row|get_atributo:id }}" 
                       {% endfor %}> 
+                    {% if seleccion_masiva %}
 
+                        <td style="text-align:center;">
+
+                            <input
+                                type="checkbox"
+                                class="seleccionar-aspirante"
+
+                                value="{{ row.id }}"
+
+                                data-id="{{ row.id }}"
+                                data-nombre="{{ row.nombre }}"
+                                data-apellido="{{ row.apellido }}"
+                                data-email="{{ row.email }}"
+                                data-curso="{{ row.id_curso }}"
+                                data-codigo="{{ row.codigo_curso }}"
+                            >
+
+                        </td>
+
+                    {% endif %}
                     {% for atributo in atributos %}
                       {% if atributo %}
                         <td>

@@ -261,7 +261,307 @@ $(document).ready(function () {
             );
         }
     );
+// ============================================
+// SELECCION MASIVA
+// ============================================
 
+function seleccionadosActuales() {
+
+    let seleccionados = [];
+
+    $(".seleccionar-aspirante:checked")
+        .each(function () {
+
+            let checkbox = $(this);
+
+            seleccionados.push({
+
+                id:
+                    checkbox.data("id"),
+
+                nombre:
+                    checkbox.data("nombre"),
+
+                apellido:
+                    checkbox.data("apellido"),
+
+                email:
+                    checkbox.data("email"),
+
+                curso:
+                    checkbox.data("curso"),
+
+                codigo:
+                    checkbox.data("codigo")
+            });
+
+        });
+
+
+    return seleccionados;
+}
+
+
+function actualizarBarraMasiva() {
+
+    let seleccionados =
+        seleccionadosActuales();
+
+
+    $("#cantidad_seleccionados").text(
+        seleccionados.length
+    );
+
+
+    if (seleccionados.length >= 2) {
+
+        $("#barra_seleccion_masiva").show();
+
+    } else {
+
+        $("#barra_seleccion_masiva").hide();
+
+    }
+
+
+    let totalPagina =
+        $("#datatable-buttons")
+            .DataTable()
+            .rows({
+                page: "current"
+            })
+            .nodes()
+            .to$()
+            .find(
+                ".seleccionar-aspirante"
+            )
+            .length;
+
+
+    let marcadosPagina =
+        $("#datatable-buttons")
+            .DataTable()
+            .rows({
+                page: "current"
+            })
+            .nodes()
+            .to$()
+            .find(
+                ".seleccionar-aspirante:checked"
+            )
+            .length;
+
+
+    $("#seleccionar_todos_pagina")
+        .prop(
+            "checked",
+            (
+                totalPagina > 0
+                && totalPagina === marcadosPagina
+            )
+        );
+}
+
+
+// CHECK INDIVIDUAL
+
+$(document).on(
+    "change",
+    ".seleccionar-aspirante",
+    function () {
+
+        actualizarBarraMasiva();
+
+    }
+);
+
+
+// CHECK TODOS SOLO PAGINA ACTUAL
+
+$(document).on(
+    "change",
+    "#seleccionar_todos_pagina",
+    function () {
+
+        let marcado =
+            $(this).is(":checked");
+
+
+        let tabla =
+            $("#datatable-buttons")
+                .DataTable();
+
+
+        $(tabla.rows({
+            page: "current"
+        }).nodes())
+            .find(
+                ".seleccionar-aspirante"
+            )
+            .prop(
+                "checked",
+                marcado
+            );
+
+
+        actualizarBarraMasiva();
+
+    }
+);
+
+
+// ============================================
+// LIMPIAR AL CAMBIAR PAGINA
+// ============================================
+
+$("#datatable-buttons").on(
+    "page.dt length.dt",
+    function () {
+
+        $(".seleccionar-aspirante")
+            .prop(
+                "checked",
+                false
+            );
+
+        $("#seleccionar_todos_pagina")
+            .prop(
+                "checked",
+                false
+            );
+
+        $("#barra_seleccion_masiva")
+            .hide();
+
+    }
+);
+
+
+// ============================================
+// PREPARAR MODAL
+// ============================================
+
+function prepararModalMasivo(
+    contenedorIds,
+    contenedorDetalle
+) {
+
+    let seleccionados =
+        seleccionadosActuales();
+
+
+    $(contenedorIds).empty();
+
+    $(contenedorDetalle).empty();
+
+
+    $(".cantidad_masiva").text(
+        seleccionados.length
+    );
+
+
+    seleccionados.forEach(
+        function (item) {
+
+            $("<input>", {
+
+                type:
+                    "hidden",
+
+                name:
+                    "alumno_ids",
+
+                value:
+                    item.id
+
+            }).appendTo(
+                contenedorIds
+            );
+
+
+            let fila =
+                $("<tr>");
+
+
+            $("<td>")
+                .text(item.id)
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(
+                    item.nombre
+                    + " "
+                    + item.apellido
+                )
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(item.email)
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(item.codigo)
+                .appendTo(fila);
+
+
+            $(contenedorDetalle)
+                .append(fila);
+
+        }
+    );
+
+
+    $(".pagina_masiva").val(
+        paginaActual()
+    );
+}
+
+
+// ============================================
+// ACEPTACION MASIVA
+// ============================================
+
+$(document).on(
+    "click",
+    "#btn_aceptacion_masiva",
+    function () {
+
+        prepararModalMasivo(
+            "#idsAceptacionMasiva",
+            "#detalleAceptacionMasiva"
+        );
+
+
+        $("#modalAceptacionMasiva")
+            .modal("show");
+
+    }
+);
+
+
+// ============================================
+// BIENVENIDA MASIVA
+// ============================================
+
+$(document).on(
+    "click",
+    "#btn_bienvenida_masiva",
+    function () {
+
+        prepararModalMasivo(
+            "#idsBienvenidaMasiva",
+            "#detalleBienvenidaMasiva"
+        );
+
+
+        $("#modalBienvenidaMasiva")
+            .modal("show");
+
+    }
+);
 });
 
 

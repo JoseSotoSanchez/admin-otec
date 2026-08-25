@@ -200,4 +200,16 @@ urlpatterns = [
         UsuarioView.actualizar_estado,
         name="usuario_estado"
     ),
+
+    path(
+        "alumnos/correo-aceptacion-masivo",
+        AlumnoView.correo_aceptacion_masivo,
+        name="alumnos_correo_aceptacion_masivo"
+    ),
+
+    path(
+        "alumnos/correo-bienvenida-masivo",
+        AlumnoView.correo_bienvenida_masivo,
+        name="alumnos_correo_bienvenida_masivo"
+    ),
 ]
