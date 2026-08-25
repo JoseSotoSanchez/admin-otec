@@ -30,13 +30,17 @@
 </button>
 
 
-<a
-    href="{% url 'alumno_pagos' row.id row.id_curso %}"
-    class="btn btn-default btn-xs"
+<button
+    type="button"
+    class="btn btn-default btn-xs btn-ver-pagos-alumno"
+
+    data-id="{{ row.id }}"
+    data-curso="{{ row.id_curso }}"
+
     title="Ver pagos"
 >
     <i class="fa fa-list"></i>
-</a>
+</button>
 
 
 <button

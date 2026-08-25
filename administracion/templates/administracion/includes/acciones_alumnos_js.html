@@ -261,6 +261,39 @@ $(document).ready(function () {
             );
         }
     );
+
+    // ============================================
+    // VER PAGOS
+    // ============================================
+
+    $(document).on(
+        "click",
+        ".btn-ver-pagos-alumno",
+        function () {
+
+            const boton = $(this);
+
+            const alumnoId =
+                boton.data("id");
+
+            const cursoId =
+                boton.data("curso");
+
+            const pagina =
+                paginaActual();
+
+
+            window.location.href =
+                "/alumnos/"
+                + alumnoId
+                + "/curso/"
+                + cursoId
+                + "/pagos"
+                + "?pagina="
+                + pagina;
+
+        }
+    );
 // ============================================
 // SELECCION MASIVA
 // ============================================

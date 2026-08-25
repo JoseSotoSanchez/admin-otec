@@ -79,13 +79,31 @@ WSGI_APPLICATION = 'admin.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-      'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'iccapaci1_iccaplabv2',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3307',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv(
+            "DB_NAME",
+            "iccapaci1_iccaplabv2"
+        ),
+        "USER": os.getenv(
+            "DB_USER",
+            "root"
+        ),
+        "PASSWORD": os.getenv(
+            "DB_PASSWORD",
+            ""
+        ),
+        "HOST": os.getenv(
+            "DB_HOST",
+            "127.0.0.1"
+        ),
+        "PORT": os.getenv(
+            "DB_PORT",
+            "3307"
+        ),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
     }
 }
 

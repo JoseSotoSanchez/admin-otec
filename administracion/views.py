@@ -990,17 +990,23 @@ class AlumnoView(ViewCustom):
                 tipos_permitidos = [
                     "image/png",
                     "image/jpeg",
+                    "image/jpg",
                     "application/pdf",
                 ]
-
 
                 if (
                     comprobante.content_type
                     not in tipos_permitidos
                 ):
-
                     raise Exception(
                         "El comprobante debe ser PNG, JPG, JPEG o PDF."
+                    )
+
+
+                if comprobante.size > 5 * 1024 * 1024:
+
+                    raise Exception(
+                        "El comprobante no puede superar 5 MB."
                     )
 
 
@@ -1130,6 +1136,11 @@ class AlumnoView(ViewCustom):
     @staticmethod
     def pagos(request, alumno_id, curso_id):
 
+        pagina = request.GET.get(
+            "pagina",
+            "0"
+        )
+
         alumno = get_object_or_404(
             Alumno,
             id=alumno_id
@@ -1152,15 +1163,29 @@ class AlumnoView(ViewCustom):
 
         context = {
 
-            "title": "Pagos realizados",
+            "title":
+                "Pagos realizados",
 
-            "alumno": alumno,
+            "alumno":
+                alumno,
 
-            "curso": curso,
+            "alumno_id":
+                alumno.id,
 
-            "pagos": pagos,
+            "curso":
+                curso,
 
-            "total": total,
+            "curso_id":
+                curso.id,
+
+            "pagina":
+                pagina,
+
+            "pagos":
+                pagos,
+
+            "total":
+                total,
         }
 
         return render(
@@ -1168,7 +1193,6 @@ class AlumnoView(ViewCustom):
             "administracion/pagos_alumno.html",
             context
         )
-
 
     # ============================================
     # EXPORTAR TODOS
