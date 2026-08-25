@@ -43,8 +43,9 @@ def enviar_email_bienvenida(
     email = EmailMultiAlternatives(
         subject=subject,
         body=f"Bienvenido al curso {nombre_curso}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=settings.EMAIL_POSTULACIONES_USER,
         to=[correo],
+        connection=_conexion_postulaciones(),
     )
 
     email.attach_alternative(html_content, "text/html")
@@ -232,147 +233,256 @@ def enviar_email_bienvenida_especial(
     tipo
 ):
 
-    context = _contexto_base(
-        alumno,
-        curso,
-        usuario
-    )
+    tipo = (tipo or "").upper()
 
-    context["link_sence"] = link_sence
-    context["tipo"] = tipo
+    # ============================================
+    # CONFIGURACIÓN SEGÚN CURSO
+    # ============================================
 
-    # Configuración según correo original Flask
-    if tipo == "IEMCE":
+    configuracion = {
 
-        context["horas"] = 40
-        context["valor_total"] = None
+        "IEMCE": {
 
-        context["descripcion"] = (
-            "Los preparamos para desempeñarse en establecimientos "
-            "públicos o privados. Quedarás capacitado para aplicar "
-            "estrategias de convivencia escolar, atención de primeros "
-            "auxilios, mediación de conflictos y todo lo necesario "
-            "para desempeñarse como Inspector Educacional."
-        )
+            "horas": 54,
 
-        context["texto_practica"] = (
-            "IC Capacitación Laboral te apoya en la gestión de tu "
-            "proceso de Práctica Laboral, enviando un certificado de "
-            "solicitud formal al establecimiento al que decidas "
-            "postular para trabajar como Inspector Educacional."
-        )
+            "descripcion": (
+                "Los preparamos para desempeñarse en establecimientos "
+                "públicos o privados. Quedarás capacitado para aplicar "
+                "estrategias de convivencia escolar, atención de primeros "
+                "auxilios, mediación de conflictos y todo lo necesario "
+                "para desempeñarse como Inspector Educacional."
+            ),
 
-        context["cuotas"] = [
-            "$25.000.- para guardar cupo",
-            "$25.000.- al comienzo de clases",
-            "$35.000.- al término de clases",
-        ]
+            "texto_practica": (
+                "IC Capacitación Laboral te apoya en la gestión de tu "
+                "proceso de Práctica Laboral, enviando un certificado de "
+                "solicitud formal al establecimiento al que decidas "
+                "postular para trabajar como Inspector Educacional."
+            ),
 
-        context["cuotas_dos"] = []
+            "valor_total": None,
+
+            "mostrar_valor_total": False,
+
+            "mostrar_dos_cuotas": False,
+
+            "cuotas_dos": [],
+        },
 
 
-    elif tipo == "AAMCE":
+        "AAMCE": {
 
-        context["horas"] = 40
-        context["valor_total"] = "319.990"
+            "horas": 54,
 
-        context["descripcion"] = (
-            "Los preparamos para desempeñarse en establecimientos "
-            "públicos o privados. Quedarás capacitado para aplicar "
-            "estrategias de convivencia escolar, Necesidades "
-            "Educativas Especiales, resolución de conflictos y todo "
-            "lo necesario para desempeñarte como Asistente de Aula."
-        )
+            "descripcion": (
+                "Los preparamos para desempeñarse en establecimientos "
+                "públicos o privados. Quedarás capacitado para aplicar "
+                "estrategias de convivencia escolar, Necesidades "
+                "Educativas Especiales, resolución de conflictos y todo "
+                "lo necesario para desempeñarte como Asistente de Aula."
+            ),
 
-        context["texto_practica"] = (
-            "IC Capacitación Laboral te apoya en la gestión de tu "
-            "Práctica Laboral (no obligatoria). Se enviará una carta "
-            "de solicitud formal al establecimiento al que decidas "
-            "postular para trabajar como Asistente de Aula."
-        )
+            "texto_practica": (
+                "IC Capacitación Laboral te apoya en la gestión de tu "
+                "Práctica Laboral, la cual no es obligatoria. Se enviará "
+                "una carta de solicitud formal al establecimiento al que "
+                "decidas postular para trabajar como Asistente de Aula."
+            ),
 
-        context["cuotas"] = [
-            "$20.000.- para guardar cupo",
-            "$20.000.- al comienzo de clases",
-            "$39.990.- al término de clases",
-        ]
+            "valor_total": "319.990",
 
-        context["cuotas_dos"] = [
-            "$40.000.- inicio del curso",
-            "$39.990.- término del curso",
-        ]
+            "mostrar_valor_total": True,
 
+            "mostrar_dos_cuotas": True,
 
-    elif tipo == "CBC":
-
-        context["horas"] = 36
-        context["valor_total"] = "340.000"
-
-        context["descripcion"] = (
-            "Está dirigido a personas que deseen adquirir "
-            "conocimientos y herramientas técnicas para la adecuada "
-            "manipulación y operación de una caja bancaria o "
-            "comercial. Podrás desarrollar el perfil de competencias "
-            "requerido para operar una caja dentro de una institución "
-            "bancaria, financiera o empresa del rubro retail."
-        )
-
-        context["texto_practica"] = (
-            "IC Capacitación Laboral te apoya en la gestión de tu "
-            "Práctica Laboral (no obligatoria), enviando una carta de "
-            "solicitud formal al establecimiento donde decidas "
-            "postular."
-        )
-
-        context["cuotas"] = [
-            "$25.000.- para guardar cupo",
-            "$25.000.- al comienzo de clases",
-            "$35.000.- al término de clases",
-        ]
-
-        context["cuotas_dos"] = []
+            "cuotas_dos": [
+                "$40.000.- Inicio del curso",
+                "$39.990.- Término del curso",
+            ],
+        },
 
 
-    elif tipo == "AAC":
+        "CBC": {
 
-        context["horas"] = 36
-        context["valor_total"] = "340.000"
+            "horas": 50,
 
-        context["descripcion"] = (
-            "El curso está orientado a comprender el concepto de "
-            "empresa y sus tipos, además de conocer quiénes se "
-            "desempeñan en ellas para realizar labores de "
-            "administración, gestión, control, facturación y cobranza "
-            "respetando las disposiciones legales vigentes."
-        )
+            "descripcion": (
+                "Está dirigido a personas que deseen adquirir "
+                "conocimientos y herramientas técnicas para la adecuada "
+                "manipulación y operación de una caja bancaria o "
+                "comercial. Podrás desarrollar el perfil de competencias "
+                "requerido para operar una caja dentro de una institución "
+                "bancaria, financiera o empresa del rubro retail."
+            ),
 
-        context["texto_practica"] = (
-            "IC Capacitación Laboral te apoya en la gestión de tu "
-            "Práctica Laboral (no obligatoria), enviando una carta de "
-            "solicitud formal al establecimiento donde decidas "
-            "postular."
-        )
+            "texto_practica": (
+                "IC Capacitación Laboral te apoya en la gestión de tu "
+                "Práctica Laboral, la cual no es obligatoria, enviando "
+                "una carta de solicitud formal al establecimiento donde "
+                "decidas postular."
+            ),
 
-        context["cuotas"] = [
-            "$25.000.- para guardar cupo",
-            "$25.000.- al comienzo de clases",
-            "$35.000.- al término de clases",
-        ]
+            "valor_total": "340.000",
 
-        context["cuotas_dos"] = []
+            "mostrar_valor_total": True,
 
-    else:
+            "mostrar_dos_cuotas": False,
+
+            "cuotas_dos": [],
+        },
+
+
+        "AAC": {
+
+            "horas": 50,
+
+            "descripcion": (
+                "El curso está orientado a comprender el concepto de "
+                "empresa y sus tipos, además de conocer quiénes se "
+                "desempeñan en ellas para realizar labores de "
+                "administración, gestión, control, facturación y cobranza "
+                "respetando las disposiciones legales vigentes."
+            ),
+
+            "texto_practica": (
+                "IC Capacitación Laboral te apoya en la gestión de tu "
+                "Práctica Laboral, la cual no es obligatoria, enviando "
+                "una carta de solicitud formal al establecimiento donde "
+                "decidas postular."
+            ),
+
+            "valor_total": "340.000",
+
+            "mostrar_valor_total": True,
+
+            "mostrar_dos_cuotas": False,
+
+            "cuotas_dos": [],
+        },
+    }
+
+
+    if tipo not in configuracion:
 
         raise ValueError(
             f"Tipo de correo de bienvenida no válido: {tipo}"
         )
 
 
-    _enviar_template(
-        (
-            "¡Felicitaciones! Fuiste beneficiado con nuestra "
-            "beca ICL con un 75% de descuento"
-        ),
+    datos = configuracion[tipo]
+
+
+    # ============================================
+    # DATOS GENERALES
+    # ============================================
+
+    nombre_alumno = (
+        f"{alumno.nombre} {alumno.apellido}"
+    ).strip().title()
+
+
+    valor_curso = (
+        f"{curso.costo:,}".replace(",", ".")
+        if curso.costo
+        else "0"
+    )
+
+
+    inicio_curso = (
+        curso.fecha_inicio.strftime("%d-%m-%Y")
+        if curso.fecha_inicio
+        else ""
+    )
+
+
+    fin_curso = (
+        curso.fecha_fin.strftime("%d-%m-%Y")
+        if curso.fecha_fin
+        else ""
+    )
+
+
+    # ============================================
+    # CONTEXTO TEMPLATE
+    # ============================================
+
+    context = {
+
+        "tipo":
+            tipo,
+
+        "nombre":
+            nombre_alumno,
+
+        "nombreCurso":
+            curso.nombre,
+
+        "inicioCurso":
+            inicio_curso,
+
+        "finCurso":
+            fin_curso,
+
+        "diasCurso":
+            curso.id_dias.rango
+            if curso.id_dias
+            else "",
+
+        "horarioCurso":
+            curso.id_horario.rango
+            if curso.id_horario
+            else "",
+
+        "modalidad":
+            curso.modalidad or "",
+
+        "linkSense":
+            link_sence,
+
+        "nombreUsuario":
+            usuario.nombre or "",
+
+        "correoUsuario":
+            usuario.correo or "",
+
+        "numeroUsuario":
+            usuario.numero or "",
+
+        "valorCurso":
+            valor_curso,
+
+        # ESPECÍFICOS
+        "horas":
+            datos["horas"],
+
+        "descripcion":
+            datos["descripcion"],
+
+        "texto_practica":
+            datos["texto_practica"],
+
+        "valor_total":
+            datos["valor_total"],
+
+        "mostrar_valor_total":
+            datos["mostrar_valor_total"],
+
+        "mostrar_dos_cuotas":
+            datos["mostrar_dos_cuotas"],
+
+        "cuotas_dos":
+            datos["cuotas_dos"],
+    }
+
+
+    asunto = (
+        "¡Felicitaciones! Fuiste beneficiado "
+        "con nuestra beca ICL con un 75% de descuento"
+    )
+
+
+    return _enviar_template(
+        asunto,
         alumno.email,
         "administracion/emails/bienvenida_especial.html",
         context,

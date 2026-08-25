@@ -1147,29 +1147,84 @@ class AlumnoView(ViewCustom):
     @transaction.atomic
     def correo_aceptacion(request, alumno_id):
 
-        curso_id = request.POST.get(
-            "curso_id"
-        )
-
         pagina = request.POST.get(
             "pagina",
             "0"
         )
 
+        origen = request.POST.get(
+            "origen",
+            "alumnos"
+        )
+
+        filtro_id = request.POST.get(
+            "filtro_id",
+            ""
+        )
+
+        filtro_rut = request.POST.get(
+            "filtro_rut",
+            ""
+        )
+
+        filtro_correo = request.POST.get(
+            "filtro_correo",
+            ""
+        )
+
+        filtro_nombre = request.POST.get(
+            "filtro_nombre",
+            ""
+        )
+
+        # ============================================
+        # URL DE PAGO
+        # ============================================
+
+        url_pago = request.POST.get(
+            "url_pago",
+            ""
+        ).strip()
+
+        # Permitir escribir:
+        # www.google.cl
+        #
+        # y convertirlo internamente en:
+        # https://www.google.cl
         if url_pago and not url_pago.startswith(
             ("http://", "https://")
         ):
             url_pago = "https://" + url_pago
 
-        origen = request.POST.get(
-            "origen",
-            "alumnos"
+
+        # ============================================
+        # CURSO
+        # ============================================
+
+        curso_id = request.POST.get(
+            "curso_id"
         )
-        filtro_id = request.POST.get("filtro_id", "")
-        filtro_rut = request.POST.get("filtro_rut", "")
-        filtro_correo = request.POST.get("filtro_correo", "")
-        filtro_nombre = request.POST.get("filtro_nombre", "")
+
+        # Si por algún motivo el modal no mandó el curso,
+        # obtenemos el curso directamente desde el alumno.
+        if not curso_id or curso_id == "None":
+
+            alumno_bd = get_object_or_404(
+                Alumno,
+                id=alumno_id
+            )
+
+            curso_id = alumno_bd.id_curso_id
+
+
         try:
+
+            if not url_pago:
+
+                raise Exception(
+                    "Debe ingresar la URL de pago."
+                )
+
 
             alumno, curso, usuario = (
                 AlumnoView._datos_correo(
@@ -1179,31 +1234,44 @@ class AlumnoView(ViewCustom):
                 )
             )
 
-            enviar_email_aceptacion(
+
+            # ============================================
+            # ENVIAR CORREO
+            # ============================================
+
+            resultado = enviar_email_aceptacion(
                 alumno=alumno,
                 curso=curso,
                 usuario=usuario,
                 url_pago=url_pago,
             )
 
-            # Flask agregaba estado 13
+
+            # ============================================
+            # NUEVO ESTADO
+            # Estado 13 = correo aceptación enviado
+            # ============================================
+
             AlumnoView._agregar_estado(
                 request,
                 alumno,
                 13
             )
 
+
             messages.success(
                 request,
                 "Correo de aceptación enviado correctamente."
             )
 
+
         except Exception as e:
 
             messages.error(
                 request,
-                f"Error enviando correo: {e}"
+                f"Error enviando correo: {str(e)}"
             )
+
 
         return AlumnoView._redirect_alumnos(
             curso_id,
@@ -1315,8 +1383,19 @@ class AlumnoView(ViewCustom):
         )
 
         link_sence = request.POST.get(
-            "link_sence"
-        )
+            "link_sence",
+            ""
+        ).strip()
+
+        if (
+            link_sence
+            and not link_sence.startswith(
+                ("http://", "https://")
+            )
+        ):
+            link_sence = (
+                "https://" + link_sence
+            )
 
         tipo = request.POST.get(
             "tipo"

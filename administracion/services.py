@@ -1,6 +1,5 @@
 from django.db import connection
 
-
 def obtener_aspirantes_por_curso(curso_id):
 
     with connection.cursor() as cursor:
