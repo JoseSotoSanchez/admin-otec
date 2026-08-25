@@ -823,29 +823,67 @@ class AlumnoView(ViewCustom):
             "pagina",
             "0"
         )
+
         origen = request.POST.get(
             "origen",
             "alumnos"
         )
-        filtro_id = request.POST.get("filtro_id", "")
-        filtro_rut = request.POST.get("filtro_rut", "")
-        filtro_correo = request.POST.get("filtro_correo", "")
-        filtro_nombre = request.POST.get("filtro_nombre", "")
+
+        filtro_id = request.POST.get(
+            "filtro_id",
+            ""
+        )
+
+        filtro_rut = request.POST.get(
+            "filtro_rut",
+            ""
+        )
+
+        filtro_correo = request.POST.get(
+            "filtro_correo",
+            ""
+        )
+
+        filtro_nombre = request.POST.get(
+            "filtro_nombre",
+            ""
+        )
+
+
         try:
+
+            # ========================================
+            # DATOS GENERALES
+            # ========================================
 
             monto = request.POST.get(
                 "monto"
             )
 
             medio_pago = request.POST.get(
-                "medio_pago"
-            )
+                "medio_pago",
+                ""
+            ).strip()
 
 
-            if not monto or not medio_pago:
+            if not monto:
 
                 raise Exception(
-                    "Debe ingresar monto y forma de pago."
+                    "Debe ingresar el monto."
+                )
+
+
+            if not medio_pago:
+
+                raise Exception(
+                    "Debe seleccionar la forma de pago."
+                )
+
+
+            if not request.session.get("id"):
+
+                raise Exception(
+                    "No existe usuario en sesión."
                 )
 
 
@@ -854,28 +892,24 @@ class AlumnoView(ViewCustom):
                 id=alumno_id
             )
 
+
+            # Si no viene curso, usamos el del alumno
+            if not curso_id or curso_id == "None":
+
+                curso_id = alumno.id_curso_id
+
+
             curso = get_object_or_404(
                 Curso,
                 id=curso_id
             )
 
 
-            # ============================================
-            # CREAR PAGO
-            # ============================================
+            # ========================================
+            # VALIDAR TRANSFERENCIA ANTES DE CREAR
+            # ========================================
 
-            pago = Pagos.objects.create(
-                id_alumno=alumno,
-                id_curso=curso,
-                monto=int(monto),
-                medio_pago=medio_pago,
-                fecha=timezone.now(),
-            )
-
-
-            # ============================================
-            # TRANSFERENCIA
-            # ============================================
+            comprobante = None
 
             if medio_pago == "Transferencia":
 
@@ -900,8 +934,14 @@ class AlumnoView(ViewCustom):
                 ).strip()
 
                 fecha_transferencia = request.POST.get(
-                    "fecha_transferencia"
-                )
+                    "fecha_transferencia",
+                    ""
+                ).strip()
+
+                observacion = request.POST.get(
+                    "observacion",
+                    ""
+                ).strip()
 
                 comprobante = request.FILES.get(
                     "comprobante"
@@ -912,6 +952,13 @@ class AlumnoView(ViewCustom):
 
                     raise Exception(
                         "Debe ingresar el RUT de origen."
+                    )
+
+
+                if not banco_origen:
+
+                    raise Exception(
+                        "Debe ingresar el banco de origen."
                     )
 
 
@@ -929,19 +976,79 @@ class AlumnoView(ViewCustom):
                     )
 
 
-                # Por ejemplo 5 MB
-                if comprobante.size > 5 * 1024 * 1024:
+                # 5 MB
+                if comprobante.size > (
+                    5 * 1024 * 1024
+                ):
 
                     raise Exception(
                         "El comprobante no puede superar 5 MB."
                     )
 
 
+                tipos_permitidos = [
+                    "image/png",
+                    "image/jpeg",
+                    "application/pdf",
+                ]
+
+
+                if (
+                    comprobante.content_type
+                    not in tipos_permitidos
+                ):
+
+                    raise Exception(
+                        "El comprobante debe ser PNG, JPG, JPEG o PDF."
+                    )
+
+
+            # ========================================
+            # FLOW
+            # ========================================
+
+            elif medio_pago == "Flow":
+
+                raise Exception(
+                    "El registro manual de pagos Flow todavía "
+                    "no está habilitado. Debe validarse contra Flow."
+                )
+
+
+            # ========================================
+            # CREAR PAGO
+            # ========================================
+
+            pago = Pagos.objects.create(
+                id_alumno=alumno,
+                id_curso=curso,
+                monto=int(monto),
+                medio_pago=medio_pago,
+                fecha=timezone.now(),
+            )
+
+
+            # ========================================
+            # DETALLE TRANSFERENCIA
+            # ========================================
+
+            if medio_pago == "Transferencia":
+
                 contenido = comprobante.read()
 
 
-                PagoDetalle.objects.create(
+                fecha_transferencia_bd = None
 
+                if fecha_transferencia:
+
+                    fecha_transferencia_bd = (
+                        datetime.fromisoformat(
+                            fecha_transferencia
+                        )
+                    )
+
+
+                PagoDetalle.objects.create(
                     id_pago=pago,
 
                     tipo="Transferencia",
@@ -955,67 +1062,32 @@ class AlumnoView(ViewCustom):
                     numero_transaccion=numero_transaccion,
 
                     fecha_transferencia=(
-                        fecha_transferencia
-                        if fecha_transferencia
-                        else None
+                        fecha_transferencia_bd
                     ),
 
                     comprobante=contenido,
 
-                    comprobante_nombre=comprobante.name,
+                    comprobante_nombre=(
+                        comprobante.name
+                    ),
 
                     comprobante_tipo=(
                         comprobante.content_type
                     ),
 
-                    observacion=request.POST.get(
-                        "observacion",
-                        ""
-                    ),
+                    observacion=observacion,
 
-                    id_usuario=request.session["id"],
+                    id_usuario=(
+                        request.session["id"]
+                    ),
 
                     fecha_registro=timezone.now(),
                 )
 
 
-            # ============================================
-            # FLOW
-            # ============================================
-
-            elif medio_pago == "Flow":
-
-                flow_order = request.POST.get(
-                    "flow_order"
-                )
-
-
-                PagoDetalle.objects.create(
-
-                    id_pago=pago,
-
-                    tipo="Flow",
-
-                    flow_order=(
-                        int(flow_order)
-                        if flow_order
-                        else None
-                    ),
-
-                    observacion=request.POST.get(
-                        "observacion",
-                        ""
-                    ),
-
-                    id_usuario=request.session["id"],
-
-                    fecha_registro=timezone.now(),
-                )
-
-
-            # ============================================
-            # ESTADO 18
-            # ============================================
+            # ========================================
+            # ESTADO PAGADO
+            # ========================================
 
             Alumno_Estado.objects.create(
                 id_estado_id=18,
@@ -1030,12 +1102,14 @@ class AlumnoView(ViewCustom):
                 "Pago guardado correctamente."
             )
 
+
         except Exception as e:
 
             messages.error(
                 request,
                 f"Error al guardar pago: {str(e)}"
             )
+
 
         return AlumnoView._redirect_alumnos(
             curso_id,
@@ -2177,7 +2251,49 @@ class AlumnoView(ViewCustom):
         return redirect(
             f"{url}?{query}"
         )
-    
+    @staticmethod
+    def comprobante_pago(
+        request,
+        pago_id
+    ):
+
+        detalle = get_object_or_404(
+            PagoDetalle,
+            id_pago_id=pago_id
+        )
+
+
+        if not detalle.comprobante:
+
+            return HttpResponse(
+                "El pago no tiene comprobante.",
+                status=404
+            )
+
+
+        response = HttpResponse(
+            bytes(detalle.comprobante),
+            content_type=(
+                detalle.comprobante_tipo
+                or "application/octet-stream"
+            )
+        )
+
+
+        nombre = (
+            detalle.comprobante_nombre
+            or "comprobante"
+        )
+
+
+        response[
+            "Content-Disposition"
+        ] = (
+            f'inline; filename="{nombre}"'
+        )
+
+
+        return response
 
 class BusquedaView(ViewCustom):
 

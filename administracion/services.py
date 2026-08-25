@@ -281,29 +281,72 @@ def obtener_estados_alumno():
         ]
 
 
-def obtener_pagos_alumno(alumno_id, curso_id):
+def obtener_pagos_alumno(
+    alumno_id,
+    curso_id
+):
+
     with connection.cursor() as cursor:
+
         cursor.execute("""
             SELECT
-                id,
-                monto,
-                medio_pago,
-                fecha
-            FROM Pagos
-            WHERE id_alumno = %s
-              AND id_curso = %s
-            ORDER BY id DESC
-        """, [alumno_id, curso_id])
+                p.id,
+                p.monto,
+                p.medio_pago,
+                p.fecha,
+
+                pd.id AS id_detalle,
+                pd.tipo,
+
+                pd.rut_origen,
+                pd.nombre_origen,
+                pd.banco_origen,
+                pd.numero_transaccion,
+                pd.fecha_transferencia,
+
+                pd.comprobante_nombre,
+                pd.comprobante_tipo,
+
+                pd.observacion,
+
+                pd.flow_order,
+                pd.commerce_order,
+                pd.flow_estado,
+                pd.flow_medio_pago,
+                pd.flow_fecha_pago,
+                pd.flow_card_number,
+
+                u.nombre AS registrado_por
+
+            FROM Pagos p
+
+            LEFT JOIN Pago_Detalle pd
+                ON pd.id_pago = p.id
+
+            LEFT JOIN Usuario u
+                ON u.id = pd.id_usuario
+
+            WHERE p.id_alumno = %s
+              AND p.id_curso = %s
+
+            ORDER BY p.id DESC
+        """, [
+            alumno_id,
+            curso_id
+        ])
+
 
         columnas = [
             col[0]
             for col in cursor.description
         ]
 
+
         return [
             dict(zip(columnas, fila))
             for fila in cursor.fetchall()
         ]
+        
 def obtener_dashboard_resumen():
 
     with connection.cursor() as cursor:

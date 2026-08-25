@@ -60,49 +60,313 @@ Pagos
                 <thead>
 
                     <tr>
-
                         <th>ID</th>
                         <th>Monto</th>
-                        <th>Medio Pago</th>
+                        <th>Medio</th>
                         <th>Fecha</th>
-
+                        <th>Detalle</th>
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
                     {% for pago in pagos %}
 
-                    <tr>
+                        <tr>
 
-                        <td>
-                            {{ pago.id }}
-                        </td>
+                            <td>
+                                {{ pago.id }}
+                            </td>
 
-                        <td>
-                            ${{ pago.monto }}
-                        </td>
 
-                        <td>
-                            {{ pago.medio_pago }}
-                        </td>
+                            <td>
+                                ${{ pago.monto }}
+                            </td>
 
-                        <td>
-                            {{ pago.fecha }}
-                        </td>
 
-                    </tr>
+                            <td>
+
+                                {% if pago.medio_pago == "Transferencia" %}
+
+                                    <span class="label label-info">
+                                        Transferencia
+                                    </span>
+
+                                {% elif pago.medio_pago == "Flow" %}
+
+                                    <span class="label label-success">
+                                        Flow
+                                    </span>
+
+                                {% else %}
+
+                                    {{ pago.medio_pago }}
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ pago.fecha|date:"d-m-Y H:i" }}
+                            </td>
+
+
+                            <td>
+
+                                {% if pago.medio_pago == "Transferencia" %}
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-xs"
+                                        data-toggle="modal"
+                                        data-target="#detallePago{{ pago.id }}"
+                                    >
+                                        <i class="fa fa-eye"></i>
+                                        Ver detalle
+                                    </button>
+
+                                {% elif pago.medio_pago == "Flow" %}
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-success btn-xs"
+                                        data-toggle="modal"
+                                        data-target="#detallePago{{ pago.id }}"
+                                    >
+                                        <i class="fa fa-eye"></i>
+                                        Ver Flow
+                                    </button>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- ==================================== -->
+                        <!-- MODAL DETALLE -->
+                        <!-- ==================================== -->
+
+                        <div
+                            class="modal fade"
+                            id="detallePago{{ pago.id }}"
+                            tabindex="-1"
+                        >
+
+                            <div class="modal-dialog">
+
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            data-dismiss="modal"
+                                        >
+                                            ×
+                                        </button>
+
+                                        <h4>
+                                            Detalle Pago #{{ pago.id }}
+                                        </h4>
+
+                                    </div>
+
+
+                                    <div class="modal-body">
+
+
+                                        <table class="table table-bordered">
+
+                                            <tr>
+                                                <th>Monto</th>
+                                                <td>
+                                                    ${{ pago.monto }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Medio</th>
+                                                <td>
+                                                    {{ pago.medio_pago }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Fecha registro</th>
+                                                <td>
+                                                    {{ pago.fecha|date:"d-m-Y H:i" }}
+                                                </td>
+                                            </tr>
+
+
+                                            {% if pago.tipo == "Transferencia" %}
+
+                                                <tr>
+                                                    <th>RUT origen</th>
+                                                    <td>
+                                                        {{ pago.rut_origen }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Titular</th>
+                                                    <td>
+                                                        {{ pago.nombre_origen }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Banco</th>
+                                                    <td>
+                                                        {{ pago.banco_origen }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>N° transacción</th>
+                                                    <td>
+                                                        {{ pago.numero_transaccion }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Fecha transferencia</th>
+                                                    <td>
+                                                        {{ pago.fecha_transferencia|date:"d-m-Y H:i" }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Registrado por</th>
+                                                    <td>
+                                                        {{ pago.registrado_por }}
+                                                    </td>
+                                                </tr>
+
+                                            {% endif %}
+
+                                        </table>
+
+
+                                        {% if pago.tipo == "Transferencia" and pago.comprobante_nombre %}
+
+                                            <a
+                                                href="{% url 'pago_comprobante' pago.id %}"
+                                                target="_blank"
+                                                class="btn btn-primary"
+                                            >
+                                                <i class="fa fa-file-image-o"></i>
+                                                Ver comprobante
+                                            </a>
+
+                                        {% endif %}
+
+
+                                        {% if pago.observacion %}
+
+                                            <hr>
+
+                                            <strong>
+                                                Observación:
+                                            </strong>
+
+                                            <p>
+                                                {{ pago.observacion }}
+                                            </p>
+
+                                        {% endif %}
+
+
+                                        {% if pago.tipo == "Flow" %}
+
+                                            <table class="table table-bordered">
+
+                                                <tr>
+                                                    <th>Flow Order</th>
+                                                    <td>
+                                                        {{ pago.flow_order }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Orden comercio</th>
+                                                    <td>
+                                                        {{ pago.commerce_order }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Estado</th>
+                                                    <td>
+                                                        {{ pago.flow_estado }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Medio</th>
+                                                    <td>
+                                                        {{ pago.flow_medio_pago }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Fecha pago</th>
+                                                    <td>
+                                                        {{ pago.flow_fecha_pago }}
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th>Tarjeta</th>
+                                                    <td>
+                                                        **** {{ pago.flow_card_number }}
+                                                    </td>
+                                                </tr>
+
+                                            </table>
+
+                                        {% endif %}
+
+
+                                    </div>
+
+
+                                    <div class="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-default"
+                                            data-dismiss="modal"
+                                        >
+                                            Cerrar
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     {% empty %}
 
-                    <tr>
+                        <tr>
 
-                        <td colspan="4">
-                            No existen pagos.
-                        </td>
+                            <td
+                                colspan="5"
+                                class="text-center"
+                            >
+                                No existen pagos.
+                            </td>
 
-                    </tr>
+                        </tr>
 
                     {% endfor %}
 

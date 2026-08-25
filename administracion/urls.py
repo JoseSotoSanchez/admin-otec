@@ -212,4 +212,9 @@ urlpatterns = [
         AlumnoView.correo_bienvenida_masivo,
         name="alumnos_correo_bienvenida_masivo"
     ),
+    path(
+        "pagos/<int:pago_id>/comprobante",
+        AlumnoView.comprobante_pago,
+        name="pago_comprobante"
+    ),
 ]

@@ -611,14 +611,13 @@ $(document).on(
         $("#datos_transferencia").hide();
         $("#datos_flow").hide();
 
-
         if (medio === "Transferencia") {
 
             $("#datos_transferencia").show();
 
         }
 
-        else if (medio === "Flow") {
+        if (medio === "Flow") {
 
             $("#datos_flow").show();
 
@@ -626,5 +625,9 @@ $(document).on(
 
     }
 );
+
+$("#pago_medio_pago")
+    .val("")
+    .trigger("change");
 
 </script>

@@ -186,6 +186,7 @@
             <form
                 method="POST"
                 id="formPagoAlumno"
+                enctype="multipart/form-data"
             >
 
                 {% csrf_token %}
@@ -244,9 +245,8 @@
                             class="form-control"
                             required
                         >
-
                             <option value="">
-                                Seleccione
+                                Seleccione forma de pago
                             </option>
 
                             <option value="Transferencia">
@@ -256,7 +256,6 @@
                             <option value="Flow">
                                 Flow
                             </option>
-
                         </select>
 
                     </div>
@@ -275,10 +274,9 @@
                         >
 
                     </div>
-                    
-                    <!-- ========================================= -->
-                    <!-- TRANSFERENCIA -->
-                    <!-- ========================================= -->
+                    <!-- ======================================= -->
+                    <!-- DETALLE TRANSFERENCIA -->
+                    <!-- ======================================= -->
 
                     <div
                         id="datos_transferencia"
@@ -288,14 +286,12 @@
                         <hr>
 
                         <h4>
-                            Datos de Transferencia
+                            Datos de la transferencia
                         </h4>
 
-
                         <div class="form-group">
-
                             <label>
-                                RUT origen
+                                RUT cuenta de origen
                             </label>
 
                             <input
@@ -304,12 +300,10 @@
                                 class="form-control"
                                 placeholder="12.345.678-9"
                             >
-
                         </div>
 
 
                         <div class="form-group">
-
                             <label>
                                 Nombre titular
                             </label>
@@ -319,12 +313,10 @@
                                 name="nombre_origen"
                                 class="form-control"
                             >
-
                         </div>
 
 
                         <div class="form-group">
-
                             <label>
                                 Banco origen
                             </label>
@@ -334,14 +326,12 @@
                                 name="banco_origen"
                                 class="form-control"
                             >
-
                         </div>
 
 
                         <div class="form-group">
-
                             <label>
-                                Número de transacción
+                                Número de transacción / operación
                             </label>
 
                             <input
@@ -349,12 +339,10 @@
                                 name="numero_transaccion"
                                 class="form-control"
                             >
-
                         </div>
 
 
                         <div class="form-group">
-
                             <label>
                                 Fecha transferencia
                             </label>
@@ -364,12 +352,10 @@
                                 name="fecha_transferencia"
                                 class="form-control"
                             >
-
                         </div>
 
 
                         <div class="form-group">
-
                             <label>
                                 Comprobante
                             </label>
@@ -378,21 +364,33 @@
                                 type="file"
                                 name="comprobante"
                                 class="form-control"
-                                accept="image/*,application/pdf"
+                                accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
                             >
 
                             <small class="text-muted">
-                                Imagen o PDF.
+                                PNG, JPG, JPEG o PDF. Máximo 5 MB.
                             </small>
+                        </div>
 
+
+                        <div class="form-group">
+                            <label>
+                                Observación
+                            </label>
+
+                            <textarea
+                                name="observacion"
+                                class="form-control"
+                                rows="3"
+                            ></textarea>
                         </div>
 
                     </div>
 
 
-                    <!-- ========================================= -->
+                    <!-- ======================================= -->
                     <!-- FLOW -->
-                    <!-- ========================================= -->
+                    <!-- ======================================= -->
 
                     <div
                         id="datos_flow"
@@ -401,30 +399,10 @@
 
                         <hr>
 
-                        <h4>
-                            Datos Flow
-                        </h4>
-
                         <div class="alert alert-info">
-
-                            Idealmente estos datos no se ingresarán
-                            manualmente. Se obtendrán desde Flow.
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label>
-                                Flow Order
-                            </label>
-
-                            <input
-                                type="number"
-                                name="flow_order"
-                                class="form-control"
-                            >
-
+                            Los pagos Flow se validarán directamente
+                            contra Flow. No será necesario ingresar
+                            manualmente los datos de la transacción.
                         </div>
 
                     </div>
