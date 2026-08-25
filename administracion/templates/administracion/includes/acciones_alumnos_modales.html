@@ -513,6 +513,11 @@
             >
 
                  {% csrf_token %}
+                 <input
+                    type="hidden"
+                    name="curso_id"
+                    id="bienvenida_curso_id"
+                >
                 <input type="hidden" name="filtro_id" value="{{ filtro_id }}">
                 <input type="hidden" name="filtro_rut" value="{{ filtro_rut }}">
                 <input type="hidden" name="filtro_correo" value="{{ filtro_correo }}">
@@ -565,9 +570,10 @@
                         </label>
 
                         <input
-                            type="url"
+                            type="text"
                             name="link_sence"
                             class="form-control"
+                            placeholder="www.dominio.cl"
                             required
                         >
 

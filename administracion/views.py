@@ -645,19 +645,26 @@ class AlumnoView(ViewCustom):
 
         alumnos = []
 
-        if curso_id:
+        if (
+            curso_id
+            and str(curso_id).lower() != "none"
+        ):
             alumnos = obtener_aspirantes_por_curso(
                 curso_id
             )
+        curso_id_valido = None
 
+        if (
+            curso_id
+            and str(curso_id).lower() != "none"
+        ):
+            curso_id_valido = int(curso_id)
+            
         context = {
 
             "cursos": cursos,
 
-            "curso_id":
-                int(curso_id)
-                if curso_id
-                else None,
+            "curso_id": curso_id_valido,
 
             "title": "Aspirantes",
 
@@ -1386,6 +1393,11 @@ class AlumnoView(ViewCustom):
             "link_sence",
             ""
         ).strip()
+
+
+        # ============================================
+        # NORMALIZAR LINK SENCE
+        # ============================================
 
         if (
             link_sence

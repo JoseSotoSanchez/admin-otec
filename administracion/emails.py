@@ -4,6 +4,7 @@ from django.core.mail import (
     get_connection,
 )
 from django.template.loader import render_to_string
+from email.utils import formataddr
 
 def enviar_email_bienvenida(
     nombre,
@@ -43,7 +44,12 @@ def enviar_email_bienvenida(
     email = EmailMultiAlternatives(
         subject=subject,
         body=f"Bienvenido al curso {nombre_curso}",
-        from_email=settings.EMAIL_POSTULACIONES_USER,
+        from_email=formataddr(
+            (
+                "IC Capacitación Laboral",
+                settings.EMAIL_POSTULACIONES_USER
+            )
+        ),
         to=[correo],
         connection=_conexion_postulaciones(),
     )
@@ -97,10 +103,15 @@ def _enviar_template(
         )
 
 
-    email = EmailMultiAlternatives(
+        email = EmailMultiAlternatives(
         subject=asunto,
         body=asunto,
-        from_email=remitente,
+        from_email=formataddr(
+            (
+                "IC Capacitación Laboral",
+                remitente
+            )
+        ),
         to=[destinatario],
         connection=conexion,
     )
@@ -235,34 +246,68 @@ def enviar_email_bienvenida_especial(
 
     tipo = (tipo or "").upper()
 
+
     # ============================================
-    # CONFIGURACIÓN SEGÚN CURSO
+    # CONFIGURACION EXACTA SEGUN CORREO ANTIGUO
     # ============================================
 
     configuracion = {
+
+        # ========================================
+        # IEMCE
+        # ========================================
 
         "IEMCE": {
 
             "horas": 54,
 
-            "descripcion": (
+            "descripcion_1": (
+                f"El Curso de {curso.nombre} le otorgará todas las "
+                "herramientas y conocimientos necesarios para llevar "
+                "a cabo su inserción laboral con una alta eficacia. "
                 "Los preparamos para desempeñarse en establecimientos "
-                "públicos o privados. Quedarás capacitado para aplicar "
-                "estrategias de convivencia escolar, atención de primeros "
-                "auxilios, mediación de conflictos y todo lo necesario "
-                "para desempeñarse como Inspector Educacional."
+                "públicos o privados, quedarás capacitado para aplicar "
+                "estrategias de convivencia escolar, atención de "
+                "primeros auxilios, mediación de conflictos y todo lo "
+                "necesario que debes saber para ser un Inspector "
+                "Educación (Patio). Te dejamos Link para que puedas "
+                "verificar que somos Acreditados por SENCE y la norma "
+                "NCH 2728/ 2015 del sistema nacional de acreditación "
+                "INN-Chile."
             ),
+
+            "descripcion_2": "",
+
+            "descripcion_3": "",
+
+            "texto_sence_1":
+                "Le dejamos link",
+
+            "texto_sence_2":
+                "Para que verifiquen que somos acreditados por Sence.",
+
+            "texto_sence_3":
+                "Link de Organismos Técnicos de Capacitación "
+                "Acreditados por Sence:",
+
+            "mostrar_rut_sence": True,
 
             "texto_practica": (
-                "IC Capacitación Laboral te apoya en la gestión de tu "
-                "proceso de Práctica Laboral, enviando un certificado de "
-                "solicitud formal al establecimiento al que decidas "
-                "postular para trabajar como Inspector Educacional."
+                "Te apoya en la gestión de tú proceso de Práctica "
+                "Laboral, enviando un certificado de solicitud formal "
+                "al establecimiento al que tú decidas postular para "
+                "trabajar como Inspector Educacional. Para esto solo "
+                "necesitamos que nos consigas el contacto de la persona "
+                "encargada de personal. (Una vez aceptada la solicitud "
+                "procedemos a enviar la documentación para tu evaluación) "
+                "todo esto sin costo adicional."
             ),
 
-            "valor_total": None,
+            "mostrar_puede_trabajar": False,
 
             "mostrar_valor_total": False,
+
+            "valor_total": "",
 
             "mostrar_dos_cuotas": False,
 
@@ -270,28 +315,61 @@ def enviar_email_bienvenida_especial(
         },
 
 
+        # ========================================
+        # AAMCE
+        # ========================================
+
         "AAMCE": {
 
             "horas": 54,
 
-            "descripcion": (
+            "descripcion_1": (
+                f"El Curso de {curso.nombre} le otorgará todas las "
+                "herramientas y conocimientos necesarios para llevar "
+                "a cabo su inserción laboral con una alta eficacia. "
                 "Los preparamos para desempeñarse en establecimientos "
-                "públicos o privados. Quedarás capacitado para aplicar "
+                "públicos o privados, quedarás capacitado para aplicar "
                 "estrategias de convivencia escolar, Necesidades "
-                "Educativas Especiales, resolución de conflictos y todo "
-                "lo necesario para desempeñarte como Asistente de Aula."
+                "Especiales Educativas, Resolución de conflictos y todo "
+                "lo necesario que debes saber para ser un Asistente "
+                "de Aula."
             ),
+
+            "descripcion_2": "",
+
+            "descripcion_3": "",
+
+            "texto_sence_1": (
+                "Te dejamos Link para que puedas verificar que somos "
+                "Acreditados por SENCE y la norma NCH 2728/ 2015 del "
+                "sistema nacional de acreditación INN- Chile. Para que "
+                "verifiquen que somos acreditados por Sence."
+            ),
+
+            "texto_sence_2": "",
+
+            "texto_sence_3":
+                "Link de Organismos Técnicos de Capacitación "
+                "Acreditados por Sence:",
+
+            "mostrar_rut_sence": False,
 
             "texto_practica": (
-                "IC Capacitación Laboral te apoya en la gestión de tu "
-                "Práctica Laboral, la cual no es obligatoria. Se enviará "
-                "una carta de solicitud formal al establecimiento al que "
-                "decidas postular para trabajar como Asistente de Aula."
+                "Te apoya en la gestión de tú proceso de Práctica "
+                "Laboral (No Obligatorio), Se enviará una carta de "
+                "solicitud formal al establecimiento al que tú decidas "
+                "postular para trabajar como Asistente Aula. Para esto "
+                "solo necesitamos nos consigas el contacto de la persona "
+                "encargada de personal para hacer la gestión de "
+                "Postulación Acreditación Sence. "
+                "(Todo esto sin costó adicional)"
             ),
 
-            "valor_total": "319.990",
+            "mostrar_puede_trabajar": True,
 
             "mostrar_valor_total": True,
+
+            "valor_total": "319.990",
 
             "mostrar_dos_cuotas": True,
 
@@ -302,29 +380,66 @@ def enviar_email_bienvenida_especial(
         },
 
 
+        # ========================================
+        # CBC
+        # ========================================
+
         "CBC": {
 
             "horas": 50,
 
-            "descripcion": (
+            "descripcion_1": (
+                f"El Curso de {curso.nombre} le otorgará todas las "
+                "herramientas y conocimientos necesarios para llevar "
+                "a cabo su inserción laboral con una alta eficacia."
+            ),
+
+            "descripcion_2": (
                 "Está dirigido a personas que deseen adquirir "
-                "conocimientos y herramientas técnicas para la adecuada "
+                "conocimientos y herramientas técnicas, para la adecuada "
                 "manipulación y operación de una caja bancaria o "
                 "comercial. Podrás desarrollar el perfil de competencias "
-                "requerido para operar una caja dentro de una institución "
-                "bancaria, financiera o empresa del rubro retail."
+                "que se requiere para operar una caja, dentro de una "
+                "institución bancaria, financiera o empresa del rubro "
+                "retail o también conocido como venta al detalle o "
+                "comercio minorista de productos o servicios."
             ),
+
+            "descripcion_3": (
+                "Le entregaremos los conocimientos necesarios para que "
+                "puedas desempeñarte con un perfil laboral competente "
+                "y cubrir el puesto de trabajo esperado."
+            ),
+
+            "texto_sence_1": (
+                "Te dejamos Link para que puedas verificar que somos "
+                "Acreditados por SENCE y la norma NCH 2728/ 2015 del "
+                "sistema nacional de acreditación INN- Chile."
+            ),
+
+            "texto_sence_2":
+                "Para que verifiquen que somos acreditados por Sence.",
+
+            "texto_sence_3": "",
+
+            "mostrar_rut_sence": False,
 
             "texto_practica": (
-                "IC Capacitación Laboral te apoya en la gestión de tu "
-                "Práctica Laboral, la cual no es obligatoria, enviando "
-                "una carta de solicitud formal al establecimiento donde "
-                "decidas postular."
+                "Te apoya en la gestión de tú proceso de Práctica "
+                f"Laboral (No Obligatorio), Se enviará una carta de "
+                f"solicitud formal al establecimiento al que tú decidas "
+                f"postular para trabajar como {curso.nombre}. Para esto "
+                "solo necesitamos nos consigas el contacto de la persona "
+                "encargada de personal para hacer la gestión de "
+                "Postulación Acreditación Sence. "
+                "(Todo esto sin costó adicional)"
             ),
 
-            "valor_total": "340.000",
+            "mostrar_puede_trabajar": True,
 
             "mostrar_valor_total": True,
+
+            "valor_total": "340.000",
 
             "mostrar_dos_cuotas": False,
 
@@ -332,28 +447,65 @@ def enviar_email_bienvenida_especial(
         },
 
 
+        # ========================================
+        # AAC
+        # ========================================
+
         "AAC": {
 
             "horas": 50,
 
-            "descripcion": (
-                "El curso está orientado a comprender el concepto de "
-                "empresa y sus tipos, además de conocer quiénes se "
-                "desempeñan en ellas para realizar labores de "
-                "administración, gestión, control, facturación y cobranza "
-                "respetando las disposiciones legales vigentes."
+            "descripcion_1": (
+                f"El Curso de {curso.nombre} le otorgará todas las "
+                "herramientas y conocimientos necesarios para llevar "
+                "a cabo su inserción laboral con una alta eficacia."
             ),
+
+            "descripcion_2": (
+                "El curso está orientado a que la persona pueda "
+                "comprender el concepto de empresa y sus tipos, además "
+                "de saber quiénes se desempeñan en ellas para así poder "
+                "realizar la administración, gestión, control y "
+                "contabilidad de facturación y cobranza de las mismas "
+                "respetando las disposiciones legales vigentes. De este "
+                "modo, ser una ayuda y contribuir en las organizaciones."
+            ),
+
+            "descripcion_3": (
+                "Le entregaremos los conocimientos necesarios para que "
+                "puedas desempeñarte con un perfil laboral competente "
+                "y cubrir el puesto de trabajo esperado."
+            ),
+
+            "texto_sence_1": (
+                "Te dejamos Link para que puedas verificar que somos "
+                "Acreditados por SENCE y la norma NCH 2728/ 2015 del "
+                "sistema nacional de acreditación INN- Chile."
+            ),
+
+            "texto_sence_2":
+                "Para que verifiquen que somos acreditados por Sence.",
+
+            "texto_sence_3": "",
+
+            "mostrar_rut_sence": False,
 
             "texto_practica": (
-                "IC Capacitación Laboral te apoya en la gestión de tu "
-                "Práctica Laboral, la cual no es obligatoria, enviando "
-                "una carta de solicitud formal al establecimiento donde "
-                "decidas postular."
+                "Te apoya en la gestión de tú proceso de Práctica "
+                f"Laboral (No Obligatorio), Se enviará una carta de "
+                f"solicitud formal al establecimiento al que tú decidas "
+                f"postular para trabajar como {curso.nombre}. Para esto "
+                "solo necesitamos nos consigas el contacto de la persona "
+                "encargada de personal para hacer la gestión de "
+                "Postulación Acreditación Sence. "
+                "(Todo esto sin costó adicional)"
             ),
 
-            "valor_total": "340.000",
+            "mostrar_puede_trabajar": True,
 
             "mostrar_valor_total": True,
+
+            "valor_total": "340.000",
 
             "mostrar_dos_cuotas": False,
 
@@ -373,7 +525,7 @@ def enviar_email_bienvenida_especial(
 
 
     # ============================================
-    # DATOS GENERALES
+    # FORMATEO DATOS
     # ============================================
 
     nombre_alumno = (
@@ -388,84 +540,95 @@ def enviar_email_bienvenida_especial(
     )
 
 
-    inicio_curso = (
-        curso.fecha_inicio.strftime("%d-%m-%Y")
-        if curso.fecha_inicio
-        else ""
-    )
-
-
-    fin_curso = (
-        curso.fecha_fin.strftime("%d-%m-%Y")
-        if curso.fecha_fin
-        else ""
-    )
-
-
-    # ============================================
-    # CONTEXTO TEMPLATE
-    # ============================================
-
     context = {
 
-        "tipo":
-            tipo,
+        "tipo": tipo,
 
-        "nombre":
-            nombre_alumno,
+        "nombre": nombre_alumno,
 
-        "nombreCurso":
-            curso.nombre,
+        "nombreCurso": curso.nombre,
 
-        "inicioCurso":
-            inicio_curso,
+        "inicioCurso": (
+            curso.fecha_inicio.strftime("%d-%m-%Y")
+            if curso.fecha_inicio
+            else ""
+        ),
 
-        "finCurso":
-            fin_curso,
+        "finCurso": (
+            curso.fecha_fin.strftime("%d-%m-%Y")
+            if curso.fecha_fin
+            else ""
+        ),
 
-        "diasCurso":
+        "diasCurso": (
             curso.id_dias.rango
             if curso.id_dias
-            else "",
+            else ""
+        ),
 
-        "horarioCurso":
+        "horarioCurso": (
             curso.id_horario.rango
             if curso.id_horario
-            else "",
+            else ""
+        ),
 
-        "modalidad":
-            curso.modalidad or "",
+        "modalidad": (
+            curso.modalidad or ""
+        ),
 
-        "linkSense":
-            link_sence,
+        "linkSense": link_sence,
 
-        "nombreUsuario":
-            usuario.nombre or "",
+        "nombreUsuario": (
+            usuario.nombre or ""
+        ),
 
-        "correoUsuario":
-            usuario.correo or "",
+        "correoUsuario": (
+            usuario.correo or ""
+        ),
 
-        "numeroUsuario":
-            usuario.numero or "",
+        "numeroUsuario": (
+            usuario.numero or ""
+        ),
 
-        "valorCurso":
-            valor_curso,
+        "valorCurso": valor_curso,
 
-        # ESPECÍFICOS
+
+        # ESPECIFICOS
         "horas":
             datos["horas"],
 
-        "descripcion":
-            datos["descripcion"],
+        "descripcion_1":
+            datos["descripcion_1"],
+
+        "descripcion_2":
+            datos["descripcion_2"],
+
+        "descripcion_3":
+            datos["descripcion_3"],
+
+        "texto_sence_1":
+            datos["texto_sence_1"],
+
+        "texto_sence_2":
+            datos["texto_sence_2"],
+
+        "texto_sence_3":
+            datos["texto_sence_3"],
+
+        "mostrar_rut_sence":
+            datos["mostrar_rut_sence"],
 
         "texto_practica":
             datos["texto_practica"],
 
-        "valor_total":
-            datos["valor_total"],
+        "mostrar_puede_trabajar":
+            datos["mostrar_puede_trabajar"],
 
         "mostrar_valor_total":
             datos["mostrar_valor_total"],
+
+        "valor_total":
+            datos["valor_total"],
 
         "mostrar_dos_cuotas":
             datos["mostrar_dos_cuotas"],
