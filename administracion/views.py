@@ -2267,8 +2267,17 @@ class CursoView(ViewCustom):
         )
 
         url_zoom = request.POST.get(
-            "urlZoom"
-        )
+            "urlZoom",
+            ""
+        ).strip()
+
+        if (
+            url_zoom
+            and not url_zoom.startswith(
+                ("http://", "https://")
+            )
+            ):
+            url_zoom = "https://" + url_zoom
 
         id_reunion_zoom = request.POST.get(
             "idReunionZoom"

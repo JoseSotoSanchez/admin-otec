@@ -19,44 +19,62 @@ def enviar_email_bienvenida(
     nombre_usuario,
     correo_usuario,
     numero_usuario
- ):
-    subject = f"Bienvenido(a) al curso {nombre_curso}"
+):
+
+    nombre = (
+        nombre or ""
+    ).strip().title()
+
 
     context = {
-        "nombre": nombre,
-        "nombre_curso": nombre_curso,
-        "url_zoom": url_zoom,
-        "id_reunion_zoom": id_reunion_zoom,
-        "codigo_acceso_zoom": codigo_acceso_zoom,
-        "inicio_curso": inicio_curso,
-        "nombre_profesor": nombre_profesor,
-        "horario_curso": horario_curso,
-        "nombre_usuario": nombre_usuario,
-        "correo_usuario": correo_usuario,
-        "numero_usuario": numero_usuario,
+
+        "nombre":
+            nombre,
+
+        "nombre_curso":
+            nombre_curso,
+
+        "url_zoom":
+            url_zoom,
+
+        "id_reunion_zoom":
+            id_reunion_zoom,
+
+        "codigo_acceso_zoom":
+            codigo_acceso_zoom,
+
+        "inicio_curso":
+            inicio_curso,
+
+        "nombre_profesor":
+            nombre_profesor,
+
+        "horario_curso":
+            horario_curso,
+
+        "nombre_usuario":
+            nombre_usuario,
+
+        "correo_usuario":
+            correo_usuario,
+
+        "numero_usuario":
+            numero_usuario,
     }
 
-    html_content = render_to_string(
+
+    asunto = (
+        f"Bienvenido(a) al curso {nombre_curso}"
+    )
+
+
+    return _enviar_template(
+        asunto,
+        correo,
         "administracion/emails/bienvenida.html",
-        context
+        context,
+        cuenta="administracion"
     )
-
-    email = EmailMultiAlternatives(
-        subject=subject,
-        body=f"Bienvenido al curso {nombre_curso}",
-        from_email=formataddr(
-            (
-                "IC Capacitación Laboral",
-                settings.EMAIL_POSTULACIONES_USER
-            )
-        ),
-        to=[correo],
-        connection=_conexion_postulaciones(),
-    )
-
-    email.attach_alternative(html_content, "text/html")
-
-    email.send(fail_silently=False)
 
 def _enviar_template(
     asunto,
@@ -125,7 +143,6 @@ def _enviar_template(
         fail_silently=False
     )
 
-
 def _contexto_base(
     alumno,
     curso,
@@ -174,7 +191,31 @@ def _contexto_base(
             .replace(",", "."),
 
     }
+def _fecha_espanol(fecha):
 
+    if not fecha:
+        return ""
+
+    meses = {
+        1: "Enero",
+        2: "Febrero",
+        3: "Marzo",
+        4: "Abril",
+        5: "Mayo",
+        6: "Junio",
+        7: "Julio",
+        8: "Agosto",
+        9: "Septiembre",
+        10: "Octubre",
+        11: "Noviembre",
+        12: "Diciembre",
+    }
+
+    return (
+        f"{fecha.day} de "
+        f"{meses[fecha.month]} "
+        f"del {fecha.year}"
+    )
 
 def enviar_email_aceptacion(
     alumno,
@@ -183,26 +224,80 @@ def enviar_email_aceptacion(
     url_pago
 ):
 
-    context = _contexto_base(
-        alumno,
-        curso,
-        usuario
-    )
+    nombre_alumno = (
+        f"{alumno.nombre} {alumno.apellido}"
+    ).strip().title()
 
-    context[
-        "url_pago"
-    ] = url_pago
 
-    context[
-        "porcentaje"
-    ] = (
+    porcentaje = (
         50
-        if "Corredor" in curso.nombre
+        if "Corredor" in (curso.nombre or "")
         else 75
     )
 
-    _enviar_template(
-        "Postulación aceptada - IC Capacitación Laboral",
+
+    valor_curso = (
+        f"{curso.costo:,}"
+        .replace(",", ".")
+        if curso.costo
+        else "0"
+    )
+
+
+    context = {
+
+        "nombre":
+            nombre_alumno,
+
+        "nombreCurso":
+            curso.nombre or "",
+
+       "inicioCurso":
+            curso.fecha_inicio.strftime("%d-%m-%Y")
+            if curso.fecha_inicio
+            else "",
+
+        "finCurso":
+            curso.fecha_fin.strftime("%d-%m-%Y")
+            if curso.fecha_fin
+            else "",
+
+        "diasCurso":
+            curso.id_dias.rango
+            if curso.id_dias
+            else "",
+
+        "horarioCurso":
+            curso.id_horario.rango
+            if curso.id_horario
+            else "",
+
+        "modalidad":
+            curso.modalidad or "",
+
+        "urlPago":
+            url_pago,
+
+        "nombreUsuario":
+            usuario.nombre or "",
+
+        "correoUsuario":
+            usuario.correo or "",
+
+        "numeroUsuario":
+            usuario.numero or "",
+
+        "valorCurso":
+            valor_curso,
+
+        "porcentaje":
+            porcentaje,
+    }
+
+
+    return _enviar_template(
+        "Financiamiento Programa Emplea ICL "
+        "(Curso Capacitación Laboral)",
         alumno.email,
         "administracion/emails/aceptacion.html",
         context,

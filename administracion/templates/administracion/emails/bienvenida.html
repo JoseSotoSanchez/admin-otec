@@ -20,7 +20,7 @@
     >
 
     <title>
-        Financiamiento Programa Emplea ICL
+        Bienvenida al curso
     </title>
 
 </head>
@@ -51,8 +51,8 @@
 <table
     role="presentation"
     style="
-        width:602px;
-        max-width:100%;
+        width:80%;
+        max-width:900px;
         border-collapse:collapse;
         border:1px solid #cccccc;
         border-spacing:0;
@@ -61,9 +61,9 @@
 >
 
 
-<!-- ========================================= -->
+<!-- ============================================= -->
 <!-- LOGO -->
-<!-- ========================================= -->
+<!-- ============================================= -->
 
 <tr>
 
@@ -88,13 +88,17 @@
 </tr>
 
 
-<!-- ========================================= -->
+<!-- ============================================= -->
 <!-- CONTENIDO -->
-<!-- ========================================= -->
+<!-- ============================================= -->
 
 <tr>
 
-<td style="padding:36px 30px 42px 30px;">
+<td
+    style="
+        padding:36px 30px 42px 30px;
+    "
+>
 
 
 <table
@@ -117,21 +121,6 @@
 >
 
 
-<h1
-    style="
-        font-size:35px;
-        margin:0 0 20px 0;
-        font-family:Arial,sans-serif;
-        color:#1c68c4;
-        text-align:center;
-    "
->
-
-    FELICITACIONES
-
-</h1>
-
-
 <p
     style="
         margin:0 0 12px 0;
@@ -147,9 +136,101 @@
         {{ nombre }}
     </strong>
 
-    IC Capacitación agradece su preferencia y confianza,
-    esperando cumplir con sus expectativas de desarrollo
-    e ingreso a un mejor campo laboral.
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    IC Capacitación agradece su preferencia y le da la
+    bienvenida al curso de
+
+    <strong>
+        {{ nombre_curso }}
+    </strong>
+
+    en nuestra modalidad online, también conocida como
+    e-learning sincrónico: la clase se transmite en directo,
+    esta es una modalidad de aprendizaje en que el relator
+    y el alumno se escuchan y se ven en el mismo momento,
+    independiente de que se encuentren en espacios físicos
+    diferentes.
+
+    Esto permite que la interacción se realice en tiempo real,
+    como en una clase presencial pero entendiendo que se trata
+    de un aula virtual.
+
+    El participante debe conectarse día y horario indicado
+    para la actividad.
+
+    Esperamos sea de gran utilidad y juntos logremos los
+    objetivos esperados para cumplir con el logro de perfil
+    y estándares curriculares deseados.
+
+    Cualquier dudad o consulta nuestra coordinara estará
+    disponible para aclarar sus dudas y apoyo en la
+    implementación de aula virtual donde encontrara además
+    la malla curricular, grabaciones de cada una de las clases
+    y realizar sus evaluaciones.
+
+</p>
+
+
+<!-- ============================================= -->
+<!-- AULA VIRTUAL -->
+<!-- ============================================= -->
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Para acceder a plataforma virtual favor ingresar
+    al siguiente Link.
+
+</p>
+
+
+<a
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+    href="https://aulavirtual.iccapacitacionlaboral.cl/login/index.php"
+>
+
+    https://aulavirtual.iccapacitacionlaboral.cl/login/index.php
+
+</a>
+
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    <strong>
+        Usuario:
+    </strong>
+
+    Su Rut sin puntos, guión ni digito verificador
+    (Ej.: 12.123.123-1 su usuario 12123123)
 
 </p>
 
@@ -163,157 +244,15 @@
     "
 >
 
-    Hemos revisado su postulación y nos es grato informar
-    a usted que ha sido seleccionada con beneficio de
-    subvención, la que considera un descuento que asciende al
-
     <strong>
-        {{ porcentaje }}%
+        Contraseña:
     </strong>
 
-    del valor del curso, debiendo pagar solo la suma de
-
-    <strong>
-        ${{ valorCurso }}.-
-    </strong>
-
-    pesos
+    Los 4 primeros números de su Rut más #icL.
+    (Ej.: 12.123.123-1 su contraseña 1212#icL
+    con letra “L” final mayúscula).
 
 </p>
-
-
-<!-- ========================================= -->
-<!-- DETALLES CURSO -->
-<!-- ========================================= -->
-
-<h1
-    style="
-        font-size:17px;
-        margin:0 0 20px 0;
-        font-family:Arial,sans-serif;
-    "
->
-
-    Detalles del curso:
-
-</h1>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Nombre:</strong>
-    {{ nombreCurso }}
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Fecha Inicio:</strong>
-    {{ inicioCurso }}
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Fecha Termino:</strong>
-    {{ finCurso }}
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Días:</strong>
-    {{ diasCurso }}
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Horario:</strong>
-    {{ horarioCurso }}
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Modalidad:</strong>
-    {{ modalidad }}
-
-</p>
-
-
-<!-- ========================================= -->
-<!-- INCLUYE -->
-<!-- ========================================= -->
-
-<h1
-    style="
-        font-size:17px;
-        margin:0 0 20px 0;
-        font-family:Arial,sans-serif;
-    "
->
-
-    El curso incluye:
-
-</h1>
-
-
-<ol
-    style="
-        font-family:Arial,sans-serif;
-        font-size:16px;
-        line-height:25px;
-    "
->
-
-    <li>
-        Certificación digital con validación código QR
-    </li>
-
-    <li>
-        Descuento de {{ porcentaje }}% del valor del curso
-    </li>
-
-    <li>
-
-        <strong>
-            Taller de Inserción Laboral
-        </strong>
-
-        (“CREATIVIDAD Y CONSEJOS PARA ENCONTRAR TRABAJO”)
-
-    </li>
-
-    <li>
-        Beneficios adicionales
-        ( verificar con el coordinador del curso
-        si corresponde según curso realizado)
-    </li>
-
-</ol>
-
-
-<!-- ========================================= -->
-<!-- PAGO -->
-<!-- ========================================= -->
-
-<h1
-    style="
-        font-size:17px;
-        margin:0 0 20px 0;
-        font-family:Arial,sans-serif;
-    "
->
-
-    Pago:
-
-</h1>
 
 
 <p
@@ -325,102 +264,12 @@
     "
 >
 
-    Mediante transferencia bancaria a:
+    Cualquier problema para ingresar o visualizar su curso,
+    favor reportar a la coordinadora quien lo ayudara a
+    resolver el inconveniente.
 
 </p>
 
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Titular:</strong>
-    Instituto de Capacitación Laboral Spa
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Rut:</strong>
-    77.558.994-9
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Banco:</strong>
-    Banco De Chile
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Tipo:</strong>
-    Cuenta Corriente
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>Número:</strong>
-    8005934800
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>
-        Enviar comprobante de pago a:
-    </strong>
-
-    pagos@iccapacitacionlaboral.cl
-
-</p>
-
-
-<p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;text-align:center;">
-
-    <strong>
-        Enviar copia de comprobante de pago a:
-    </strong>
-
-    administracion@iccapacitacionlaboral.cl
-
-</p>
-
-
-<!-- ========================================= -->
-<!-- ADVERTENCIA -->
-<!-- ========================================= -->
-
-<p
-    style="
-        color:red;
-        margin:0 0 12px 0;
-        font-size:16px;
-        line-height:24px;
-        font-family:Arial,sans-serif;
-        text-align:center;
-    "
->
-
-    <strong>
-        Punto importante:
-    </strong>
-
-    No habrá devolución de dinero para aquellos
-    que comiencen el curso. Solo casos especiales
-    con justificación
-
-</p>
-
-
-<!-- ========================================= -->
-<!-- BOTON PAGO -->
-<!-- ========================================= -->
 
 <p
     style="
@@ -431,49 +280,176 @@
     "
 >
 
-    Boton de pago:
+    Se adjunta link video que explica paso a paso la forma
+    de ingresar al aula virtual.
 
 </p>
 
 
-<p align="center">
+<a
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+    href="https://www.youtube.com/watch?v=Pu2kZmMF5Xk"
+>
 
-    <a
-        href="{{ urlPago }}"
-        style="
-            background-color:#1c68c4;
-            color:white;
-            padding:13px 32px;
-            text-align:center;
-            text-decoration:none;
-            display:inline-block;
-            font-size:20px;
-            margin:4px 2px;
-            cursor:pointer;
-            border-radius:11px;
-        "
-    >
+    https://www.youtube.com/watch?v=Pu2kZmMF5Xk
 
-        Pagar
+</a>
 
-    </a>
+
+<!-- ============================================= -->
+<!-- ZOOM -->
+<!-- ============================================= -->
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Para ingresar a las clases virtuales vía zoom favor
+    ingresar al siguiente link:
 
 </p>
 
 
-<p align="center">
+<a
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+    href="{{ url_zoom }}"
+>
 
-    <img
-        src="https://iccapacitacionlaboral.cl/static/Imagenes/red-compra.png"
-        alt="RedCompra"
-        width="300"
-        style="
-            height:auto;
-            max-width:100%;
-            display:block;
-            margin:auto;
-        "
-    >
+    Link acceso a reunión en Zoom
+
+</a>
+
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    <strong>
+        ID de reunión:
+    </strong>
+
+    {{ id_reunion_zoom }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    <strong>
+        Código de acceso:
+    </strong>
+
+    {{ codigo_acceso_zoom }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    <strong>
+        Fecha de inicio:
+    </strong>
+
+    {{ inicio_curso }}
+
+    horario:
+
+    {{ horario_curso }}
+
+</p>
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    <strong>
+        Profesor:
+    </strong>
+
+    {{ nombre_profesor }}
+
+</p>
+
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Reciba nuestra más cordial bienvenida y desearles
+    el mayor de los éxitos.
+
+</p>
+
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Saludos cordiales,
+
+</p>
+
+
+<p
+    style="
+        margin:12px 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    IC Instituto de Capacitación Laboral
 
 </p>
 
@@ -490,9 +466,9 @@
 </tr>
 
 
-<!-- ========================================= -->
-<!-- CONFIDENCIALIDAD -->
-<!-- ========================================= -->
+<!-- ============================================= -->
+<!-- BARRA AZUL -->
+<!-- ============================================= -->
 
 <tr>
 
@@ -537,8 +513,7 @@
         "
     >
 
-        La información recopilada
-        es de carácter confidencial.
+        Esperando sea de su agrado esta capacitación.
 
     </p>
 
@@ -584,9 +559,9 @@
 </tr>
 
 
-<!-- ========================================= -->
+<!-- ============================================= -->
 <!-- FIRMA -->
-<!-- ========================================= -->
+<!-- ============================================= -->
 
 <tr>
 
@@ -596,6 +571,20 @@
         background:#ffffff;
     "
 >
+
+
+<p
+    style="
+        margin:0 0 12px 0;
+        font-size:16px;
+        line-height:24px;
+        font-family:Arial,sans-serif;
+    "
+>
+
+    Atentamente.
+
+</p>
 
 
 <h1
@@ -608,7 +597,7 @@
     "
 >
 
-    {{ nombreUsuario }}
+    {{ nombre_usuario }}
 
 </h1>
 
@@ -623,8 +612,7 @@
     "
 >
 
-    Coordinador de Curso
-    IC capacitación Laboral
+    Coordinador de Curso IC capacitación Laboral
 
 </h1>
 
@@ -639,7 +627,7 @@
     "
 >
 
-    {{ correoUsuario }}
+    {{ correo_usuario }}
 
 </p>
 
@@ -655,7 +643,7 @@
 >
 
     contacto:
-    {{ numeroUsuario }}
+    {{ numero_usuario }}
     Whatsapp
 
 </h1>
@@ -677,7 +665,9 @@
 </p>
 
 
-<!-- IMAGENES FIRMA -->
+<!-- ============================================= -->
+<!-- IMAGENES -->
+<!-- ============================================= -->
 
 <table
     role="presentation"
@@ -742,7 +732,9 @@
 </table>
 
 
+<!-- ============================================= -->
 <!-- ALIANZA -->
+<!-- ============================================= -->
 
 <table
     role="presentation"
