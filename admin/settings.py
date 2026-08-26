@@ -22,7 +22,7 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z*j7qu@(hm_6sapke02-i4qdc8^f-@2kp%iaf%dj*sll7$3(@y'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -152,7 +152,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+SESSION_ENGINE = "django.contrib.sessions.backends.file"
+
+SESSION_FILE_PATH = BASE_DIR / "tmp" / "sessions"
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_AGE = 60 * 60 * 8
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
