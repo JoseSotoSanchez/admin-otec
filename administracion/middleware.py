@@ -14,7 +14,7 @@ class LoginRequiredMiddleware:
 
 
         # ============================================
-        # RUTAS QUE NO REQUIEREN LOGIN
+        # RUTAS PUBLICAS
         # ============================================
 
         rutas_publicas = [
@@ -24,38 +24,71 @@ class LoginRequiredMiddleware:
 
 
         if ruta in rutas_publicas:
-            return self.get_response(request)
+
+            response = self.get_response(request)
+
+            # Nunca cachear login/logout
+            response["Cache-Control"] = (
+                "no-store, no-cache, must-revalidate, "
+                "max-age=0, private"
+            )
+
+            response["Pragma"] = "no-cache"
+            response["Expires"] = "0"
+
+            return response
 
 
-        # Archivos estáticos
+        # ============================================
+        # ARCHIVOS ESTATICOS
+        # ============================================
+
         if ruta.startswith("/static/"):
             return self.get_response(request)
 
 
-        # Dejamos Django Admin independiente
+        # ============================================
+        # DJANGO ADMIN
+        # ============================================
+
         if ruta.startswith("/admin/"):
             return self.get_response(request)
 
 
         # ============================================
-        # VALIDAR LOGIN
+        # VALIDAR SESION
         # ============================================
 
-        if not request.session.get("loggedin"):
-
-            return redirect(
-                "login"
-            )
-
-
-        # También validamos que exista ID
-        if not request.session.get("id"):
+        if (
+            not request.session.get("loggedin")
+            or not request.session.get("id")
+        ):
 
             request.session.flush()
 
-            return redirect(
-                "login"
-            )
+            return redirect("login")
 
 
-        return self.get_response(request)
+        # ============================================
+        # EJECUTAR VISTA
+        # ============================================
+
+        response = self.get_response(request)
+
+
+        # ============================================
+        # MUY IMPORTANTE
+        # NUNCA CACHEAR PAGINAS PRIVADAS
+        # ============================================
+
+        response["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, "
+            "max-age=0, private"
+        )
+
+        response["Pragma"] = "no-cache"
+
+        response["Expires"] = "0"
+
+
+        return response

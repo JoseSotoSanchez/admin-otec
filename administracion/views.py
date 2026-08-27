@@ -230,11 +230,33 @@ class AuthView:
     @staticmethod
     def logout(request):
 
+        # Elimina completamente la sesión
         request.session.flush()
 
-        return redirect(
+
+        response = redirect(
             "login"
         )
+
+
+        # Eliminar explícitamente cookie
+        response.delete_cookie(
+            "sessionid",
+            path="/",
+        )
+
+
+        # Nunca cachear respuesta logout
+        response["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, "
+            "max-age=0, private"
+        )
+
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
+
+
+        return response
 
 
     @staticmethod

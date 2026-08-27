@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+     # PROTEGER TODA LA ADMINISTRACION
+    'administracion.middleware.LoginRequiredMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -156,11 +158,17 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 SESSION_FILE_PATH = BASE_DIR / "tmp" / "sessions"
 
+SESSION_COOKIE_NAME = "ic_admin_session"
+
 SESSION_COOKIE_HTTPONLY = True
+
 SESSION_COOKIE_SAMESITE = "Lax"
+
 SESSION_COOKIE_SECURE = not DEBUG
+
 SESSION_COOKIE_AGE = 60 * 60 * 8
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+SESSION_SAVE_EVERY_REQUEST = True
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
