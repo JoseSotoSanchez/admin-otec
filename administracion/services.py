@@ -22,7 +22,7 @@ def obtener_aspirantes_por_curso(curso_id):
                 a.direccion,
                 a.region,
                 a.fecha,
-
+                CONCAT_WS(' ', a.nombre, a.apellido) AS nombre_completo,
                 c.nombre AS nombre_curso,
                 c.codigo_curso,
                 c.id AS id_curso,
@@ -633,7 +633,7 @@ def buscar_aspirantes(
             a.direccion,
             a.region,
             a.fecha,
-
+            CONCAT_WS(' ', a.nombre, a.apellido) AS nombre_completo,
             c.nombre AS nombre_curso,
             c.codigo_curso,
             c.id AS id_curso,
