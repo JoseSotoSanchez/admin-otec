@@ -1069,3 +1069,137 @@
     </div>
 
 </div>
+
+<!-- ========================================= -->
+<!-- RESULTADO ENVIO MASIVO -->
+<!-- ========================================= -->
+
+<div
+    class="modal fade"
+    id="modalResultadoMasivo"
+    tabindex="-1"
+>
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                >
+                    ×
+                </button>
+
+                <h4 class="modal-title">
+                    <i class="fa fa-envelope"></i>
+                    Resultado del envío
+                </h4>
+
+            </div>
+
+            <div class="modal-body">
+
+                <h4 id="resultado_masivo_tipo"></h4>
+
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <div class="alert alert-info text-center">
+
+                            <strong
+                                id="resultado_masivo_total"
+                                style="font-size:22px;"
+                            >
+                                0
+                            </strong>
+
+                            <br>
+                            Total
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="alert alert-success text-center">
+
+                            <strong
+                                id="resultado_masivo_enviados"
+                                style="font-size:22px;"
+                            >
+                                0
+                            </strong>
+
+                            <br>
+                            Enviados
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="alert alert-danger text-center">
+
+                            <strong
+                                id="resultado_masivo_no_enviados"
+                                style="font-size:22px;"
+                            >
+                                0
+                            </strong>
+
+                            <br>
+                            No enviados
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div
+                    class="table-responsive"
+                    style="max-height:450px; overflow-y:auto;"
+                >
+
+                    <table
+                        class="table table-striped table-bordered"
+                    >
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Aspirante</th>
+                                <th>Correo</th>
+                                <th>Curso</th>
+                                <th>Estado</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+
+                        <tbody
+                            id="resultado_masivo_detalle"
+                        >
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    Cerrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

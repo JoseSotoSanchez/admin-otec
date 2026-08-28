@@ -1859,7 +1859,7 @@ class AlumnoView(ViewCustom):
 
         enviados = 0
         errores = []
-
+        resultados = []
 
         try:
 
@@ -1921,7 +1921,7 @@ class AlumnoView(ViewCustom):
                         url_pago=url_pago,
                     )
 
-
+                    
                     AlumnoView._agregar_estado(
                         request,
                         alumno,
@@ -1930,6 +1930,19 @@ class AlumnoView(ViewCustom):
 
 
                     enviados += 1
+
+                    resultados.append({
+                        "id": alumno.id,
+                        "nombre": f"{alumno.nombre} {alumno.apellido}".strip(),
+                        "correo": alumno.email or "",
+                        "curso": (
+                            alumno.id_curso.codigo_curso
+                            if alumno.id_curso
+                            else ""
+                        ),
+                        "enviado": True,
+                        "motivo": "Correo enviado correctamente."
+                    })
 
 
                 except Exception as e:
@@ -1940,6 +1953,19 @@ class AlumnoView(ViewCustom):
                             f"{alumno.apellido}: {str(e)}"
                         )
                     )
+
+                    resultados.append({
+                        "id": alumno.id,
+                        "nombre": f"{alumno.nombre} {alumno.apellido}".strip(),
+                        "correo": alumno.email or "",
+                        "curso": (
+                            alumno.id_curso.codigo_curso
+                            if alumno.id_curso
+                            else ""
+                        ),
+                        "enviado": False,
+                        "motivo": str(e)
+                    })
 
 
             if enviados:
@@ -1971,7 +1997,24 @@ class AlumnoView(ViewCustom):
                 request,
                 f"Error enviando correos: {str(e)}"
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
 
+                return JsonResponse({
+                    "ok": False,
+                    "mensaje": str(e),
+                    "resultados": [],
+                })
+
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+
+            return JsonResponse({
+                "ok": True,
+                "tipo": "Correo de aceptación",
+                "total": len(alumno_ids),
+                "enviados": enviados,
+                "no_enviados": len(errores),
+                "resultados": resultados,
+            })
 
         return AlumnoView._redirect_alumnos(
             curso_id,
@@ -2047,6 +2090,7 @@ class AlumnoView(ViewCustom):
 
         enviados = 0
         errores = []
+        resultados = []
 
 
         try:
@@ -2149,6 +2193,18 @@ class AlumnoView(ViewCustom):
 
 
                     enviados += 1
+                    resultados.append({
+                        "id": alumno.id,
+                        "nombre": f"{alumno.nombre} {alumno.apellido}".strip(),
+                        "correo": alumno.email or "",
+                        "curso": (
+                            alumno.id_curso.codigo_curso
+                            if alumno.id_curso
+                            else ""
+                        ),
+                        "enviado": True,
+                        "motivo": "Correo enviado correctamente."
+                    })
 
 
                 except Exception as e:
@@ -2159,6 +2215,19 @@ class AlumnoView(ViewCustom):
                             f"{alumno.apellido}: {str(e)}"
                         )
                     )
+
+                    resultados.append({
+                        "id": alumno.id,
+                        "nombre": f"{alumno.nombre} {alumno.apellido}".strip(),
+                        "correo": alumno.email or "",
+                        "curso": (
+                            alumno.id_curso.codigo_curso
+                            if alumno.id_curso
+                            else ""
+                        ),
+                        "enviado": False,
+                        "motivo": str(e)
+                    })
 
 
             if enviados:
@@ -2190,7 +2259,23 @@ class AlumnoView(ViewCustom):
                 request,
                 f"Error enviando correos: {str(e)}"
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
 
+                return JsonResponse({
+                    "ok": False,
+                    "mensaje": str(e),
+                    "resultados": [],
+                })
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+
+            return JsonResponse({
+                "ok": True,
+                "tipo": "Correo de bienvenida",
+                "total": len(alumno_ids),
+                "enviados": enviados,
+                "no_enviados": len(errores),
+                "resultados": resultados,
+            })
 
         return AlumnoView._redirect_alumnos(
             curso_id,

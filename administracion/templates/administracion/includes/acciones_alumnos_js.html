@@ -595,6 +595,270 @@ $(document).on(
 
     }
 );
+// ============================================
+// RESULTADO ENVIO MASIVO
+// ============================================
+
+function mostrarResultadoMasivo(data) {
+
+    $("#resultado_masivo_tipo")
+        .text(data.tipo || "Resultado del envío");
+
+    $("#resultado_masivo_total")
+        .text(data.total || 0);
+
+    $("#resultado_masivo_enviados")
+        .text(data.enviados || 0);
+
+    $("#resultado_masivo_no_enviados")
+        .text(data.no_enviados || 0);
+
+
+    const tbody =
+        $("#resultado_masivo_detalle");
+
+    tbody.empty();
+
+
+    (data.resultados || []).forEach(
+        function (item) {
+
+            const fila =
+                $("<tr>");
+
+
+            $("<td>")
+                .text(item.id)
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(item.nombre)
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(item.correo)
+                .appendTo(fila);
+
+
+            $("<td>")
+                .text(item.curso)
+                .appendTo(fila);
+
+
+            const tdEstado =
+                $("<td>");
+
+
+            if (item.enviado) {
+
+                $("<span>")
+                    .addClass(
+                        "label label-success"
+                    )
+                    .html(
+                        '<i class="fa fa-check"></i> Enviado'
+                    )
+                    .appendTo(tdEstado);
+
+            } else {
+
+                $("<span>")
+                    .addClass(
+                        "label label-danger"
+                    )
+                    .html(
+                        '<i class="fa fa-times"></i> No enviado'
+                    )
+                    .appendTo(tdEstado);
+
+            }
+
+
+            tdEstado.appendTo(fila);
+
+
+            const tdMotivo =
+                $("<td>")
+                    .text(item.motivo);
+
+
+            if (item.enviado) {
+
+                tdMotivo.addClass(
+                    "text-success"
+                );
+
+            } else {
+
+                tdMotivo.addClass(
+                    "text-danger"
+                );
+            }
+
+
+            tdMotivo.appendTo(fila);
+
+
+            tbody.append(fila);
+        }
+    );
+
+
+    const paginaAntesEnvio = paginaActual();
+
+    $("#modalResultadoMasivo")
+        .data("pagina", paginaAntesEnvio)
+        .modal("show");
+}
+// ============================================
+// ENVIAR CORREOS MASIVOS POR AJAX
+// ============================================
+
+$(document).on(
+    "submit",
+    "#formAceptacionMasiva, #formBienvenidaMasiva",
+    function (e) {
+
+        e.preventDefault();
+
+
+        const formulario =
+            $(this);
+
+        const boton =
+            formulario.find(
+                'button[type="submit"]'
+            );
+
+
+        const textoOriginal =
+            boton.html();
+
+
+        boton
+            .prop(
+                "disabled",
+                true
+            )
+            .html(
+                '<i class="fa fa-spinner fa-spin"></i> Enviando...'
+            );
+
+
+        $.ajax({
+
+            url:
+                formulario.attr(
+                    "action"
+                ),
+
+            type:
+                "POST",
+
+            data:
+                formulario.serialize(),
+
+            headers: {
+                "X-Requested-With":
+                    "XMLHttpRequest"
+            },
+
+
+            success:
+                function (respuesta) {
+
+                    // Cerrar modal de confirmación
+                    formulario
+                        .closest(".modal")
+                        .modal("hide");
+
+
+                    if (respuesta.ok) {
+
+                        mostrarResultadoMasivo(
+                            respuesta
+                        );
+
+                    } else {
+
+                        alert(
+                            respuesta.mensaje
+                            || "Ocurrió un error durante el envío."
+                        );
+                    }
+
+                },
+
+
+            error:
+                function (xhr) {
+
+                    let mensaje =
+                        "Ocurrió un error durante el envío.";
+
+
+                    if (
+                        xhr.responseJSON
+                        && xhr.responseJSON.mensaje
+                    ) {
+
+                        mensaje =
+                            xhr.responseJSON.mensaje;
+                    }
+
+
+                    alert(mensaje);
+
+                },
+
+
+            complete:
+                function () {
+
+                    boton
+                        .prop(
+                            "disabled",
+                            false
+                        )
+                        .html(
+                            textoOriginal
+                        );
+
+                }
+
+        });
+
+    }
+);
+// ============================================
+// REFRESCAR DESPUÉS DEL ENVÍO MASIVO
+// CONSERVANDO CURSO, FILTROS Y PÁGINA
+// ============================================
+
+$("#modalResultadoMasivo").on(
+    "hidden.bs.modal",
+    function () {
+
+        const pagina =
+            $(this).data("pagina") ?? 0;
+
+        const url =
+            new URL(
+                window.location.href
+            );
+
+        url.searchParams.set(
+            "pagina",
+            pagina
+        );
+
+        window.location.href =
+            url.toString();
+
+    }
+);
 });
 
 
