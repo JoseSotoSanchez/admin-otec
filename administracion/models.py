@@ -239,7 +239,7 @@ class PagoDetalle(models.Model):
 
     class Meta:
         db_table = "Pago_Detalle"
-        
+
 class Alumno_Estado(models.Model):
     id = models.AutoField(primary_key=True)
     id_estado = models.ForeignKey(Estado_Alumno, db_column='id_estado', on_delete=models.CASCADE)
@@ -274,3 +274,38 @@ class AlumnoView(models.Model):
     class Meta:
         managed = False  # es una vista
         db_table = 'alumno_view' 
+
+class LogAuditoria(models.Model):
+
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    id_usuario = models.IntegerField(
+        null=True
+    )
+
+    usuario = models.TextField(
+        null=True
+    )
+
+    accion = models.TextField()
+
+    entidad = models.TextField()
+
+    id_entidad = models.IntegerField(
+        null=True
+    )
+
+    descripcion = models.TextField(
+        null=True
+    )
+
+    fecha = models.DateTimeField()
+
+    ip = models.TextField(
+        null=True
+    )
+
+    class Meta:
+        db_table = "LogAuditoria"

@@ -35,6 +35,7 @@ from administracion.models import (
     Alumno_Estado,
     Estado_Alumno,
     LogUsuario,
+    LogAuditoria,
     PagoDetalle,
 )
 
@@ -427,7 +428,7 @@ class UsuarioView(ViewCustom):
             ).decode("utf-8")
 
 
-            Usuario.objects.create(
+            nuevo_usuario = Usuario.objects.create(
                 nombre=nombre,
                 nick=nick,
                 clave=clave_hash,
@@ -436,7 +437,15 @@ class UsuarioView(ViewCustom):
                 activo=1,
             )
 
-
+            UsuarioView._registrar_auditoria(
+                request=request,
+                accion="CREAR",
+                entidad="USUARIO",
+                id_entidad=nuevo_usuario.id,
+                descripcion=(
+                    f"Creó el usuario {nuevo_usuario.nick}"
+                ),
+            )
             messages.success(
                 request,
                 "Usuario creado correctamente."
@@ -475,6 +484,10 @@ class UsuarioView(ViewCustom):
                 id=usuario_id
             )
 
+            nick_anterior = usuario.nick
+            nombre_anterior = usuario.nombre
+            correo_anterior = usuario.correo or ""
+            numero_anterior = usuario.numero or ""
 
             nombre = request.POST.get(
                 "nombre",
@@ -500,7 +513,7 @@ class UsuarioView(ViewCustom):
                 "clave",
                 ""
             )
-
+            cambio_clave = bool(clave)
 
             if not nombre:
                 raise Exception(
@@ -527,6 +540,31 @@ class UsuarioView(ViewCustom):
                     "Ya existe otro usuario con ese nombre de usuario."
                 )
 
+            # ============================================
+            # PROTEGER CONTRASEÑA DEL ADMINISTRADOR
+            # ============================================
+
+            if (
+                usuario.nick
+                and usuario.nick.strip().lower()
+                == "administrador"
+                and cambio_clave
+            ):
+
+                raise Exception(
+                    "No está permitido modificar la contraseña del usuario administrador."
+                )
+            if (
+                usuario.nick
+                and usuario.nick.strip().lower()
+                == "administrador"
+                and nick.strip().lower()
+                != "administrador"
+            ):
+
+                raise Exception(
+                    "No está permitido cambiar el nombre de usuario del administrador."
+                )
 
             usuario.nombre = nombre
             usuario.nick = nick
@@ -544,6 +582,69 @@ class UsuarioView(ViewCustom):
 
 
             usuario.save()
+
+
+            # ============================================
+            # AUDITORÍA DE MODIFICACIONES
+            # ============================================
+
+            cambios = []
+
+
+            if nombre_anterior != usuario.nombre:
+
+                cambios.append(
+                    "nombre"
+                )
+
+
+            if nick_anterior != usuario.nick:
+
+                cambios.append(
+                    "usuario"
+                )
+
+
+            if correo_anterior != (usuario.correo or ""):
+
+                cambios.append(
+                    "correo"
+                )
+
+
+            if numero_anterior != (usuario.numero or ""):
+
+                cambios.append(
+                    "teléfono"
+                )
+
+
+            if cambios:
+
+                UsuarioView._registrar_auditoria(
+                    request=request,
+                    accion="MODIFICAR",
+                    entidad="USUARIO",
+                    id_entidad=usuario.id,
+                    descripcion=(
+                        f"Modificó {', '.join(cambios)} "
+                        f"del usuario {usuario.nick}"
+                    ),
+                )
+
+
+            if cambio_clave:
+
+                UsuarioView._registrar_auditoria(
+                    request=request,
+                    accion="CAMBIAR_CONTRASENA",
+                    entidad="USUARIO",
+                    id_entidad=usuario.id,
+                    descripcion=(
+                        f"Modificó la contraseña "
+                        f"del usuario {usuario.nick}"
+                    ),
+                )
 
 
             # Si el usuario editó su propio perfil,
@@ -617,6 +718,12 @@ class UsuarioView(ViewCustom):
 
                 usuario.activo = 0
 
+                accion_log = "DESACTIVAR"
+
+                descripcion_log = (
+                    f"Desactivó el usuario {usuario.nick}"
+                )
+
                 mensaje = (
                     "Usuario desactivado correctamente."
                 )
@@ -624,6 +731,12 @@ class UsuarioView(ViewCustom):
             else:
 
                 usuario.activo = 1
+
+                accion_log = "ACTIVAR"
+
+                descripcion_log = (
+                    f"Activó el usuario {usuario.nick}"
+                )
 
                 mensaje = (
                     "Usuario activado correctamente."
@@ -633,7 +746,13 @@ class UsuarioView(ViewCustom):
             usuario.save(
                 update_fields=["activo"]
             )
-
+            UsuarioView._registrar_auditoria(
+                request=request,
+                accion=accion_log,
+                entidad="USUARIO",
+                id_entidad=usuario.id,
+                descripcion=descripcion_log,
+            )
 
             messages.success(
                 request,
@@ -652,6 +771,57 @@ class UsuarioView(ViewCustom):
         return redirect(
             "usuarios"
         )
+    @staticmethod
+    def _registrar_auditoria(
+        request,
+        accion,
+        entidad,
+        id_entidad,
+        descripcion
+    ):
+
+        try:
+
+            id_usuario = request.session.get(
+                "id"
+            )
+
+            nick_usuario = request.session.get(
+                "usuario",
+                ""
+            )
+
+            ip = (
+                request.META.get(
+                    "HTTP_X_FORWARDED_FOR"
+                )
+                or request.META.get(
+                    "REMOTE_ADDR",
+                    ""
+                )
+            )
+
+            if "," in ip:
+                ip = ip.split(",")[0].strip()
+
+            LogAuditoria.objects.create(
+                id_usuario=id_usuario,
+                usuario=nick_usuario,
+                accion=accion,
+                entidad=entidad,
+                id_entidad=id_entidad,
+                descripcion=descripcion,
+                fecha=timezone.now(),
+                ip=ip,
+            )
+
+        except Exception as e:
+
+            # Un problema escribiendo el log no debe
+            # impedir terminar la operación principal.
+            print(
+                f"Error registrando auditoría: {e}"
+            )
 
 class AlumnoView(ViewCustom):
 
