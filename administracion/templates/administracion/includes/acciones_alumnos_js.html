@@ -611,7 +611,12 @@ $(document).on(
 // RESULTADO ENVIO MASIVO
 // ============================================
 
-function mostrarResultadoMasivo(data) {
+function mostrarResultadoMasivo(
+    data,
+    pagina,
+    curso,
+    origen
+) {
 
     $("#resultado_masivo_tipo")
         .text(data.tipo || "Resultado del envío");
@@ -718,10 +723,10 @@ function mostrarResultadoMasivo(data) {
     );
 
 
-    const paginaAntesEnvio = paginaActual();
-
     $("#modalResultadoMasivo")
-        .data("pagina", paginaAntesEnvio)
+        .data("pagina", pagina)
+        .data("curso", curso)
+        .data("origen", origen)
         .modal("show");
 }
 // ============================================
@@ -738,6 +743,24 @@ $(document).on(
 
         const formulario =
             $(this);
+
+        // ============================================
+        // GUARDAR UBICACION ANTES DEL ENVIO
+        // ============================================
+
+        const paginaEnvio =
+            paginaActual();
+
+        const cursoEnvio =
+            formulario
+                .find('input[name="curso_id"]')
+                .val();
+
+        const origenEnvio =
+            formulario
+                .find('input[name="origen"]')
+                .val();
+
 
         const boton =
             formulario.find(
@@ -789,8 +812,11 @@ $(document).on(
 
                     if (respuesta.ok) {
 
-                        mostrarResultadoMasivo(
-                            respuesta
+                         mostrarResultadoMasivo(
+                            respuesta,
+                            paginaEnvio,
+                            cursoEnvio,
+                            origenEnvio
                         );
 
                     } else {
@@ -849,12 +875,69 @@ $(document).on(
 // CONSERVANDO CURSO, FILTROS Y PÁGINA
 // ============================================
 
+// ============================================
+// REFRESCAR DESPUES DEL ENVIO MASIVO
+// CONSERVANDO CURSO Y PAGINA
+// ============================================
+
 $("#modalResultadoMasivo").on(
     "hidden.bs.modal",
     function () {
 
         const pagina =
             $(this).data("pagina") ?? 0;
+
+        const curso =
+            $(this).data("curso");
+
+        const origen =
+            $(this).data("origen");
+
+
+        // ====================================
+        // ASPIRANTES
+        // ====================================
+
+        if (origen === "alumnos") {
+
+            const url =
+                new URL(
+                    "/alumnos",
+                    window.location.origin
+                );
+
+
+            if (
+                curso !== undefined
+                && curso !== null
+                && curso !== ""
+                && curso !== "None"
+            ) {
+
+                url.searchParams.set(
+                    "curso",
+                    curso
+                );
+            }
+
+
+            url.searchParams.set(
+                "pagina",
+                pagina
+            );
+
+
+            window.location.href =
+                url.toString();
+
+            return;
+        }
+
+
+        // ====================================
+        // BUSQUEDA
+        // Se mantiene comportamiento actual
+        // ====================================
 
         const url =
             new URL(
