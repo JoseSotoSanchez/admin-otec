@@ -410,6 +410,18 @@ $(document).on(
 
 
 // CHECK TODOS SOLO PAGINA ACTUAL
+// ============================================
+// EVITAR QUE EL CHECK "TODOS" ORDENE LA TABLA
+// ============================================
+
+$("#seleccionar_todos_pagina").on(
+    "click",
+    function (e) {
+
+        e.stopPropagation();
+
+    }
+);
 
 $(document).on(
     "change",
