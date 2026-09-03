@@ -56,6 +56,8 @@ from .services import (
     obtener_aspirante_para_mover,
     contar_nuevos_aspirantes_curso,
     mover_nuevos_aspirantes,
+    obtener_familias_cursos,
+    obtener_deudores_por_familia,
 )
 
 from .emails import (
@@ -822,7 +824,120 @@ class UsuarioView(ViewCustom):
             print(
                 f"Error registrando auditoría: {e}"
             )
+class CuentasPorCobrarView(ViewCustom):
 
+    @staticmethod
+    def listado(request):
+
+        familias = (
+            obtener_familias_cursos()
+        )
+
+        codigo_base = (
+            request.GET.get(
+                "curso",
+                ""
+            )
+            .strip()
+        )
+
+        deudores = []
+
+        if codigo_base:
+
+            deudores = (
+                obtener_deudores_por_familia(
+                    codigo_base
+                )
+            )
+
+
+        estados = (
+            obtener_estados_alumno()
+        )
+
+
+        context = {
+
+            "title":
+                "Cuentas por Cobrar",
+
+            "familias":
+                familias,
+
+            "codigo_base":
+                codigo_base,
+
+            "data":
+                deudores,
+
+            "total":
+                len(deudores),
+
+            "estados":
+                estados,
+
+
+            # Para que los modales sepan
+            # de dónde vienen
+            "origen_lista":
+                "deudores",
+
+
+            "actions_bar":
+                (
+                    "administracion/"
+                    "actions_bar/"
+                    "deudores.html"
+                ),
+
+
+            "row_actions":
+                (
+                    "administracion/"
+                    "row_actions/"
+                    "deudores.html"
+                ),
+
+
+            "table_order":
+                "desc",
+
+
+            "ids": [
+                "id",
+                "id_curso",
+                "id_estado_alumno",
+            ],
+
+
+            "mostrar_estado_alumno":
+                True,
+
+            "mostrar_whatsapp":
+                True,
+
+
+            "atributos": [
+                "id",
+                "saldo_pendiente",
+                "nombre_completo",
+                "telefono",
+                "codigo_curso",
+                "total_pagos",
+                "email"
+            ],
+        }
+
+
+        return render(
+            request,
+            (
+                "administracion/"
+                "deudores.html"
+            ),
+            context
+        )
 class AlumnoView(ViewCustom):
 
     @staticmethod
@@ -920,6 +1035,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
+        codigo_base = request.POST.get(
+            "codigo_base",
+            ""
+        )
         filtro_id = request.POST.get("filtro_id", "")
         filtro_rut = request.POST.get("filtro_rut", "")
         filtro_correo = request.POST.get("filtro_correo", "")
@@ -996,7 +1115,8 @@ class AlumnoView(ViewCustom):
             filtro_id,
             filtro_rut,
             filtro_correo,
-            filtro_nombre
+            filtro_nombre,
+            codigo_base
         )
 
     # ============================================
@@ -1021,7 +1141,10 @@ class AlumnoView(ViewCustom):
             "origen",
             "alumnos"
         )
-
+        codigo_base = request.POST.get(
+            "codigo_base",
+            ""
+        )
         filtro_id = request.POST.get(
             "filtro_id",
             ""
@@ -1140,66 +1263,29 @@ class AlumnoView(ViewCustom):
                     "comprobante"
                 )
 
+                if comprobante:
 
-                if not rut_origen:
+                    if comprobante.size > (
+                        5 * 1024 * 1024
+                    ):
+                        raise Exception(
+                            "El comprobante no puede superar 5 MB."
+                        )
 
-                    raise Exception(
-                        "Debe ingresar el RUT de origen."
-                    )
+                    tipos_permitidos = [
+                        "image/png",
+                        "image/jpeg",
+                        "image/jpg",
+                        "application/pdf",
+                    ]
 
-
-                if not banco_origen:
-
-                    raise Exception(
-                        "Debe ingresar el banco de origen."
-                    )
-
-
-                if not numero_transaccion:
-
-                    raise Exception(
-                        "Debe ingresar el número de transacción."
-                    )
-
-
-                if not comprobante:
-
-                    raise Exception(
-                        "Debe adjuntar el comprobante."
-                    )
-
-
-                # 5 MB
-                if comprobante.size > (
-                    5 * 1024 * 1024
-                ):
-
-                    raise Exception(
-                        "El comprobante no puede superar 5 MB."
-                    )
-
-
-                tipos_permitidos = [
-                    "image/png",
-                    "image/jpeg",
-                    "image/jpg",
-                    "application/pdf",
-                ]
-
-                if (
-                    comprobante.content_type
-                    not in tipos_permitidos
-                ):
-                    raise Exception(
-                        "El comprobante debe ser PNG, JPG, JPEG o PDF."
-                    )
-
-
-                if comprobante.size > 5 * 1024 * 1024:
-
-                    raise Exception(
-                        "El comprobante no puede superar 5 MB."
-                    )
+                    if (
+                        comprobante.content_type
+                        not in tipos_permitidos
+                    ):
+                        raise Exception(
+                            "El comprobante debe ser PNG, JPG, JPEG o PDF."
+                        )
 
 
             # ========================================
@@ -1233,7 +1319,14 @@ class AlumnoView(ViewCustom):
 
             if medio_pago == "Transferencia":
 
-                contenido = comprobante.read()
+                contenido = None
+                comprobante_nombre = None
+                comprobante_tipo = None
+
+                if comprobante:
+                    contenido = comprobante.read()
+                    comprobante_nombre = comprobante.name
+                    comprobante_tipo = comprobante.content_type
 
 
                 fecha_transferencia_bd = None
@@ -1265,14 +1358,8 @@ class AlumnoView(ViewCustom):
                     ),
 
                     comprobante=contenido,
-
-                    comprobante_nombre=(
-                        comprobante.name
-                    ),
-
-                    comprobante_tipo=(
-                        comprobante.content_type
-                    ),
+                    comprobante_nombre=comprobante_nombre,
+                    comprobante_tipo=comprobante_tipo,
 
                     observacion=observacion,
 
@@ -1317,7 +1404,8 @@ class AlumnoView(ViewCustom):
             filtro_id,
             filtro_rut,
             filtro_correo,
-            filtro_nombre
+            filtro_nombre,
+            codigo_base
         )
 
 
@@ -1332,7 +1420,15 @@ class AlumnoView(ViewCustom):
             "pagina",
             "0"
         )
+        origen = request.GET.get(
+            "origen",
+            "alumnos"
+        )
 
+        codigo_base = request.GET.get(
+            "codigo_base",
+            ""
+        )
         alumno = get_object_or_404(
             Alumno,
             id=alumno_id
@@ -1378,6 +1474,8 @@ class AlumnoView(ViewCustom):
 
             "total":
                 total,
+            "origen": origen,
+            "codigo_base": codigo_base, 
         }
 
         return render(
@@ -2520,16 +2618,31 @@ class AlumnoView(ViewCustom):
 
     @staticmethod
     def _redirect_alumnos(
-            curso_id,
-            pagina=0,
-            origen="alumnos",
-            filtro_id="",
-            filtro_rut="",
-            filtro_correo="",
-            filtro_nombre=""
-        ):
+        curso_id,
+        pagina=0,
+        origen="alumnos",
+        filtro_id="",
+        filtro_rut="",
+        filtro_correo="",
+        filtro_nombre="",
+        codigo_base=""
+    ):
+        if origen == "deudores":
 
-        if origen == "busqueda":
+            url = reverse(
+                "cuentas_por_cobrar"
+            )
+
+            query = urlencode({
+                "curso":
+                    codigo_base,
+
+                "pagina":
+                    pagina,
+            })
+
+
+        elif origen == "busqueda":
 
             url = reverse("busqueda")
 
@@ -2748,7 +2861,7 @@ class BusquedaView(ViewCustom):
                 "telefono",
                 "email",
                 "ingreso",
-                "nombre_curso",
+                "codigo_curso",
                 "modificado_por",
                 "total_pagos",
             ],

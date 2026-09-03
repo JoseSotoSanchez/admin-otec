@@ -1,0 +1,84 @@
+<div class="row">
+
+    <div class="col-md-12">
+
+        <div class="x_panel">
+
+            <div class="x_content">
+
+                <form
+                    method="GET"
+                    action="{% url 'cuentas_por_cobrar' %}"
+                    class="form-inline"
+                >
+
+                    <div class="form-group">
+
+                        <select
+                            name="curso"
+                            class="form-control"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccione curso
+                            </option>
+
+
+                            {% for curso in familias %}
+
+                                <option
+                                    value="{{ curso.codigo_base }}"
+                                    {% if codigo_base == curso.codigo_base %}
+                                        selected
+                                    {% endif %}
+                                >
+
+                                    {{ curso.nombre }}
+                                    -
+                                    {{ curso.codigo_base }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+
+                        <i class="fa fa-search"></i>
+
+                        Buscar
+
+                    </button>
+
+                </form>
+
+
+                {% if codigo_base %}
+
+                    <hr>
+
+                    <strong>
+
+                        Total cuentas pendientes:
+
+                        {{ total }}
+
+                    </strong>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

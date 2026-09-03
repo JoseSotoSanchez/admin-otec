@@ -1,0 +1,79 @@
+<!-- MODIFICAR -->
+
+<button
+    type="button"
+    class="
+        btn
+        btn-primary
+        btn-xs
+        btn-modificar-alumno
+    "
+
+    data-id="{{ row.id }}"
+
+    data-curso="{{ row.id_curso }}"
+
+    data-nombre="{{ row.nombre }}"
+
+    data-apellido="{{ row.apellido }}"
+
+    data-email="{{ row.email }}"
+
+    data-telefono="{{ row.telefono }}"
+
+    data-estado="{{ row.id_estado_alumno }}"
+
+    title="Modificar aspirante"
+>
+
+    <i class="fa fa-pencil"></i>
+
+</button>
+
+
+<!-- AGREGAR PAGO -->
+
+<button
+    type="button"
+    class="
+        btn
+        btn-success
+        btn-xs
+        btn-pago-alumno
+    "
+
+    data-id="{{ row.id }}"
+
+    data-curso="{{ row.id_curso }}"
+
+    data-nombre="{{ row.nombre }} {{ row.apellido }}"
+
+    title="Agregar pago"
+>
+
+    <i class="fa fa-money"></i>
+
+</button>
+
+
+<!-- VER PAGOS -->
+
+<button
+    type="button"
+    class="
+        btn
+        btn-default
+        btn-xs
+        btn-ver-pagos-alumno
+    "
+
+    data-id="{{ row.id }}"
+
+    data-curso="{{ row.id_curso }}"
+
+    title="Ver pagos"
+>
+
+    <i class="fa fa-list"></i>
+
+</button>

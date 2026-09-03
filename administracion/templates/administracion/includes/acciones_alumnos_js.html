@@ -283,7 +283,7 @@ $(document).ready(function () {
                 paginaActual();
 
 
-            window.location.href =
+            let url =
                 "/alumnos/"
                 + alumnoId
                 + "/curso/"
@@ -291,6 +291,23 @@ $(document).ready(function () {
                 + "/pagos"
                 + "?pagina="
                 + pagina;
+
+
+            if (
+                window.origenListadoAlumno
+                === "deudores"
+            ) {
+
+                url +=
+                    "&origen=deudores"
+                    + "&codigo_base="
+                    + encodeURIComponent(
+                        window.codigoBaseListado || ""
+                    );
+            }
+
+
+            window.location.href = url;
 
         }
     );
@@ -970,26 +987,85 @@ $(window).on(
                 window.location.search
             );
 
-        const pagina =
+        const paginaParam =
             params.get("pagina");
 
-        if (
-            pagina !== null &&
-            $.fn.DataTable.isDataTable(
-                "#datatable-buttons"
-            )
-        ) {
 
-            const tabla =
-                $("#datatable-buttons")
-                .DataTable();
-
-            tabla
-                .page(
-                    parseInt(pagina)
-                )
-                .draw("page");
+        if (paginaParam === null) {
+            return;
         }
+
+
+        const pagina =
+            parseInt(
+                paginaParam,
+                10
+            );
+
+
+        if (
+            isNaN(pagina)
+            || pagina < 0
+        ) {
+            return;
+        }
+
+
+        let intentos = 0;
+
+        const intervalo =
+            setInterval(
+                function () {
+
+                    intentos++;
+
+
+                    if (
+                        $.fn.DataTable.isDataTable(
+                            "#datatable-buttons"
+                        )
+                    ) {
+
+                        const tabla =
+                            $("#datatable-buttons")
+                            .DataTable();
+
+
+                        const info =
+                            tabla.page.info();
+
+
+                        if (
+                            pagina < info.pages
+                        ) {
+
+                            tabla
+                                .page(pagina)
+                                .draw("page");
+
+                        }
+
+
+                        clearInterval(
+                            intervalo
+                        );
+
+                        return;
+                    }
+
+
+                    // máximo 3 segundos
+                    if (intentos >= 30) {
+
+                        clearInterval(
+                            intervalo
+                        );
+                    }
+
+                },
+                100
+            );
+
     }
 );
 

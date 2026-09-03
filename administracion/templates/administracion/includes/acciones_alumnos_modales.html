@@ -25,9 +25,13 @@
                 <input
                     type="hidden"
                     name="origen"
-                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                    value="{% if origen_lista %}{{ origen_lista }}{% elif es_busqueda %}busqueda{% else %}alumnos{% endif %}"
                 >
-
+                <input
+                    type="hidden"
+                    name="codigo_base"
+                    value="{{ codigo_base|default:'' }}"
+                >
                 <input
                     type="hidden"
                     name="curso_id"
@@ -197,14 +201,18 @@
                 <input
                     type="hidden"
                     name="origen"
-                    value="{% if es_busqueda %}busqueda{% else %}alumnos{% endif %}"
+                    value="{% if origen_lista %}{{ origen_lista }}{% elif es_busqueda %}busqueda{% else %}alumnos{% endif %}"
                 >
                 <input
                     type="hidden"
                     name="curso_id"
                     id="pago_curso_id"
                 >
-
+                <input
+                    type="hidden"
+                    name="codigo_base"
+                    value="{{ codigo_base|default:'' }}"
+                >
                 <input
                     type="hidden"
                     name="pagina"

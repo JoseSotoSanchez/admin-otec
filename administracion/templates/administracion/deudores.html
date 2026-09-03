@@ -1,0 +1,35 @@
+{% extends "administracion/base_site.html" %}
+
+
+{% block title %}
+
+Cuentas por Cobrar
+
+{% endblock title %}
+
+
+{% block content %}
+
+{% include "administracion/generic_table.html" with title="Cuentas por Cobrar" %}
+
+
+{% include "administracion/includes/acciones_alumnos_modales.html" %}
+
+{% endblock content %}
+
+
+{% block javascripts %}
+
+{{ block.super }}
+<script>
+
+window.origenListadoAlumno =
+    "deudores";
+
+window.codigoBaseListado =
+    "{{ codigo_base|escapejs }}";
+
+</script>
+{% include "administracion/includes/acciones_alumnos_js.html" %}
+
+{% endblock javascripts %}

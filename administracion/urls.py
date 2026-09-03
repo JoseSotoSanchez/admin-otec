@@ -7,6 +7,7 @@ from .views import (
     BusquedaView,
     MoverAspirantesView,
     UsuarioView,
+    CuentasPorCobrarView,
 )
 
 urlpatterns = [
@@ -216,6 +217,16 @@ urlpatterns = [
         "pagos/<int:pago_id>/comprobante",
         AlumnoView.comprobante_pago,
         name="pago_comprobante"
+    ),
+
+    # =============================================
+    # CUENTAS POR COBRAR
+    # =============================================
+
+    path(
+        "cuentas-por-cobrar",
+        CuentasPorCobrarView.listado,
+        name="cuentas_por_cobrar"
     ),
     
 ]

@@ -25,13 +25,27 @@ Pagos realizados
     </div>
 
     <div class="clearfix"></div>
-     <a
+     {% if origen == "deudores" %}
+
+        <a
+            href="{% url 'cuentas_por_cobrar' %}?curso={{ codigo_base|urlencode }}&pagina={{ pagina|default:'0' }}"
+            class="btn btn-default"
+        >
+            <i class="fa fa-arrow-left"></i>
+            Volver a Cuentas por Cobrar
+        </a>
+
+    {% else %}
+
+        <a
             href="{% url 'alumnos' %}?curso={{ curso_id }}&pagina={{ pagina|default:'0' }}"
             class="btn btn-default"
         >
             <i class="fa fa-arrow-left"></i>
-            Volver a aspirantes
+            Volver a Aspirantes
         </a>
+
+    {% endif %}
 
     <!-- ========================================== -->
     <!-- MENSAJES -->

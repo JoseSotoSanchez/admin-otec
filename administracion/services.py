@@ -913,3 +913,176 @@ def mover_nuevos_aspirantes(
         ])
 
         return cursor.rowcount
+
+def obtener_familias_cursos():
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                SUBSTRING_INDEX(
+                    codigo_curso,
+                    '-',
+                    1
+                ) AS codigo_base,
+
+                MAX(nombre) AS nombre
+
+            FROM Curso
+
+            WHERE codigo_curso IS NOT NULL
+              AND codigo_curso <> ''
+
+            GROUP BY
+                SUBSTRING_INDEX(
+                    codigo_curso,
+                    '-',
+                    1
+                )
+
+            ORDER BY nombre ASC
+        """)
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
+
+
+def obtener_deudores_por_familia(
+    codigo_base
+):
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            SELECT
+                a.id AS id,
+                a.nombre,
+                a.apellido,
+
+                CONCAT_WS(
+                    ' ',
+                    a.nombre,
+                    a.apellido
+                ) AS nombre_completo,
+
+                a.rut,
+                a.email,
+                a.telefono,
+                a.ingreso,
+
+                c.id AS id_curso,
+                c.nombre AS nombre_curso,
+                c.codigo_curso,
+
+                ea.estado,
+                ea.id AS id_estado_alumno,
+
+                u.nick AS modificado_por,
+
+                c.costo,
+
+                COALESCE(
+                    pagos.total_pagos,
+                    0
+                ) AS total_pagos,
+
+                (
+                    c.costo
+                    -
+                    COALESCE(
+                        pagos.total_pagos,
+                        0
+                    )
+                ) AS saldo_pendiente
+
+            FROM Alumno a
+
+            INNER JOIN Curso c
+                ON c.id = a.id_curso
+
+
+            INNER JOIN Alumno_Estado ae
+                ON ae.id = (
+
+                    SELECT ae2.id
+
+                    FROM Alumno_Estado ae2
+
+                    WHERE ae2.id_alumno = a.id
+
+                    ORDER BY
+                        ae2.fecha DESC,
+                        ae2.id DESC
+
+                    LIMIT 1
+                )
+
+
+            INNER JOIN Estado_Alumno ea
+                ON ea.id = ae.id_estado
+
+
+            INNER JOIN Usuario u
+                ON u.id = ae.id_usuario
+
+
+            LEFT JOIN (
+
+                SELECT
+                    id_alumno,
+                    id_curso,
+                    SUM(monto) AS total_pagos
+
+                FROM Pagos
+
+                GROUP BY
+                    id_alumno,
+                    id_curso
+
+            ) pagos
+                ON pagos.id_alumno = a.id
+                AND pagos.id_curso = c.id
+
+
+            WHERE
+                SUBSTRING_INDEX(
+                    c.codigo_curso,
+                    '-',
+                    1
+                ) = %s
+
+                AND COALESCE(
+                    pagos.total_pagos,
+                    0
+                ) > 0
+
+                AND COALESCE(
+                    pagos.total_pagos,
+                    0
+                ) < c.costo
+
+
+            ORDER BY
+                c.codigo_curso DESC,
+                a.id DESC
+
+        """, [
+            codigo_base
+        ])
+
+        columnas = [
+            col[0]
+            for col in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in cursor.fetchall()
+        ]
