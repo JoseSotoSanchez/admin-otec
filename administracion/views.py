@@ -1623,15 +1623,14 @@ class AlumnoView(ViewCustom):
 
         for alumno in alumnos:
 
-            estado_id = (
-                alumno.get(
-                    "id_estado_alumno"
-                )
-                or 0
+            total_pagos = alumno.get(
+                "total_pagos"
             )
 
-            # Misma condición del Flask antiguo
-            if estado_id >= 18:
+            if (
+                total_pagos is not None
+                and total_pagos > 0
+            ):
 
                 rut = (
                     alumno.get("rut", "")
