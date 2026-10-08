@@ -1013,6 +1013,7 @@ $(window).on(
 
         let intentos = 0;
 
+
         const intervalo =
             setInterval(
                 function () {
@@ -1028,7 +1029,7 @@ $(window).on(
 
                         const tabla =
                             $("#datatable-buttons")
-                            .DataTable();
+                                .DataTable();
 
 
                         const info =
@@ -1054,7 +1055,7 @@ $(window).on(
                     }
 
 
-                    // máximo 3 segundos
+                    // Esperar máximo 3 segundos
                     if (intentos >= 30) {
 
                         clearInterval(
